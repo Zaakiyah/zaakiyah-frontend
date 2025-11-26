@@ -1,0 +1,78 @@
+@import "tailwindcss";
+
+@theme {
+    --font-sans: 'Inter', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+
+    /* Custom breakpoint for extra small screens */
+    --breakpoint-xs: 375px;
+
+    /* Primary Teal Colors (from website: #00939D and #002828) */
+    --color-primary-50: #e0f2f2;
+    --color-primary-100: #b3e0e0;
+    --color-primary-200: #80cccc;
+    --color-primary-300: #4db8b8;
+    --color-primary-400: #26a8a8;
+    --color-primary-500: #00939d;
+    --color-primary-600: #00858d;
+    --color-primary-700: #00757c;
+    --color-primary-800: #00656a;
+    --color-primary-900: #002828;
+
+    /* Secondary Yellow/Gold Colors (from Figma design) */
+    --color-secondary-50: #fffef0;
+    --color-secondary-100: #fff9c4;
+    --color-secondary-200: #fff59d;
+    --color-secondary-300: #fff176;
+    --color-secondary-400: #ffee58;
+    --color-secondary-500: #ffeb3b;
+    --color-secondary-600: #fdd835;
+    --color-secondary-700: #fbc02d;
+    --color-secondary-800: #f9a825;
+    --color-secondary-900: #f57f17;
+
+    /* Slate/Gray Colors (from Figma design) */
+    --color-slate-50: #f8fafc;
+    --color-slate-100: #f1f5f9;
+    --color-slate-200: #e2e8f0;
+    --color-slate-300: #cbd5e1;
+    --color-slate-400: #94a3b8;
+    --color-slate-500: #64748b;
+    --color-slate-600: #475569;
+    --color-slate-700: #334155;
+    --color-slate-800: #1e293b;
+    --color-slate-900: #0f172a;
+
+    /* Error/Red Colors (from Figma design) */
+    --color-error-50: #fef2f2;
+    --color-error-100: #fee2e2;
+    --color-error-200: #fecaca;
+    --color-error-300: #fca5a5;
+    --color-error-400: #f87171;
+    --color-error-500: #ef4444;
+    --color-error-600: #dc2626;
+    --color-error-700: #b91c1c;
+    --color-error-800: #991b1b;
+    --color-error-900: #7f1d1d;
+}
+
+body {
+    background-color: var(--color-slate-50);
+    color: var(--color-primary-900);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.text-balance {
+    text-wrap: balance;
+}
+
+/* Hide scrollbar for stepper */
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
