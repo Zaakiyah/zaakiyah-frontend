@@ -3,9 +3,15 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { useCurrencyStore } from '../store/currencyStore';
-import { nisaabService, type NisaabData, GOLD_NISAAB_GRAMS, SILVER_NISAAB_GRAMS } from '../services/nisaabService';
+import {
+	nisaabService,
+	type NisaabData,
+	GOLD_NISAAB_GRAMS,
+	SILVER_NISAAB_GRAMS,
+} from '../services/nisaabService';
 import { formatCurrency } from '../utils/currency';
 import BottomNavigation from '../components/layout/BottomNavigation';
+import { WEBSITE_PAGES } from '../config/website';
 import {
 	BellIcon,
 	ArrowRightIcon,
@@ -24,10 +30,7 @@ import {
 	ChatBubbleLeftIcon,
 	ShareIcon,
 } from '@heroicons/react/24/outline';
-import {
-	CurrencyDollarIcon,
-	HeartIcon as HeartIconSolid,
-} from '@heroicons/react/24/solid';
+import { CurrencyDollarIcon, HeartIcon as HeartIconSolid } from '@heroicons/react/24/solid';
 
 interface ZakaatCalculation {
 	amount: number;
@@ -60,7 +63,8 @@ export default function DashboardPage() {
 			id: 1,
 			author: 'Ahmad Musa',
 			avatar: null,
-			content: 'Just completed my annual Zakaat calculation. The process was so smooth and straightforward!',
+			content:
+				'Just completed my annual Zakaat calculation. The process was so smooth and straightforward!',
 			time: '2 hours ago',
 			likes: 24,
 			comments: 8,
@@ -71,7 +75,8 @@ export default function DashboardPage() {
 			id: 2,
 			author: 'Fatima Ali',
 			avatar: null,
-			content: 'Grateful for this platform that makes giving Zakaat so easy and transparent. May Allah accept it.',
+			content:
+				'Grateful for this platform that makes giving Zakaat so easy and transparent. May Allah accept it.',
 			time: '5 hours ago',
 			media: 'https://images.unsplash.com/photo-1567427017947-545c5f8d16ad?w=500',
 			likes: 45,
@@ -83,7 +88,8 @@ export default function DashboardPage() {
 			id: 3,
 			author: 'Ibrahim Hassan',
 			avatar: null,
-			content: 'The Nisaab updates are very helpful for tracking my Zakaat obligations. Keep up the great work!',
+			content:
+				'The Nisaab updates are very helpful for tracking my Zakaat obligations. Keep up the great work!',
 			time: '1 day ago',
 			likes: 18,
 			comments: 5,
@@ -145,7 +151,6 @@ export default function DashboardPage() {
 		);
 	};
 
-
 	const formatGrams = (grams: number): string => {
 		return grams.toFixed(2);
 	};
@@ -154,27 +159,40 @@ export default function DashboardPage() {
 		if (!hijriDate) return '';
 		const parts = hijriDate.split('-');
 		if (parts.length !== 3) return hijriDate;
-		
+
 		const day = parseInt(parts[2]);
 		const month = parseInt(parts[1]);
 		const year = parseInt(parts[0]);
-		
+
 		const monthNames = [
-			'Muḥarram', 'Ṣafar', 'Rabīʿ al-awwal', 'Rabīʿ al-thānī',
-			'Jumādá al-ūlá', 'Jumādá al-ākhirah', 'Rajab', 'Shaʿbān',
-			'Ramaḍān', 'Shawwāl', 'Dhū al-Qaʿdah', 'Dhū al-Ḥijjah'
+			'Muḥarram',
+			'Ṣafar',
+			'Rabīʿ al-awwal',
+			'Rabīʿ al-thānī',
+			'Jumādá al-ūlá',
+			'Jumādá al-ākhirah',
+			'Rajab',
+			'Shaʿbān',
+			'Ramaḍān',
+			'Shawwāl',
+			'Dhū al-Qaʿdah',
+			'Dhū al-Ḥijjah',
 		];
-		
+
 		return `${day}${getOrdinalSuffix(day)} ${monthNames[month - 1]} ${year} AH`;
 	};
 
 	const getOrdinalSuffix = (day: number): string => {
 		if (day > 3 && day < 21) return 'th';
 		switch (day % 10) {
-			case 1: return 'st';
-			case 2: return 'nd';
-			case 3: return 'rd';
-			default: return 'th';
+			case 1:
+				return 'st';
+			case 2:
+				return 'nd';
+			case 3:
+				return 'rd';
+			default:
+				return 'th';
 		}
 	};
 
@@ -217,8 +235,6 @@ export default function DashboardPage() {
 		},
 	];
 
-	const WEBSITE_URL = 'https://zaakiyah.com';
-
 	const quickLinks = [
 		{
 			icon: ChartBarIcon,
@@ -228,12 +244,12 @@ export default function DashboardPage() {
 		{
 			icon: BookOpenIcon,
 			label: 'Blog',
-			onClick: () => window.open(`${WEBSITE_URL}/blog`, '_blank', 'noopener,noreferrer'),
+			onClick: () => window.open(WEBSITE_PAGES.BLOG, '_blank', 'noopener,noreferrer'),
 		},
 		{
 			icon: QuestionMarkCircleIcon,
 			label: 'Help',
-			onClick: () => window.open(`${WEBSITE_URL}/help`, '_blank', 'noopener,noreferrer'),
+			onClick: () => window.open(WEBSITE_PAGES.HELP, '_blank', 'noopener,noreferrer'),
 		},
 	];
 
@@ -244,10 +260,7 @@ export default function DashboardPage() {
 				<div className="px-4 py-3">
 					<div className="flex items-center justify-between">
 						<div className="flex items-center gap-2.5">
-							<button
-								onClick={() => navigate('/profile')}
-								className="relative group"
-							>
+							<button onClick={() => navigate('/profile')} className="relative group">
 								{user?.avatarUrl ? (
 									<img
 										src={user.avatarUrl}
@@ -295,7 +308,9 @@ export default function DashboardPage() {
 								{isAmountVisible ? (
 									<>
 										<p className="text-2xl font-bold text-slate-900">
-											{zakaatCalculation ? formatCurrency(zakaatCalculation.amount) : '₦0.00'}
+											{zakaatCalculation
+												? formatCurrency(zakaatCalculation.amount)
+												: '₦0.00'}
 										</p>
 										<button
 											onClick={() => setIsAmountVisible(false)}
@@ -320,7 +335,8 @@ export default function DashboardPage() {
 								<div className="flex items-center gap-1 mt-1.5">
 									<ClockIcon className="w-3 h-3 text-slate-500" />
 									<p className="text-xs text-slate-500">
-										Last calculated {formatTimeAgo(zakaatCalculation.lastCalculated)}
+										Last calculated{' '}
+										{formatTimeAgo(zakaatCalculation.lastCalculated)}
 									</p>
 								</div>
 							)}
@@ -405,7 +421,9 @@ export default function DashboardPage() {
 										</div>
 									</div>
 									<div className="flex-1 min-w-0">
-										<p className="text-xs font-semibold text-slate-700 uppercase tracking-wide mb-0.5">Gold</p>
+										<p className="text-xs font-semibold text-slate-700 uppercase tracking-wide mb-0.5">
+											Gold
+										</p>
 										<p className="text-base font-bold text-slate-900">
 											{formatCurrency(nisaabData.goldNisaabValue)}
 										</p>
@@ -425,7 +443,9 @@ export default function DashboardPage() {
 										</div>
 									</div>
 									<div className="flex-1 min-w-0">
-										<p className="text-xs font-semibold text-slate-700 uppercase tracking-wide mb-0.5">Silver</p>
+										<p className="text-xs font-semibold text-slate-700 uppercase tracking-wide mb-0.5">
+											Silver
+										</p>
 										<p className="text-base font-bold text-slate-900">
 											{formatCurrency(nisaabData.silverNisaabValue)}
 										</p>
@@ -470,7 +490,9 @@ export default function DashboardPage() {
 									<div className="w-9 h-9 bg-slate-100 rounded-lg flex items-center justify-center">
 										<Icon className="w-5 h-5 text-slate-700" />
 									</div>
-									<p className="text-xs font-semibold text-slate-900">{link.label}</p>
+									<p className="text-xs font-semibold text-slate-900">
+										{link.label}
+									</p>
 								</button>
 							);
 						})}
@@ -536,15 +558,21 @@ export default function DashboardPage() {
 												) : (
 													<HeartIcon className="w-4 h-4" />
 												)}
-												<span className="text-xs font-medium">{post.likes}</span>
+												<span className="text-xs font-medium">
+													{post.likes}
+												</span>
 											</button>
 											<button className="flex items-center gap-1.5 text-slate-600 hover:text-primary-600 transition-colors">
 												<ChatBubbleLeftIcon className="w-4 h-4" />
-												<span className="text-xs font-medium">{post.comments}</span>
+												<span className="text-xs font-medium">
+													{post.comments}
+												</span>
 											</button>
 											<button className="flex items-center gap-1.5 text-slate-600 hover:text-primary-600 transition-colors">
 												<ShareIcon className="w-4 h-4" />
-												<span className="text-xs font-medium">{post.shares}</span>
+												<span className="text-xs font-medium">
+													{post.shares}
+												</span>
 											</button>
 										</div>
 									</div>

@@ -15,6 +15,7 @@ import PreferenceSelector from '../../components/auth/PreferenceSelector';
 import AvatarSelector from '../../components/auth/AvatarSelector';
 import SignupProgressSteps from '../../components/auth/SignupProgressSteps';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
+import { WEBSITE_PAGES } from '../../config/website';
 
 export default function SignupPage() {
 	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -486,7 +487,12 @@ export default function SignupPage() {
 									className="ml-3 text-sm text-slate-700"
 								>
 									I accept the{' '}
-									<a href="#" className="text-primary-600 hover:text-primary-500">
+									<a 
+										href={WEBSITE_PAGES.TERMS} 
+										target="_blank"
+										rel="noopener noreferrer"
+										className="text-primary-600 hover:text-primary-500 underline"
+									>
 										Terms and Conditions
 									</a>
 								</label>

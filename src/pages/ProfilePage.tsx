@@ -8,6 +8,7 @@ import BottomNavigation from '../components/layout/BottomNavigation';
 import EditProfileSheet from '../components/profile/EditProfileSheet';
 import AvatarEditSheet from '../components/profile/AvatarEditSheet';
 import ConfirmDialog from '../components/ui/ConfirmDialog';
+import { WEBSITE_PAGES } from '../config/website';
 import {
 	EnvelopeIcon,
 	PhoneIcon,
@@ -45,8 +46,6 @@ export default function ProfilePage() {
 		}
 	};
 
-	const WEBSITE_URL = 'https://zaakiyah.com';
-
 	const menuItems = [
 		{
 			icon: BellIcon,
@@ -66,12 +65,12 @@ export default function ProfilePage() {
 		{
 			icon: QuestionMarkCircleIcon,
 			label: 'Help & Support',
-			onClick: () => window.open(`${WEBSITE_URL}/help`, '_blank', 'noopener,noreferrer'),
+			onClick: () => window.open(WEBSITE_PAGES.HELP, '_blank', 'noopener,noreferrer'),
 		},
 		{
 			icon: DocumentTextIcon,
 			label: 'Terms & Privacy',
-			onClick: () => navigate('/terms'),
+			onClick: () => window.open(WEBSITE_PAGES.TERMS, '_blank', 'noopener,noreferrer'),
 		},
 	];
 
