@@ -20,41 +20,36 @@ export default function ForgotPasswordPage() {
 	});
 
 	return (
-		<div className="min-h-screen bg-white sm:bg-gradient-to-br sm:from-primary-50 sm:via-slate-50 sm:to-primary-100 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+		<div className="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-8">
 			<motion.div
 				initial={{ opacity: 0, y: 20 }}
 				animate={{ opacity: 1, y: 0 }}
-				transition={{ duration: 0.5 }}
-				className="w-full max-w-md sm:bg-white sm:rounded-2xl sm:shadow-2xl sm:p-8 sm:p-10"
+				transition={{ duration: 0.3 }}
+				className="w-full max-w-md bg-white rounded-xl shadow-sm border border-slate-200/60 p-6"
 			>
-				<motion.div
-					initial={{ opacity: 0, scale: 0.9 }}
-					animate={{ opacity: 1, scale: 1 }}
-					transition={{ delay: 0.1 }}
-					className="text-center mb-10 sm:mb-8"
-				>
-					<h1 className="text-3xl sm:text-2xl font-bold text-slate-900 mb-3 sm:mb-2">
+				<div className="text-center mb-6">
+					<h1 className="text-2xl font-bold text-slate-900 mb-1.5">
 						Forgot Password?
 					</h1>
-					<p className="text-base sm:text-sm text-slate-600">
+					<p className="text-sm text-slate-600">
 						Enter your email address and we'll send you a verification code to reset
 						your password.
 					</p>
-				</motion.div>
+				</div>
 
 				{error && (
 					<motion.div
 						initial={{ opacity: 0, y: -10 }}
 						animate={{ opacity: 1, y: 0 }}
-						className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl"
+						className="mb-4 p-3 bg-error-50 border border-error-200 rounded-lg"
 					>
-						<p className="text-sm text-red-600">{error}</p>
+						<p className="text-sm text-error-600">{error}</p>
 					</motion.div>
 				)}
 
 				<form
 					onSubmit={handleSubmit(handleForgotPassword)}
-					className="space-y-6 sm:space-y-5"
+					className="space-y-4"
 				>
 					<Input
 						label="Email Address"
@@ -75,11 +70,11 @@ export default function ForgotPasswordPage() {
 					</Button>
 				</form>
 
-				<p className="mt-8 sm:mt-6 text-center text-base sm:text-sm text-slate-600">
+				<p className="mt-6 text-center text-sm text-slate-600">
 					Remember your password?{' '}
 					<Link
 						to="/login"
-						className="font-medium text-primary-600 hover:text-primary-500 transition-colors"
+						className="font-medium text-primary-600 hover:text-primary-700 transition-colors"
 					>
 						Sign in
 					</Link>

@@ -30,6 +30,9 @@ export interface User {
 	isAdmin: boolean;
 	createdAt: string;
 	updatedAt: string;
+	hasPassword: boolean;
+	hasOAuthAccounts: boolean;
+	preferredCurrency?: string;
 }
 
 export interface LoginResponse {
@@ -100,6 +103,44 @@ export const authService = {
 		const response = await api.post<ApiResponse<{ accessToken: string }>>(
 			'/auth/refresh-token'
 		);
+		return response.data;
+	},
+
+	async getProfile(): Promise<ApiResponse<User>> {
+		const response = await api.get<ApiResponse<User>>('/me');
+		return response.data;
+	},
+
+	async updateProfile(data: {
+		firstName?: string;
+		lastName?: string;
+		email?: string;
+		mobileNumber?: string;
+		address?: string;
+		preferredCurrency?: string;
+	}): Promise<ApiResponse<User>> {
+		const response = await api.patch<ApiResponse<User>>('/me', data);
+		return response.data;
+	},
+
+	async updateAvatar(avatarId?: string): Promise<ApiResponse<User>> {
+		const response = await api.patch<ApiResponse<User>>('/me', { avatarId });
+		return response.data;
+	},
+
+	async changePassword(data: {
+		currentPassword?: string;
+		newPassword: string;
+		confirmPassword: string;
+	}): Promise<ApiResponse<null>> {
+		const response = await api.post<ApiResponse<null>>('/me/change-password', data);
+		return response.data;
+	},
+
+	async deleteAccount(password?: string): Promise<ApiResponse<null>> {
+		const response = await api.delete<ApiResponse<null>>('/me', {
+			data: password ? { password } : {},
+		});
 		return response.data;
 	},
 };

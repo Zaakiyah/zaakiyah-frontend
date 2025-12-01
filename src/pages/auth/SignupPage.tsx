@@ -119,27 +119,23 @@ export default function SignupPage() {
 	};
 
 	return (
-		<div className="min-h-screen bg-white sm:bg-gradient-to-br sm:from-primary-50 sm:via-slate-50 sm:to-primary-100 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-			<motion.div
-				initial={{ opacity: 0, y: 20 }}
-				animate={{ opacity: 1, y: 0 }}
-				transition={{ duration: 0.5 }}
-				className="w-full max-w-2xl sm:bg-white sm:rounded-2xl sm:shadow-2xl sm:p-8 sm:p-10"
-			>
-				{/* Header */}
+		<div className="min-h-screen bg-slate-50 py-6 px-4">
+			<div className="max-w-2xl mx-auto">
 				<motion.div
-					initial={{ opacity: 0, scale: 0.9 }}
-					animate={{ opacity: 1, scale: 1 }}
-					transition={{ delay: 0.1 }}
-					className="text-center mb-10 sm:mb-8"
+					initial={{ opacity: 0, y: 20 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ duration: 0.3 }}
+					className="bg-white rounded-xl shadow-sm border border-slate-200/60 p-6"
 				>
-					<h1 className="text-3xl sm:text-2xl font-bold text-slate-900 mb-3 sm:mb-2">
+				{/* Header */}
+				<div className="text-center mb-6">
+					<h1 className="text-2xl font-bold text-slate-900 mb-1.5">
 						Create Your Account
 					</h1>
-					<p className="text-base sm:text-sm text-slate-600">
+					<p className="text-sm text-slate-600">
 						Join Zaakiyah and start your journey
 					</p>
-				</motion.div>
+				</div>
 
 				{/* Progress Steps */}
 				<SignupProgressSteps currentStep={step} />
@@ -151,9 +147,9 @@ export default function SignupPage() {
 							initial={{ opacity: 0, y: -10 }}
 							animate={{ opacity: 1, y: 0 }}
 							exit={{ opacity: 0 }}
-							className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl"
+							className="mb-4 p-3 bg-error-50 border border-error-200 rounded-lg"
 						>
-							<p className="text-sm text-red-600">{error}</p>
+							<p className="text-sm text-error-600">{error}</p>
 						</motion.div>
 					)}
 				</AnimatePresence>
@@ -166,7 +162,7 @@ export default function SignupPage() {
 							initial={{ opacity: 0, x: -20 }}
 							animate={{ opacity: 1, x: 0 }}
 							exit={{ opacity: 0, x: 20 }}
-							className="space-y-6 sm:space-y-5"
+							className="space-y-4"
 						>
 							<Input
 								label="Email Address"
@@ -195,7 +191,7 @@ export default function SignupPage() {
 							initial={{ opacity: 0, x: -20 }}
 							animate={{ opacity: 1, x: 0 }}
 							exit={{ opacity: 0, x: 20 }}
-							className="space-y-6 sm:space-y-5"
+							className="space-y-4"
 						>
 							<div>
 								<p className="text-base sm:text-sm text-slate-600 mb-8 sm:mb-6 text-center">
@@ -261,7 +257,7 @@ export default function SignupPage() {
 							initial={{ opacity: 0, x: -20 }}
 							animate={{ opacity: 1, x: 0 }}
 							exit={{ opacity: 0, x: 20 }}
-							className="space-y-6 sm:space-y-5"
+							className="space-y-4"
 						>
 							<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 								<Input
@@ -294,24 +290,42 @@ export default function SignupPage() {
 							/>
 
 							<div className="relative">
-								<Input
-									label="Confirm Password"
-									type={showConfirmPassword ? 'text' : 'password'}
-									placeholder="Confirm your password"
-									error={errors.confirmPassword?.message}
-									{...register('confirmPassword')}
-								/>
-								<button
-									type="button"
-									onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-									className="absolute right-4 top-[50px] sm:top-[42px] text-slate-500 hover:text-slate-700"
-								>
-									{showConfirmPassword ? (
-										<EyeSlashIcon className="h-5 w-5" />
-									) : (
-										<EyeIcon className="h-5 w-5" />
-									)}
-								</button>
+								<label className="block text-sm font-medium text-slate-900 mb-2">
+									Confirm Password
+								</label>
+								<div className="relative">
+									<input
+										type={showConfirmPassword ? 'text' : 'password'}
+										placeholder="Confirm your password"
+										className={`
+											w-full px-5 py-3
+											text-sm
+											rounded-xl border-2 transition-all duration-200
+											focus:outline-none focus:ring-2 focus:ring-offset-0
+											bg-white pr-12
+											${
+												errors.confirmPassword
+													? 'border-error-300 focus:border-error-500 focus:ring-error-500/20'
+													: 'border-slate-200 focus:border-primary-500 focus:ring-primary-500/20'
+											}
+										`}
+										{...register('confirmPassword')}
+									/>
+									<button
+										type="button"
+										onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+										className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700 focus:outline-none"
+									>
+										{showConfirmPassword ? (
+											<EyeSlashIcon className="h-5 w-5" />
+										) : (
+											<EyeIcon className="h-5 w-5" />
+										)}
+									</button>
+								</div>
+								{errors.confirmPassword && (
+									<p className="mt-2 text-sm text-error-600">{errors.confirmPassword.message}</p>
+								)}
 							</div>
 
 							<PhoneInput
@@ -350,7 +364,7 @@ export default function SignupPage() {
 							initial={{ opacity: 0, x: -20 }}
 							animate={{ opacity: 1, x: 0 }}
 							exit={{ opacity: 0, x: 20 }}
-							className="space-y-6 sm:space-y-5"
+							className="space-y-4"
 						>
 							<AvatarSelector
 								selectedAvatarId={selectedAvatarId}
@@ -398,7 +412,7 @@ export default function SignupPage() {
 							initial={{ opacity: 0, x: -20 }}
 							animate={{ opacity: 1, x: 0 }}
 							exit={{ opacity: 0, x: 20 }}
-							className="space-y-6 sm:space-y-5"
+							className="space-y-4"
 						>
 							<div>
 								<label className="block text-base sm:text-sm font-medium text-slate-900 mb-4 sm:mb-3 text-center">
@@ -452,7 +466,7 @@ export default function SignupPage() {
 									setError('Please fill in all required fields correctly');
 								}
 							})}
-							className="space-y-6 sm:space-y-5"
+							className="space-y-4"
 						>
 							<PreferenceSelector
 								selectedPreferences={selectedPreferences}
@@ -469,7 +483,7 @@ export default function SignupPage() {
 								/>
 								<label
 									htmlFor="acceptTerms"
-									className="ml-3 text-base sm:text-sm text-slate-700"
+									className="ml-3 text-sm text-slate-700"
 								>
 									I accept the{' '}
 									<a href="#" className="text-primary-600 hover:text-primary-500">
@@ -505,16 +519,17 @@ export default function SignupPage() {
 				</AnimatePresence>
 
 				{/* Sign In Link */}
-				<p className="mt-8 sm:mt-6 text-center text-base sm:text-sm text-slate-600">
+				<p className="mt-6 text-center text-sm text-slate-600">
 					Already have an account?{' '}
 					<Link
 						to="/login"
-						className="font-medium text-primary-600 hover:text-primary-500 transition-colors"
+						className="font-medium text-primary-600 hover:text-primary-700 transition-colors"
 					>
 						Sign in
 					</Link>
 				</p>
 			</motion.div>
+			</div>
 		</div>
 	);
 }

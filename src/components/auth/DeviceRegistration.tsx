@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useAuthStore } from '../../store/authStore';
 import { deviceService } from '../../services/deviceService';
 import api from '../../lib/api';
@@ -9,18 +9,22 @@ import api from '../../lib/api';
  */
 export default function DeviceRegistration() {
 	const { isAuthenticated } = useAuthStore();
+	const hasRegisteredRef = useRef(false);
 
 	useEffect(() => {
-		if (!isAuthenticated) {
+		if (!isAuthenticated || hasRegisteredRef.current) {
 			return;
 		}
+
+		let isMounted = true;
+		hasRegisteredRef.current = true;
 
 		const registerDevice = async () => {
 			try {
 				const deviceInfo = await deviceService.getDeviceInfo();
 
-				// Only register if we have a device token
-				if (deviceInfo.deviceToken) {
+				// Only register if we have a device token and component is still mounted
+				if (isMounted && deviceInfo.deviceToken) {
 					await api.post('/devices', {
 						deviceToken: deviceInfo.deviceToken,
 						deviceType: deviceInfo.deviceType,
@@ -29,11 +33,18 @@ export default function DeviceRegistration() {
 				}
 			} catch (error) {
 				// Silently fail - device registration is optional
-				console.warn('Failed to register device:', error);
+				if (isMounted) {
+					console.warn('Failed to register device:', error);
+					hasRegisteredRef.current = false; // Allow retry on error
+				}
 			}
 		};
 
 		registerDevice();
+
+		return () => {
+			isMounted = false;
+		};
 	}, [isAuthenticated]);
 
 	return null;

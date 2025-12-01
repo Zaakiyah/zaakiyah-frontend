@@ -80,7 +80,7 @@ const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
 		return (
 			<div className="w-full">
 				{label && (
-					<label className="block text-base font-medium text-slate-900 mb-3 sm:text-sm sm:mb-2">
+					<label className="block text-sm font-medium text-slate-900 mb-2">
 						{label}
 					</label>
 				)}
@@ -90,9 +90,9 @@ const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
 						type={showPassword ? 'text' : 'password'}
 						onChange={handleChange}
 						className={`
-							w-full px-5 py-4 sm:px-4 sm:py-3 
+							w-full px-5 py-3 
 							rounded-xl border-2 transition-all duration-200
-							text-base sm:text-sm
+							text-sm
 							focus:outline-none focus:ring-2 focus:ring-offset-0
 							placeholder:text-slate-400
 							bg-white pr-12
