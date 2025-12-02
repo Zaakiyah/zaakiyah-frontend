@@ -120,14 +120,13 @@ export default function SignupPage() {
 	};
 
 	return (
-		<div className="min-h-screen bg-slate-50 py-6 px-4">
-			<div className="max-w-2xl mx-auto">
-				<motion.div
-					initial={{ opacity: 0, y: 20 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ duration: 0.3 }}
-					className="bg-white rounded-xl shadow-sm border border-slate-200/60 p-6"
-				>
+		<div className="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-8">
+			<motion.div
+				initial={{ opacity: 0, y: 20 }}
+				animate={{ opacity: 1, y: 0 }}
+				transition={{ duration: 0.3 }}
+				className="w-full max-w-2xl bg-white rounded-xl shadow-sm border border-slate-200/60 p-6"
+			>
 				{/* Header */}
 				<div className="text-center mb-6">
 					<h1 className="text-2xl font-bold text-slate-900 mb-1.5">
@@ -155,7 +154,7 @@ export default function SignupPage() {
 					)}
 				</AnimatePresence>
 
-				<AnimatePresence mode="wait">
+				<AnimatePresence initial={false}>
 					{/* Step 1: Email */}
 					{step === 'email' && (
 						<motion.div
@@ -535,7 +534,6 @@ export default function SignupPage() {
 					</Link>
 				</p>
 			</motion.div>
-			</div>
 		</div>
 	);
 }

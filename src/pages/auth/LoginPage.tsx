@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { loginSchema } from '../../schemas/auth.schemas';
 import type { LoginFormData } from '../../types/auth.types';
 import { useLogin } from '../../hooks/useLogin';
@@ -11,6 +11,7 @@ import Input from '../../components/ui/Input';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 
 export default function LoginPage() {
+	const navigate = useNavigate();
 	const [showPassword, setShowPassword] = useState(false);
 	const { isLoading, error, handleLogin } = useLogin();
 
@@ -206,12 +207,13 @@ export default function LoginPage() {
 				{/* Sign Up Link */}
 				<p className="mt-6 text-center text-sm text-slate-600">
 					Don't have an account?{' '}
-					<Link
-						to="/signup"
+					<button
+						type="button"
+						onClick={() => navigate('/signup', { replace: false })}
 						className="font-medium text-primary-600 hover:text-primary-700 transition-colors"
 					>
 						Sign up
-					</Link>
+					</button>
 				</p>
 			</motion.div>
 		</div>

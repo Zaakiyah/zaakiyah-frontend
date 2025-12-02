@@ -75,7 +75,9 @@ export default function OAuthCallbackPage() {
 					<p className="text-sm text-slate-600 mb-4">
 						{error === 'access_denied'
 							? 'You cancelled the authentication process.'
-							: 'An error occurred during authentication. Please try again.'}
+							: error && decodeURIComponent(error) !== 'access_denied'
+								? decodeURIComponent(error)
+								: 'An error occurred during authentication. Please try again.'}
 					</p>
 					<p className="text-xs text-slate-500">
 						Redirecting to login page...

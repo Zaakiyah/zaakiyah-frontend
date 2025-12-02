@@ -1,4 +1,4 @@
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 
 interface AuthRouteProps {
@@ -10,6 +10,7 @@ interface AuthRouteProps {
  * This prevents logged-in users from accessing login/signup pages
  */
 export default function AuthRoute({ children }: AuthRouteProps) {
+	const location = useLocation();
 	const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
 	// If user is already authenticated, redirect to dashboard
@@ -17,6 +18,7 @@ export default function AuthRoute({ children }: AuthRouteProps) {
 		return <Navigate to="/dashboard" replace />;
 	}
 
+	// Return children directly - let React Router handle the key
 	return <>{children}</>;
 }
 
