@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { CheckCircleIcon, ExclamationCircleIcon, LockClosedIcon, ArrowLeftIcon } from '@heroicons/react/24/outline';
 import api from '../../lib/api';
 import { authService } from '../../services/authService';
