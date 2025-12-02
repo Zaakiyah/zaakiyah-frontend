@@ -1,5 +1,54 @@
 @import "tailwindcss";
 
+/* Mobile fullscreen support */
+html {
+  height: 100%;
+  height: -webkit-fill-available;
+  overflow: hidden;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  height: -webkit-fill-available;
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+  background-color: var(--color-slate-50);
+  color: var(--color-primary-900);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Prevent pull-to-refresh on mobile */
+  overscroll-behavior-y: none;
+  /* Prevent text selection on mobile for better app-like experience */
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+#root {
+  height: 100%;
+  height: -webkit-fill-available;
+  width: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  /* Enable momentum scrolling on iOS */
+  -webkit-overflow-scrolling: touch;
+  /* Support for safe areas (notches, etc.) */
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+/* Re-enable text selection for input fields and content areas */
+input,
+textarea,
+[contenteditable],
+.selectable {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
 @theme {
     --font-sans: 'Inter', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
 
@@ -53,14 +102,6 @@
     --color-error-700: #b91c1c;
     --color-error-800: #991b1b;
     --color-error-900: #7f1d1d;
-}
-
-body {
-    background-color: var(--color-slate-50);
-    color: var(--color-primary-900);
-    font-family: var(--font-sans);
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
 }
 
 .text-balance {
