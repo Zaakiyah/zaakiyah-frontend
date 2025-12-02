@@ -12,6 +12,8 @@ import {
 import { formatCurrency } from '../utils/currency';
 import BottomNavigation from '../components/layout/BottomNavigation';
 import { WEBSITE_PAGES } from '../config/website';
+import StoriesViewer from '../components/stories/StoriesViewer';
+import { impactStories } from '../data/impactStories';
 import {
 	BellIcon,
 	ArrowRightIcon,
@@ -58,6 +60,7 @@ export default function DashboardPage() {
 	const [isLoadingNisaab, setIsLoadingNisaab] = useState(true);
 	const [isAmountVisible, setIsAmountVisible] = useState(true);
 	const [zakaatCalculation, setZakaatCalculation] = useState<ZakaatCalculation | null>(null);
+	const [isStoriesOpen, setIsStoriesOpen] = useState(false);
 	const [communityPosts, setCommunityPosts] = useState<CommunityPost[]>([
 		{
 			id: 1,
@@ -585,6 +588,95 @@ export default function DashboardPage() {
 
 			{/* Bottom Navigation */}
 			<BottomNavigation />
+
+			{/* Floating Action Buttons Container */}
+			<div className="fixed bottom-24 right-4 md:right-6 flex flex-col gap-4 z-40">
+				{/* Impact Stories Floating Button */}
+				<div className="relative w-16 h-16">
+					<motion.button
+						onClick={() => setIsStoriesOpen(true)}
+						className="relative w-full h-full rounded-full shadow-2xl flex items-center justify-center overflow-visible group bg-white"
+						whileHover={{ scale: 1.1 }}
+						whileTap={{ scale: 0.95 }}
+						aria-label="View Impact Stories"
+						initial={{ scale: 0, rotate: 180 }}
+						animate={{ scale: 1, rotate: 0 }}
+						transition={{ type: 'spring', stiffness: 200, damping: 15, delay: 0.1 }}
+					>
+						{/* Custom dashed border - each curved dash represents a story */}
+						<svg
+							className="absolute inset-0 w-full h-full pointer-events-none"
+							viewBox="0 0 64 64"
+							style={{ transform: 'rotate(-90deg)' }}
+						>
+							{Array.from({ length: impactStories.length }).map((_, index) => {
+								const segmentAngle = 360 / impactStories.length; // Angle for each segment
+								const gapAngle = segmentAngle * 0.12; // Small gap (12% of segment) - adjusts automatically
+								const dashAngle = segmentAngle - gapAngle; // Dash covers the rest (88% of segment)
+								const angle = segmentAngle * index;
+								const radius = 30;
+
+								// Start angle with small gap from previous dash
+								const startAngle = ((angle + gapAngle / 2) * Math.PI) / 180;
+								// End angle before next gap
+								const endAngle =
+									((angle + gapAngle / 2 + dashAngle) * Math.PI) / 180;
+
+								// Calculate start and end points on the circle
+								const x1 = 32 + radius * Math.cos(startAngle);
+								const y1 = 32 + radius * Math.sin(startAngle);
+								const x2 = 32 + radius * Math.cos(endAngle);
+								const y2 = 32 + radius * Math.sin(endAngle);
+
+								// Create arc path - large-arc-flag=0, sweep-flag=1 for clockwise arc
+								const largeArcFlag = dashAngle > 180 ? 1 : 0;
+								const path = `M ${x1} ${y1} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2}`;
+
+								return (
+									<motion.path
+										key={index}
+										d={path}
+										fill="none"
+										stroke="currentColor"
+										strokeWidth="3"
+										strokeLinecap="round"
+										className="text-primary-600"
+										animate={{
+											opacity: [0.6, 1, 0.6],
+										}}
+										transition={{
+											duration: 2,
+											repeat: Infinity,
+											ease: 'easeInOut',
+											delay: index * 0.15,
+										}}
+									/>
+								);
+							})}
+						</svg>
+
+						{/* Animated pulsing ring around dashes */}
+						<motion.div
+							className="absolute inset-0 rounded-full border border-primary-400/30 pointer-events-none"
+							animate={{
+								scale: [1, 1.12, 1],
+								opacity: [0.2, 0.5, 0.2],
+							}}
+							transition={{
+								duration: 2,
+								repeat: Infinity,
+								ease: 'easeInOut',
+							}}
+						/>
+
+						{/* Icon */}
+						<HeartIcon className="w-7 h-7 text-primary-600 relative z-10" />
+					</motion.button>
+				</div>
+			</div>
+
+			{/* Impact Stories Viewer */}
+			<StoriesViewer isOpen={isStoriesOpen} onClose={() => setIsStoriesOpen(false)} />
 		</div>
 	);
 }

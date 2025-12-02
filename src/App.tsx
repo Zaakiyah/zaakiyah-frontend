@@ -18,11 +18,18 @@ import RootRedirect from './components/auth/RootRedirect';
 import DeviceRegistration from './components/auth/DeviceRegistration';
 import BottomNavigation from './components/layout/BottomNavigation';
 import PageHeader from './components/layout/PageHeader';
+import ZakaatAdvisorChat from './components/ai/ZakaatAdvisorChat';
+import { useAiChatStore } from './store/aiChatStore';
 
 function App() {
+	const isChatOpen = useAiChatStore((state) => state.isOpen);
+	const closeChat = useAiChatStore((state) => state.closeChat);
+
 	return (
 		<>
 			<DeviceRegistration />
+			{/* Global AI Chatbot - Available from all pages */}
+			<ZakaatAdvisorChat isOpen={isChatOpen} onClose={closeChat} />
 			<Routes>
 				<Route path="/" element={<RootRedirect />} />
 				<Route path="/onboarding" element={<OnboardingPage />} />
