@@ -28,9 +28,7 @@ export default function ForgotPasswordPage() {
 				className="w-full max-w-md bg-white rounded-xl shadow-sm border border-slate-200/60 p-4 sm:p-6 my-auto"
 			>
 				<div className="text-center mb-6">
-					<h1 className="text-2xl font-bold text-slate-900 mb-1.5">
-						Forgot Password?
-					</h1>
+					<h1 className="text-2xl font-bold text-slate-900 mb-1.5">Forgot Password?</h1>
 					<p className="text-sm text-slate-600">
 						Enter your email address and we'll send you a verification code to reset
 						your password.
@@ -47,10 +45,7 @@ export default function ForgotPasswordPage() {
 					</motion.div>
 				)}
 
-				<form
-					onSubmit={handleSubmit(handleForgotPassword)}
-					className="space-y-4"
-				>
+				<form onSubmit={handleSubmit(handleForgotPassword)} className="space-y-4">
 					<Input
 						label="Email Address"
 						type="email"
