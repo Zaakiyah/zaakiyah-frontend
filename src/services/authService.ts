@@ -38,6 +38,10 @@ export interface User {
 export interface LoginResponse {
 	user: User;
 	accessToken: string;
+	requires2FA?: boolean;
+	tempToken?: string;
+	method?: string;
+	emailCodeSent?: boolean;
 }
 
 export interface ApiResponse<T> {
@@ -69,6 +73,14 @@ export const authService = {
 
 	async login(credentials: LoginCredentials): Promise<ApiResponse<LoginResponse>> {
 		const response = await api.post<ApiResponse<LoginResponse>>('/auth/login', credentials);
+		return response.data;
+	},
+
+	async verifyLogin2FA(tempToken: string, code: string): Promise<ApiResponse<LoginResponse>> {
+		const response = await api.post<ApiResponse<LoginResponse>>('/auth/login/verify-2fa', {
+			tempToken,
+			code,
+		});
 		return response.data;
 	},
 

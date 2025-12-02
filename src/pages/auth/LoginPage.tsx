@@ -1,19 +1,30 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { loginSchema } from '../../schemas/auth.schemas';
 import type { LoginFormData } from '../../types/auth.types';
 import { useLogin } from '../../hooks/useLogin';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
-import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
+import OtpInput from '../../components/ui/OtpInput';
+import { EyeIcon, EyeSlashIcon, ArrowLeftIcon, LockClosedIcon } from '@heroicons/react/24/outline';
+import { TwoFactorMethod } from '../../services/twoFactorService';
 
 export default function LoginPage() {
 	const navigate = useNavigate();
 	const [showPassword, setShowPassword] = useState(false);
-	const { isLoading, error, handleLogin } = useLogin();
+	const {
+		isLoading,
+		error,
+		handleLogin,
+		requires2FA,
+		twoFactorMethod,
+		emailCodeSent,
+		handleVerify2FA,
+		handleCancel2FA,
+	} = useLogin();
 
 	const {
 		register,
@@ -34,29 +45,100 @@ export default function LoginPage() {
 				transition={{ duration: 0.3 }}
 				className="w-full max-w-md bg-white rounded-xl shadow-sm border border-slate-200/60 p-4 sm:p-6 my-auto"
 			>
-				{/* Header */}
-				<div className="text-center mb-6">
-					<h1 className="text-2xl font-bold text-slate-900 mb-1.5">
-						Welcome back!
-					</h1>
-					<p className="text-sm text-slate-600">
-						We are excited to have you back.
-					</p>
-				</div>
+				<AnimatePresence mode="wait">
+					{requires2FA ? (
+						// 2FA Verification UI
+						<motion.div
+							key="2fa"
+							initial={{ opacity: 0, x: 20 }}
+							animate={{ opacity: 1, x: 0 }}
+							exit={{ opacity: 0, x: -20 }}
+							transition={{ duration: 0.3 }}
+						>
+							{/* Header */}
+							<div className="text-center mb-6">
+								<div className="mx-auto w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mb-4">
+									<LockClosedIcon className="w-8 h-8 text-primary-600" />
+								</div>
+								<h1 className="text-2xl font-bold text-slate-900 mb-1.5">
+									Two-Factor Authentication
+								</h1>
+								<p className="text-sm text-slate-600">
+									{twoFactorMethod === TwoFactorMethod.EMAIL
+										? emailCodeSent
+											? 'We sent a 6-digit code to your email. Please enter it below.'
+											: 'Enter the 6-digit code from your email.'
+										: 'Enter the 6-digit code from your authenticator app.'}
+								</p>
+							</div>
 
-				{/* Error Message */}
-				{error && (
-					<motion.div
-						initial={{ opacity: 0, y: -10 }}
-						animate={{ opacity: 1, y: 0 }}
-						className="mb-4 p-3 bg-error-50 border border-error-200 rounded-lg"
-					>
-						<p className="text-sm text-error-600">{error}</p>
-					</motion.div>
-				)}
+							{/* Error Message */}
+							{error && (
+								<motion.div
+									initial={{ opacity: 0, y: -10 }}
+									animate={{ opacity: 1, y: 0 }}
+									className="mb-4 p-3 bg-error-50 border border-error-200 rounded-lg"
+								>
+									<p className="text-sm text-error-600">{error}</p>
+								</motion.div>
+							)}
 
-				{/* Login Form */}
-				<form onSubmit={handleSubmit(handleLogin)} className="space-y-4">
+							{/* 2FA Code Input */}
+							<div className="mb-6">
+								<OtpInput
+									length={6}
+									onComplete={handleVerify2FA}
+									disabled={isLoading}
+									autoFocus={true}
+									error={error || undefined}
+								/>
+							</div>
+
+							{/* Back Button */}
+							<Button
+								type="button"
+								variant="outline"
+								size="lg"
+								onClick={handleCancel2FA}
+								disabled={isLoading}
+								className="w-full flex items-center justify-center gap-2"
+							>
+								<ArrowLeftIcon className="w-5 h-5" />
+								Back to Login
+							</Button>
+						</motion.div>
+					) : (
+						// Login Form
+						<motion.div
+							key="login"
+							initial={{ opacity: 0, x: -20 }}
+							animate={{ opacity: 1, x: 0 }}
+							exit={{ opacity: 0, x: 20 }}
+							transition={{ duration: 0.3 }}
+						>
+							{/* Header */}
+							<div className="text-center mb-6">
+								<h1 className="text-2xl font-bold text-slate-900 mb-1.5">
+									Welcome back!
+								</h1>
+								<p className="text-sm text-slate-600">
+									We are excited to have you back.
+								</p>
+							</div>
+
+							{/* Error Message */}
+							{error && (
+								<motion.div
+									initial={{ opacity: 0, y: -10 }}
+									animate={{ opacity: 1, y: 0 }}
+									className="mb-4 p-3 bg-error-50 border border-error-200 rounded-lg"
+								>
+									<p className="text-sm text-error-600">{error}</p>
+								</motion.div>
+							)}
+
+							{/* Login Form */}
+							<form onSubmit={handleSubmit(handleLogin)} className="space-y-4">
 					<Input
 						label="Email"
 						type="email"
@@ -204,17 +286,20 @@ export default function LoginPage() {
 					</div>
 				</div>
 
-				{/* Sign Up Link */}
-				<p className="mt-6 text-center text-sm text-slate-600">
-					Don't have an account?{' '}
-					<button
-						type="button"
-						onClick={() => navigate('/signup', { replace: false })}
-						className="font-medium text-primary-600 hover:text-primary-700 transition-colors"
-					>
-						Sign up
-					</button>
-				</p>
+							{/* Sign Up Link */}
+							<p className="mt-6 text-center text-sm text-slate-600">
+								Don't have an account?{' '}
+								<button
+									type="button"
+									onClick={() => navigate('/signup', { replace: false })}
+									className="font-medium text-primary-600 hover:text-primary-700 transition-colors"
+								>
+									Sign up
+								</button>
+							</p>
+						</motion.div>
+					)}
+				</AnimatePresence>
 			</motion.div>
 		</div>
 	);

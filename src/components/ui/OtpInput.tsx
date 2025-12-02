@@ -111,7 +111,7 @@ export default function OtpInput({
 
 	return (
 		<div className={className}>
-			<div className="flex justify-center gap-1 sm:gap-2 md:gap-2.5 lg:gap-3 px-1 sm:px-2 md:px-0 max-w-full overflow-x-auto overflow-y-visible py-3">
+			<div className="flex justify-center items-center gap-1.5 sm:gap-2 md:gap-2.5 w-full py-3 px-4 sm:px-6 md:px-8 lg:px-16 xl:px-24 2xl:px-32">
 				{otp.map((digit, index) => (
 					<motion.input
 						key={index}
@@ -128,12 +128,12 @@ export default function OtpInput({
 						onFocus={() => handleFocus(index)}
 						disabled={disabled}
 						className={`
-							w-10 h-10 min-[375px]:w-12 min-[375px]:h-12 sm:w-14 sm:h-14 md:w-16 md:h-16
-							text-center text-lg min-[375px]:text-xl sm:text-2xl md:text-3xl font-bold
+							w-10 h-10 min-[375px]:w-12 min-[375px]:h-12 sm:w-14 sm:h-14 md:w-14 md:h-14 lg:w-12 lg:h-12 xl:w-12 xl:h-12 2xl:w-11 2xl:h-11
+							text-center text-lg min-[375px]:text-xl sm:text-2xl md:text-2xl lg:text-xl xl:text-xl 2xl:text-lg font-bold
 							border-2 rounded-xl
 							transition-all duration-200
 							focus:outline-none focus:ring-2 focus:ring-offset-1 sm:focus:ring-offset-2
-							shrink-0
+							flex-shrink-0
 							${
 								error
 									? 'border-red-300 focus:border-red-500 focus:ring-red-200 bg-red-50'
