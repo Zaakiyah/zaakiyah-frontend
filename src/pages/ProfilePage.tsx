@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { authService } from '../services/authService';
 import { deviceService } from '../services/deviceService';
+import { appService } from '../services/appService';
 import BottomNavigation from '../components/layout/BottomNavigation';
 import EditProfileSheet from '../components/profile/EditProfileSheet';
 import AvatarEditSheet from '../components/profile/AvatarEditSheet';
@@ -28,6 +29,21 @@ export default function ProfilePage() {
 	const [isEditSheetOpen, setIsEditSheetOpen] = useState(false);
 	const [isAvatarEditSheetOpen, setIsAvatarEditSheetOpen] = useState(false);
 	const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
+	const [appVersion, setAppVersion] = useState<string>('1.0.0');
+
+	useEffect(() => {
+		const fetchAppVersion = async () => {
+			try {
+				const versionInfo = await appService.getVersion();
+				setAppVersion(versionInfo.version);
+			} catch (error) {
+				console.error('Failed to fetch app version:', error);
+				// Keep default version on error
+			}
+		};
+
+		fetchAppVersion();
+	}, []);
 
 	const handleLogoutConfirm = async () => {
 		setIsLoggingOut(true);
@@ -198,7 +214,9 @@ export default function ProfilePage() {
 								</div>
 								<div className="flex-1 min-w-0">
 									<p className="text-xs text-slate-500 mb-0.5">Address</p>
-									<p className="text-sm font-medium text-slate-900">{user.address}</p>
+									<p className="text-sm font-medium text-slate-900">
+										{user.address}
+									</p>
 								</div>
 							</div>
 						)}
@@ -220,7 +238,9 @@ export default function ProfilePage() {
 									d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 4.732z"
 								/>
 							</svg>
-							<span className="text-sm font-semibold text-primary-600">Edit Profile</span>
+							<span className="text-sm font-semibold text-primary-600">
+								Edit Profile
+							</span>
 						</button>
 					</div>
 				</motion.div>
@@ -274,7 +294,7 @@ export default function ProfilePage() {
 
 				{/* App Version / Footer */}
 				<div className="text-center py-3">
-					<p className="text-xs text-slate-400">Zaakiyah v1.0.0</p>
+					<p className="text-xs text-slate-400">Zaakiyah v{appVersion}</p>
 				</div>
 			</main>
 

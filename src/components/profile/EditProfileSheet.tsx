@@ -8,7 +8,6 @@ import { authService } from '../../services/authService';
 import BottomSheet from '../ui/BottomSheet';
 import Input from '../ui/Input';
 import PhoneInput from '../ui/PhoneInput';
-import CurrencySelector from '../ui/CurrencySelector';
 import Button from '../ui/Button';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 

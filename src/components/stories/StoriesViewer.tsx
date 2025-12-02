@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { XMarkIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
-import { impactStories, type ImpactStory } from '../../data/impactStories';
+import { impactStories } from '../../data/impactStories';
 
 interface StoriesViewerProps {
 	isOpen: boolean;
@@ -13,8 +13,8 @@ const STORY_DURATION = 5000; // 5 seconds per story
 export default function StoriesViewer({ isOpen, onClose }: StoriesViewerProps) {
 	const [currentStoryIndex, setCurrentStoryIndex] = useState(0);
 	const [progress, setProgress] = useState(0);
-	const intervalRef = useRef<NodeJS.Timeout | null>(null);
-	const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
+	const intervalRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+	const progressIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
 	const currentStory = impactStories[currentStoryIndex];
 	const totalStories = impactStories.length;

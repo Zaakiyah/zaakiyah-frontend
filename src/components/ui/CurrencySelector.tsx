@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { ChevronDownIcon, CheckIcon } from '@heroicons/react/24/outline';
 import { useCurrencyStore } from '../../store/currencyStore';
-import { currencyService } from '../../services/currencyService';
 import type { SupportedCurrency } from '../../services/currencyService';
 
 interface CurrencySelectorProps {

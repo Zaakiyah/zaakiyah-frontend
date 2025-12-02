@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { aiService, type ChatMessage } from '../../services/aiService';
-import { PaperAirplaneIcon, XMarkIcon, SparklesIcon } from '@heroicons/react/24/outline';
+import { PaperAirplaneIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { SparklesIcon as SparklesIconSolid } from '@heroicons/react/24/solid';
 
 interface ZakaatAdvisorChatProps {
@@ -72,11 +72,6 @@ export default function ZakaatAdvisorChat({ isOpen, onClose }: ZakaatAdvisorChat
 		} finally {
 			setIsLoading(false);
 		}
-	};
-
-	const handleSuggestionClick = (suggestion: string) => {
-		setInput(suggestion);
-		inputRef.current?.focus();
 	};
 
 	const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {

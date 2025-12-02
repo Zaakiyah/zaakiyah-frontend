@@ -1,4 +1,3 @@
-import type { SupportedCurrency } from '../services/currencyService';
 import { useCurrencyStore } from '../store/currencyStore';
 
 /**

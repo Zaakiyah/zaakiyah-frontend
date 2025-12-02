@@ -14,7 +14,7 @@ interface CurrencyState {
 	supportedCurrencies: SupportedCurrency[];
 	
 	// Latest exchange rates
-	latestRates: Record<string, { rate: number; source: string; effectiveDate: string } | null>;
+	latestRates: Record<string, { rate: number | null; source?: string; effectiveDate?: string; error?: string } | null>;
 	
 	// Loading states
 	isLoadingCurrencies: boolean;
@@ -23,7 +23,7 @@ interface CurrencyState {
 	// Actions
 	setPreferredCurrency: (currency: CurrencyCode) => void;
 	setSupportedCurrencies: (currencies: SupportedCurrency[]) => void;
-	setLatestRates: (rates: Record<string, any>) => void;
+	setLatestRates: (rates: Record<string, { rate: number | null; source?: string; effectiveDate?: string; error?: string } | null>) => void;
 	fetchSupportedCurrencies: () => Promise<void>;
 	fetchLatestRates: () => Promise<void>;
 	syncWithUserProfile: () => void;
@@ -33,7 +33,7 @@ const DEFAULT_CURRENCY = 'USD';
 
 export const useCurrencyStore = create<CurrencyState>()(
 	persist(
-		(set, get) => ({
+		(set) => ({
 			preferredCurrency: DEFAULT_CURRENCY,
 			supportedCurrencies: [],
 			latestRates: {},
