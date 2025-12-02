@@ -1,4 +1,4 @@
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import LoginPage from './pages/auth/LoginPage';
 import SignupPage from './pages/auth/SignupPage';
 import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
@@ -22,7 +22,6 @@ import ZakaatAdvisorChat from './components/ai/ZakaatAdvisorChat';
 import { useAiChatStore } from './store/aiChatStore';
 
 function App() {
-	const location = useLocation();
 	const isChatOpen = useAiChatStore((state) => state.isOpen);
 	const closeChat = useAiChatStore((state) => state.closeChat);
 
