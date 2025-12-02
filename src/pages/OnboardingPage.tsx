@@ -90,7 +90,7 @@ export default function OnboardingPage() {
 	const isFirstSlide = currentSlide === 0;
 
 	return (
-		<div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 relative overflow-hidden">
+		<div className="h-screen-vh bg-gradient-to-br from-slate-50 via-white to-slate-100 relative overflow-hidden">
 			{/* Skip Button - Only show after first slide */}
 			{!isExiting && !isFirstSlide && (
 				<motion.button
@@ -107,8 +107,8 @@ export default function OnboardingPage() {
 
 			{/* Content */}
 			<div
-				className={`min-h-screen flex flex-col items-center justify-center px-4 py-8 relative z-10 ${
-					isFirstSlide ? '' : 'pt-24'
+				className={`h-full flex flex-col items-center justify-center px-4 py-2 relative z-10 overflow-y-auto ${
+					isFirstSlide ? '' : 'pt-20'
 				}`}
 			>
 				<AnimatePresence mode="wait">
@@ -217,7 +217,7 @@ export default function OnboardingPage() {
 						initial={{ opacity: 0 }}
 						animate={{ opacity: 1 }}
 						transition={{ delay: 0.6 }}
-						className="flex gap-2 mt-12 mb-8"
+						className="flex gap-2 mt-8 mb-4"
 					>
 						{slides.map((_, index) => (
 							<button
@@ -239,7 +239,7 @@ export default function OnboardingPage() {
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ delay: isFirstSlide ? 0.8 : 0.6 }}
-					className="w-full max-w-md space-y-3 px-4 mt-auto pb-8 relative z-20"
+					className="w-full max-w-md space-y-3 px-4 mt-auto pb-4 relative z-20"
 				>
 					{isLastSlide ? (
 						<>

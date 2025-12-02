@@ -54,12 +54,12 @@ export default function OAuthCallbackPage() {
 
 	if (error || (!token && !isLoading)) {
 		return (
-			<div className="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-8">
+			<div className="h-screen-vh bg-slate-50 flex items-center justify-center px-4 py-2 overflow-y-auto">
 				<motion.div
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ duration: 0.3 }}
-					className="w-full max-w-md bg-white rounded-xl shadow-sm border border-slate-200/60 p-6 text-center"
+					className="w-full max-w-md bg-white rounded-xl shadow-sm border border-slate-200/60 p-4 sm:p-6 text-center my-auto"
 				>
 					<motion.div
 						initial={{ scale: 0 }}
@@ -88,7 +88,7 @@ export default function OAuthCallbackPage() {
 	}
 
 	return (
-		<div className="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-8">
+		<div className="h-screen-vh bg-slate-50 flex items-center justify-center px-4 py-2 overflow-y-auto">
 			<motion.div
 				initial={{ opacity: 0, y: 20 }}
 				animate={{ opacity: 1, y: 0 }}

@@ -2,42 +2,51 @@
 
 /* Mobile fullscreen support */
 html {
-  height: 100%;
-  height: -webkit-fill-available;
-  overflow: hidden;
+    height: 100%;
+    height: -webkit-fill-available;
+    overflow: hidden;
+    /* Custom viewport height variable - will be set by JavaScript */
+    --vh: 1vh;
 }
 
 body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  height: -webkit-fill-available;
-  overflow: hidden;
-  position: fixed;
-  width: 100%;
-  background-color: var(--color-slate-50);
-  color: var(--color-primary-900);
-  font-family: var(--font-sans);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  /* Prevent pull-to-refresh on mobile */
-  overscroll-behavior-y: none;
-  /* Prevent text selection on mobile for better app-like experience */
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  user-select: none;
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    height: -webkit-fill-available;
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+    background-color: var(--color-slate-50);
+    color: var(--color-primary-900);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Prevent pull-to-refresh on mobile */
+    overscroll-behavior-y: none;
+    /* Prevent text selection on mobile for better app-like experience */
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 #root {
-  height: 100%;
-  height: -webkit-fill-available;
-  width: 100%;
-  overflow-y: auto;
-  overflow-x: hidden;
-  /* Enable momentum scrolling on iOS */
-  -webkit-overflow-scrolling: touch;
-  /* Support for safe areas (notches, etc.) */
-  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    height: 100%;
+    height: -webkit-fill-available;
+    width: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    /* Enable momentum scrolling on iOS */
+    -webkit-overflow-scrolling: touch;
+    /* Support for safe areas (notches, etc.) */
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+/* Utility class for exact viewport height */
+.h-screen-vh {
+    height: calc(var(--vh, 1vh) * 100);
+    min-height: calc(var(--vh, 1vh) * 100);
+    max-height: calc(var(--vh, 1vh) * 100);
 }
 
 /* Re-enable text selection for input fields and content areas */
@@ -45,8 +54,8 @@ input,
 textarea,
 [contenteditable],
 .selectable {
-  -webkit-user-select: text;
-  user-select: text;
+    -webkit-user-select: text;
+    user-select: text;
 }
 
 @theme {
