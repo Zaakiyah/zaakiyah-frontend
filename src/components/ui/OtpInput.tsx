@@ -136,10 +136,10 @@ export default function OtpInput({
 							flex-shrink-0
 							${
 								error
-									? 'border-red-300 focus:border-red-500 focus:ring-red-200 bg-red-50'
+									? 'border-red-300 dark:border-red-600 focus:border-red-500 dark:focus:border-red-500 focus:ring-red-200 dark:focus:ring-red-800/30 bg-red-50 dark:bg-red-900/20 text-slate-900 dark:text-slate-100'
 									: activeIndex === index
-									? 'border-primary-500 focus:border-primary-600 focus:ring-primary-200 bg-primary-50'
-									: 'border-slate-200 focus:border-primary-500 focus:ring-primary-200 bg-white'
+									? 'border-primary-500 dark:border-primary-400 focus:border-primary-600 dark:focus:border-primary-500 focus:ring-primary-200 dark:focus:ring-primary-800/30 bg-primary-50 dark:bg-primary-900/20 text-slate-900 dark:text-slate-100'
+									: 'border-slate-200 dark:border-slate-700 focus:border-primary-500 dark:focus:border-primary-400 focus:ring-primary-200 dark:focus:ring-primary-800/30 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100'
 							}
 							${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-text'}
 						`}
@@ -153,7 +153,7 @@ export default function OtpInput({
 				<motion.p
 					initial={{ opacity: 0, y: -5 }}
 					animate={{ opacity: 1, y: 0 }}
-					className="mt-3 text-sm text-red-600 text-center"
+					className="mt-3 text-sm text-red-600 dark:text-red-400 text-center"
 				>
 					{error}
 				</motion.p>

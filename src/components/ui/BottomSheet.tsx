@@ -52,21 +52,21 @@ export default function BottomSheet({ isOpen, onClose, title, children }: Bottom
 						animate={{ y: 0 }}
 						exit={{ y: '100%' }}
 						transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-						className="fixed inset-x-0 bottom-0 z-50 bg-white rounded-t-2xl shadow-2xl max-h-[90vh] flex flex-col"
+						className="fixed inset-x-0 bottom-0 z-50 bg-white dark:bg-slate-800 rounded-t-2xl shadow-2xl max-h-[90vh] flex flex-col"
 					>
 						{/* Handle Bar */}
 						<div className="pt-3 pb-2 flex-shrink-0">
-							<div className="w-12 h-1.5 bg-slate-300 rounded-full mx-auto" />
+							<div className="w-12 h-1.5 bg-slate-300 dark:bg-slate-600 rounded-full mx-auto" />
 						</div>
 
 						{/* Header */}
-						<div className="px-4 pb-3 flex items-center justify-between border-b border-slate-200 flex-shrink-0">
-							<h2 className="text-lg font-bold text-slate-900">{title}</h2>
+						<div className="px-4 pb-3 flex items-center justify-between border-b border-slate-200 dark:border-slate-700 flex-shrink-0">
+							<h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">{title}</h2>
 							<button
 								onClick={onClose}
-								className="p-2 rounded-lg hover:bg-slate-100 transition-colors active:scale-95"
+								className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors active:scale-95"
 							>
-								<XMarkIcon className="w-5 h-5 text-slate-700" />
+								<XMarkIcon className="w-5 h-5 text-slate-700 dark:text-slate-300" />
 							</button>
 						</div>
 

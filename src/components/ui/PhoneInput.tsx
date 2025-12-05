@@ -172,7 +172,7 @@ const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
 		return (
 			<div className="w-full">
 				{label && (
-					<label className="block text-sm font-medium text-slate-900 mb-2">{label}</label>
+					<label className="block text-sm font-medium text-slate-900 dark:text-slate-100 mb-2">{label}</label>
 				)}
 				<div className="relative flex">
 					<div className="relative" ref={dropdownRef}>
@@ -182,20 +182,20 @@ const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
 							className={`
 								px-4 py-3 rounded-l-xl border-2 border-r-0
 								transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-0
-								bg-white flex items-center gap-2
+								bg-white dark:bg-slate-800 flex items-center gap-2
 								${
 									error
-										? 'border-error-300 focus:border-error-500 focus:ring-error-500/20'
-										: 'border-slate-200 focus:border-primary-500 focus:ring-primary-500/20'
+										? 'border-error-300 dark:border-error-600 focus:border-error-500 dark:focus:border-error-500 focus:ring-error-500/20'
+										: 'border-slate-200 dark:border-slate-700 focus:border-primary-500 dark:focus:border-primary-400 focus:ring-primary-500/20 dark:focus:ring-primary-400/20'
 								}
 							`}
 						>
 							<span className="text-xl">{selectedCountry.flag}</span>
-							<span className="text-sm font-medium text-slate-700">
+							<span className="text-sm font-medium text-slate-700 dark:text-slate-300">
 								{selectedCountry.dialCode}
 							</span>
 							<ChevronDownIcon
-								className={`w-4 h-4 text-slate-500 transition-transform ${
+								className={`w-4 h-4 text-slate-500 dark:text-slate-400 transition-transform ${
 									isOpen ? 'rotate-180' : ''
 								}`}
 							/>
@@ -212,18 +212,18 @@ const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
 										initial={{ opacity: 0, y: -10 }}
 										animate={{ opacity: 1, y: 0 }}
 										exit={{ opacity: 0, y: -10 }}
-										className="absolute top-full left-0 mt-1 w-64 max-h-80 overflow-hidden bg-white border-2 border-slate-200 rounded-xl shadow-lg z-20 flex flex-col"
+										className="absolute top-full left-0 mt-1 w-64 max-h-80 overflow-hidden bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl shadow-lg z-20 flex flex-col"
 									>
-										<div className="p-2 border-b border-slate-200 sticky top-0 bg-white z-10">
+										<div className="p-2 border-b border-slate-200 dark:border-slate-700 sticky top-0 bg-white dark:bg-slate-800 z-10">
 											<div className="relative">
-												<MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+												<MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-slate-500" />
 												<input
 													ref={searchInputRef}
 													type="text"
 													value={searchQuery}
 													onChange={(e) => setSearchQuery(e.target.value)}
 													placeholder="Search country..."
-													className="w-full pl-10 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
+													className="w-full pl-10 pr-3 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:focus:ring-primary-400/20 focus:border-primary-500 dark:focus:border-primary-400 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500"
 													onClick={(e) => e.stopPropagation()}
 												/>
 											</div>
@@ -244,8 +244,8 @@ const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
 																${
 																	selectedCountry.code ===
 																	country.code
-																		? 'bg-primary-50 text-primary-700'
-																		: 'hover:bg-slate-50 text-slate-700'
+																		? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400'
+																		: 'hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300'
 																}
 															`}
 														>
@@ -255,14 +255,14 @@ const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
 															<span className="flex-1 text-sm font-medium">
 																{country.name}
 															</span>
-															<span className="text-sm text-slate-500">
+															<span className="text-sm text-slate-500 dark:text-slate-400">
 																{country.dialCode}
 															</span>
 														</button>
 													))}
 												</div>
 											) : (
-												<div className="p-4 text-center text-sm text-slate-500">
+												<div className="p-4 text-center text-sm text-slate-500 dark:text-slate-400">
 													No countries found
 												</div>
 											)}
@@ -286,12 +286,13 @@ const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
 							rounded-r-xl border-2 transition-all duration-200
 							text-sm
 							focus:outline-none focus:ring-2 focus:ring-offset-0
-							placeholder:text-slate-400
-							bg-white
+							placeholder:text-slate-400 dark:placeholder:text-slate-500
+							bg-white dark:bg-slate-800
+							text-slate-900 dark:text-slate-100
 							${
 								error
-									? 'border-error-300 focus:border-error-500 focus:ring-error-500/20'
-									: 'border-slate-200 focus:border-primary-500 focus:ring-primary-500/20'
+									? 'border-error-300 dark:border-error-600 focus:border-error-500 dark:focus:border-error-500 focus:ring-error-500/20'
+									: 'border-slate-200 dark:border-slate-700 focus:border-primary-500 dark:focus:border-primary-400 focus:ring-primary-500/20 dark:focus:ring-primary-400/20'
 							}
 							${className}
 						`}
@@ -299,12 +300,12 @@ const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
 					/>
 				</div>
 				{error && (
-					<p className="mt-2 text-sm text-error-600" role="alert">
+					<p className="mt-2 text-sm text-error-600 dark:text-error-400" role="alert">
 						{error}
 					</p>
 				)}
 				{helperText && !error && (
-					<p className="mt-2 text-sm text-slate-500">{helperText}</p>
+					<p className="mt-2 text-sm text-slate-500 dark:text-slate-400">{helperText}</p>
 				)}
 			</div>
 		);

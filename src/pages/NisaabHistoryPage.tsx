@@ -12,8 +12,11 @@ import {
 } from '@heroicons/react/24/outline';
 import PageHeader from '../components/layout/PageHeader';
 import BottomNavigation from '../components/layout/BottomNavigation';
+import DatePicker from '../components/ui/DatePicker';
 import { useAuthStore } from '../store/authStore';
 import { useCurrencyStore } from '../store/currencyStore';
+import { useTheme } from '../hooks/useTheme';
+import { alert } from '../store/alertStore';
 import { nisaabService, type NisaabData } from '../services/nisaabService';
 import { formatCurrency } from '../utils/currency';
 
@@ -25,6 +28,7 @@ interface Filters {
 export default function NisaabHistoryPage() {
 	const { user } = useAuthStore();
 	const { preferredCurrency, syncWithUserProfile, fetchSupportedCurrencies } = useCurrencyStore();
+	useTheme();
 	const [history, setHistory] = useState<NisaabData[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -272,7 +276,7 @@ export default function NisaabHistoryPage() {
 		const text = `${shareData.text}\n\n${shareData.url}`;
 		if (navigator.clipboard) {
 			navigator.clipboard.writeText(text).then(() => {
-				alert('Nisaab details copied to clipboard!');
+				alert.success('Nisaab details copied to clipboard!');
 			});
 		} else {
 			const textarea = document.createElement('textarea');
@@ -281,7 +285,7 @@ export default function NisaabHistoryPage() {
 			textarea.select();
 			document.execCommand('copy');
 			document.body.removeChild(textarea);
-			alert('Nisaab details copied to clipboard!');
+			alert.success('Nisaab details copied to clipboard!');
 		}
 	};
 
@@ -354,7 +358,7 @@ export default function NisaabHistoryPage() {
 			initial={{ opacity: 0, y: 10 }}
 			animate={{ opacity: 1, y: 0 }}
 			transition={{ delay: index !== undefined ? index * 0.02 : 0 }}
-			className="bg-white rounded-lg p-3 shadow-sm border border-slate-200/60 hover:shadow-md transition-all"
+			className="bg-white dark:bg-slate-800 rounded-lg p-3 shadow-sm border border-slate-200/60 dark:border-slate-700/60 hover:shadow-md transition-all"
 		>
 			{/* Compact Header */}
 			<div className="flex items-center justify-between mb-2">
@@ -366,9 +370,9 @@ export default function NisaabHistoryPage() {
 						</span>
 					</div>
 					<div>
-						<p className="text-xs font-bold text-slate-900">{formatDate(item.gregorianDate)}</p>
+						<p className="text-xs font-bold text-slate-900 dark:text-slate-100">{formatDate(item.gregorianDate)}</p>
 						{item.hijriDate && (
-							<p className="text-[10px] text-slate-500 font-medium">
+							<p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">
 								{formatHijriDate(item.hijriDate)}
 							</p>
 						)}
@@ -376,27 +380,27 @@ export default function NisaabHistoryPage() {
 				</div>
 				<button
 					onClick={() => shareNisaab(item)}
-					className="p-1.5 rounded-lg hover:bg-slate-100 transition-colors active:scale-95"
+					className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors active:scale-95"
 					title="Share this nisaab"
 				>
-					<ShareIcon className="w-4 h-4 text-slate-600" />
+					<ShareIcon className="w-4 h-4 text-slate-600 dark:text-slate-400" />
 				</button>
 			</div>
 
 			{/* Compact Values */}
 			<div className="grid grid-cols-2 gap-2">
 				{/* Gold */}
-				<div className="flex items-center gap-2 p-2 bg-gradient-to-br from-secondary-50 to-secondary-50/60 rounded-lg border border-secondary-200/50">
+				<div className="flex items-center gap-2 p-2 bg-gradient-to-br from-secondary-50 dark:from-secondary-900/20 to-secondary-50/60 dark:to-secondary-900/10 rounded-lg border border-secondary-200/50 dark:border-secondary-800/30">
 					<div className="w-6 h-6 bg-gradient-to-br from-secondary-500 to-secondary-600 rounded flex items-center justify-center flex-shrink-0">
 						<SparklesIcon className="w-3 h-3 text-white" />
 					</div>
 					<div className="min-w-0 flex-1">
-						<p className="text-[9px] font-semibold text-slate-600 uppercase tracking-wide">Gold</p>
+						<p className="text-[9px] font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide">Gold</p>
 						<p
 							className={`text-xs font-bold truncate ${
 								formatCurrencyWithFallback(item.goldNisaabValue) === 'Not Available'
-									? 'text-slate-400'
-									: 'text-slate-900'
+									? 'text-slate-400 dark:text-slate-500'
+									: 'text-slate-900 dark:text-slate-100'
 							}`}
 						>
 							{formatCurrencyWithFallback(item.goldNisaabValue)}
@@ -405,17 +409,17 @@ export default function NisaabHistoryPage() {
 				</div>
 
 				{/* Silver */}
-				<div className="flex items-center gap-2 p-2 bg-gradient-to-br from-slate-50 to-slate-100/80 rounded-lg border border-slate-200/50">
+				<div className="flex items-center gap-2 p-2 bg-gradient-to-br from-slate-50 dark:from-slate-700/50 to-slate-100/80 dark:to-slate-700/30 rounded-lg border border-slate-200/50 dark:border-slate-600/50">
 					<div className="w-6 h-6 bg-gradient-to-br from-slate-500 to-slate-600 rounded flex items-center justify-center flex-shrink-0">
 						<CurrencyDollarIcon className="w-3 h-3 text-white" />
 					</div>
 					<div className="min-w-0 flex-1">
-						<p className="text-[9px] font-semibold text-slate-600 uppercase tracking-wide">Silver</p>
+						<p className="text-[9px] font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide">Silver</p>
 						<p
 							className={`text-xs font-bold truncate ${
 								formatCurrencyWithFallback(item.silverNisaabValue) === 'Not Available'
-									? 'text-slate-400'
-									: 'text-slate-900'
+									? 'text-slate-400 dark:text-slate-500'
+									: 'text-slate-900 dark:text-slate-100'
 							}`}
 						>
 							{formatCurrencyWithFallback(item.silverNisaabValue)}
@@ -427,7 +431,7 @@ export default function NisaabHistoryPage() {
 	);
 
 	return (
-		<div className="min-h-screen bg-slate-50 pb-20">
+		<div className="min-h-screen bg-slate-50 dark:bg-slate-900 pb-20">
 			<PageHeader
 				title="Nisaab History"
 				showBack
@@ -447,26 +451,24 @@ export default function NisaabHistoryPage() {
 
 			<main className="px-4 py-3">
 				{/* Date Search */}
-				<div className="mb-3 bg-white rounded-xl p-3 shadow-sm border border-slate-200/60">
+				<div className="mb-3 bg-white dark:bg-slate-800 rounded-xl p-3 shadow-sm border border-slate-200/60 dark:border-slate-700/60">
 					<div className="flex gap-2">
 						<div className="flex-1">
-							<input
-								type="date"
+							<DatePicker
 								value={searchDate}
-								onChange={(e) => {
-									setSearchDate(e.target.value);
+								onChange={(date) => {
+									setSearchDate(date);
 									setSearchError(null);
 									setSearchResult(null);
 								}}
-								max={new Date().toISOString().split('T')[0]}
-								className="w-full px-3 py-2 text-sm rounded-lg border-2 border-slate-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none"
+								maxDate={new Date().toISOString().split('T')[0]}
 								placeholder="Search by date"
 							/>
 						</div>
 						<button
 							onClick={handleDateSearch}
 							disabled={isSearching || !searchDate}
-							className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors active:scale-95 flex items-center gap-2"
+							className="px-4 py-2 bg-primary-500 dark:bg-primary-600 text-white rounded-lg hover:bg-primary-600 dark:hover:bg-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors active:scale-95 flex items-center gap-2"
 						>
 							{isSearching ? (
 								<div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -477,7 +479,7 @@ export default function NisaabHistoryPage() {
 						</button>
 					</div>
 					{searchError && (
-						<p className="mt-2 text-xs text-error-600">{searchError}</p>
+						<p className="mt-2 text-xs text-error-600 dark:text-error-400">{searchError}</p>
 					)}
 				</div>
 
@@ -489,14 +491,14 @@ export default function NisaabHistoryPage() {
 						className="mb-3"
 					>
 						<div className="flex items-center justify-between mb-2">
-							<h3 className="text-sm font-semibold text-slate-900">Search Result</h3>
+							<h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Search Result</h3>
 							<button
 								onClick={() => {
 									setSearchResult(null);
 									setSearchDate('');
 									setSearchError(null);
 								}}
-								className="text-xs text-slate-500 hover:text-slate-700"
+								className="text-xs text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
 							>
 								Clear
 							</button>
@@ -511,14 +513,14 @@ export default function NisaabHistoryPage() {
 						initial={{ opacity: 0, height: 0 }}
 						animate={{ opacity: 1, height: 'auto' }}
 						exit={{ opacity: 0, height: 0 }}
-						className="mb-3 bg-white rounded-xl p-4 shadow-sm border border-slate-200/60 space-y-3"
+						className="mb-3 bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-slate-200/60 dark:border-slate-700/60 space-y-3"
 					>
 						<div className="flex items-center justify-between mb-2">
-							<h3 className="text-sm font-semibold text-slate-900">Filter by</h3>
+							<h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Filter by</h3>
 							{hasActiveFilters && (
 								<button
 									onClick={clearFilters}
-									className="text-xs text-primary-600 hover:text-primary-700 font-medium"
+									className="text-xs text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-500 font-medium"
 								>
 									Clear
 								</button>
@@ -527,11 +529,11 @@ export default function NisaabHistoryPage() {
 
 						<div className="grid grid-cols-2 gap-3">
 							<div>
-								<label className="block text-xs font-medium text-slate-700 mb-1.5">Month</label>
+								<label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">Month</label>
 								<select
 									value={filters.month}
 									onChange={(e) => handleFilterChange('month', e.target.value)}
-									className="w-full px-3 py-2 text-sm rounded-lg border-2 border-slate-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none bg-white"
+									className="w-full px-3 py-2 text-sm rounded-lg border-2 border-slate-200 dark:border-slate-700 focus:border-primary-500 dark:focus:border-primary-400 focus:ring-2 focus:ring-primary-500/20 dark:focus:ring-primary-400/20 focus:outline-none bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
 								>
 									<option value="">All months</option>
 									{months.map((month) => (
@@ -543,11 +545,11 @@ export default function NisaabHistoryPage() {
 							</div>
 
 							<div>
-								<label className="block text-xs font-medium text-slate-700 mb-1.5">Year</label>
+								<label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">Year</label>
 								<select
 									value={filters.year}
 									onChange={(e) => handleFilterChange('year', e.target.value)}
-									className="w-full px-3 py-2 text-sm rounded-lg border-2 border-slate-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none bg-white"
+									className="w-full px-3 py-2 text-sm rounded-lg border-2 border-slate-200 dark:border-slate-700 focus:border-primary-500 dark:focus:border-primary-400 focus:ring-2 focus:ring-primary-500/20 dark:focus:ring-primary-400/20 focus:outline-none bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
 								>
 									{years.map((year) => (
 										<option key={year} value={year.toString()}>
@@ -594,17 +596,17 @@ export default function NisaabHistoryPage() {
 						{Array.from({ length: 5 }).map((_, index) => (
 							<div
 								key={index}
-								className="bg-white rounded-lg p-3 shadow-sm border border-slate-200/60"
+								className="bg-white dark:bg-slate-800 rounded-lg p-3 shadow-sm border border-slate-200/60 dark:border-slate-700/60"
 							>
-								<div className="h-16 bg-slate-100 rounded-lg animate-pulse" />
+								<div className="h-16 bg-slate-100 dark:bg-slate-700 rounded-lg animate-pulse" />
 							</div>
 						))}
 					</div>
 				) : filteredHistory.length === 0 && !searchResult ? (
-					<div className="bg-white rounded-xl p-8 shadow-sm border border-slate-200/60 text-center">
-						<CalendarIcon className="w-12 h-12 text-slate-400 mx-auto mb-3" />
-						<p className="text-sm font-medium text-slate-900 mb-1">No history found</p>
-						<p className="text-xs text-slate-500">
+					<div className="bg-white dark:bg-slate-800 rounded-xl p-8 shadow-sm border border-slate-200/60 dark:border-slate-700/60 text-center">
+						<CalendarIcon className="w-12 h-12 text-slate-400 dark:text-slate-500 mx-auto mb-3" />
+						<p className="text-sm font-medium text-slate-900 dark:text-slate-100 mb-1">No history found</p>
+						<p className="text-xs text-slate-500 dark:text-slate-400">
 							{hasActiveFilters
 								? 'Try adjusting your filters to see more results.'
 								: 'Nisaab history will appear here once records are available.'}
@@ -620,13 +622,13 @@ export default function NisaabHistoryPage() {
 							{/* Infinite Scroll Trigger */}
 							<div ref={observerTarget} className="h-10 flex items-center justify-center py-4">
 								{isLoadingMore && (
-									<div className="flex items-center gap-2 text-sm text-slate-500">
-										<div className="w-4 h-4 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
+									<div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+										<div className="w-4 h-4 border-2 border-primary-500 dark:border-primary-400 border-t-transparent rounded-full animate-spin" />
 										Loading more...
 									</div>
 								)}
 								{!hasMore && history.length > 0 && (
-									<p className="text-xs text-slate-500">No more records</p>
+									<p className="text-xs text-slate-500 dark:text-slate-400">No more records</p>
 								)}
 							</div>
 						</>

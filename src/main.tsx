@@ -2,12 +2,20 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { initializeFirebase } from './lib/firebase';
+import { useThemeStore, applyTheme } from './store/themeStore';
 import './index.css';
 import App from './App.tsx';
 
 // Initialize Firebase on app startup
 if (typeof window !== 'undefined') {
 	initializeFirebase();
+
+	// Initialize theme after a short delay to ensure store is rehydrated
+	// The ThemeProvider will also apply the theme, but this prevents FOUC
+	setTimeout(() => {
+		const theme = useThemeStore.getState().theme;
+		applyTheme(theme);
+	}, 100);
 }
 
 // Mobile fullscreen support - Set viewport height to handle mobile browser UI

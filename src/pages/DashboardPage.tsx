@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { useCurrencyStore } from '../store/currencyStore';
+import { useTheme } from '../hooks/useTheme';
 import {
 	nisaabService,
 	type NisaabData,
@@ -56,6 +57,7 @@ export default function DashboardPage() {
 	const navigate = useNavigate();
 	const { user } = useAuthStore();
 	const { preferredCurrency, syncWithUserProfile, fetchSupportedCurrencies } = useCurrencyStore();
+	useTheme();
 	const [nisaabData, setNisaabData] = useState<NisaabData | null>(null);
 	const [isLoadingNisaab, setIsLoadingNisaab] = useState(true);
 	const [isAmountVisible, setIsAmountVisible] = useState(true);
@@ -257,9 +259,9 @@ export default function DashboardPage() {
 	];
 
 	return (
-		<div className="min-h-screen bg-slate-50 pb-20">
+		<div className="min-h-screen bg-slate-50 dark:bg-slate-900 pb-20">
 			{/* Compact Header */}
-			<header className="bg-white/80 backdrop-blur-xl border-b border-slate-200/60 sticky top-0 z-40 shadow-sm">
+			<header className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border-b border-slate-200/60 dark:border-slate-700/60 sticky top-0 z-40 shadow-sm">
 				<div className="px-4 py-3">
 					<div className="flex items-center justify-between">
 						<div className="flex items-center gap-2.5">
@@ -279,17 +281,17 @@ export default function DashboardPage() {
 								)}
 							</button>
 							<div>
-								<p className="text-xs text-slate-500 font-medium">Welcome back,</p>
-								<p className="text-sm font-semibold text-slate-900">
+								<p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Welcome back,</p>
+								<p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
 									{user?.firstName || 'User'} 👋
 								</p>
 							</div>
 						</div>
 						<button
 							onClick={() => navigate('/notifications')}
-							className="relative p-2 rounded-lg hover:bg-slate-100 transition-all active:scale-95"
+							className="relative p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-all active:scale-95"
 						>
-							<BellIcon className="w-5 h-5 text-slate-700" />
+							<BellIcon className="w-5 h-5 text-slate-700 dark:text-slate-300" />
 							<span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-error-500 rounded-full ring-2 ring-white" />
 						</button>
 					</div>
@@ -302,15 +304,15 @@ export default function DashboardPage() {
 				<motion.div
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
-					className="bg-gradient-to-br from-primary-50 via-primary-50/50 to-white rounded-xl p-4 shadow-sm border border-primary-100/50"
+					className="bg-gradient-to-br from-primary-50 dark:from-primary-900/20 via-primary-50/50 dark:via-primary-900/10 to-white dark:to-slate-800 rounded-xl p-4 shadow-sm border border-primary-100/50 dark:border-primary-800/30"
 				>
 					<div className="flex items-center justify-between">
 						<div className="flex-1">
-							<p className="text-xs font-medium text-slate-600 mb-1">Zakaat Due</p>
+							<p className="text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Zakaat Due</p>
 							<div className="flex items-center gap-2">
 								{isAmountVisible ? (
 									<>
-										<p className="text-2xl font-bold text-slate-900">
+										<p className="text-2xl font-bold text-slate-900 dark:text-slate-100">
 											{zakaatCalculation
 												? formatCurrency(zakaatCalculation.amount)
 												: '₦0.00'}
@@ -319,25 +321,25 @@ export default function DashboardPage() {
 											onClick={() => setIsAmountVisible(false)}
 											className="p-1 rounded-lg hover:bg-white/50 transition-colors"
 										>
-											<EyeSlashIcon className="w-4 h-4 text-slate-600" />
+											<EyeSlashIcon className="w-4 h-4 text-slate-600 dark:text-slate-400" />
 										</button>
 									</>
 								) : (
 									<>
-										<p className="text-2xl font-bold text-slate-900">••••••</p>
+										<p className="text-2xl font-bold text-slate-900 dark:text-slate-100">••••••</p>
 										<button
 											onClick={() => setIsAmountVisible(true)}
 											className="p-1 rounded-lg hover:bg-white/50 transition-colors"
 										>
-											<EyeIcon className="w-4 h-4 text-slate-600" />
+											<EyeIcon className="w-4 h-4 text-slate-600 dark:text-slate-400" />
 										</button>
 									</>
 								)}
 							</div>
 							{zakaatCalculation && (
 								<div className="flex items-center gap-1 mt-1.5">
-									<ClockIcon className="w-3 h-3 text-slate-500" />
-									<p className="text-xs text-slate-500">
+									<ClockIcon className="w-3 h-3 text-slate-500 dark:text-slate-400" />
+									<p className="text-xs text-slate-500 dark:text-slate-400">
 										Last calculated{' '}
 										{formatTimeAgo(zakaatCalculation.lastCalculated)}
 									</p>
@@ -360,12 +362,12 @@ export default function DashboardPage() {
 							<button
 								key={button.label}
 								onClick={button.onClick}
-								className="bg-white rounded-xl p-2.5 shadow-sm border border-slate-200/60 hover:shadow-md hover:border-primary-200/60 transition-all active:scale-[0.98] flex flex-col items-center gap-1.5"
+								className="bg-white dark:bg-slate-800 rounded-xl p-2.5 shadow-sm border border-slate-200/60 dark:border-slate-700/60 hover:shadow-md hover:border-primary-200/60 dark:hover:border-primary-600/60 transition-all active:scale-[0.98] flex flex-col items-center gap-1.5"
 							>
 								<div className="w-9 h-9 bg-gradient-to-br from-primary-500 to-primary-600 rounded-lg flex items-center justify-center shadow-sm">
 									<Icon className="w-4.5 h-4.5 text-white" />
 								</div>
-								<p className="text-[10px] font-semibold text-slate-900 text-center leading-tight whitespace-nowrap">
+								<p className="text-[10px] font-semibold text-slate-900 dark:text-slate-100 text-center leading-tight whitespace-nowrap">
 									{button.label}
 								</p>
 							</button>
@@ -378,24 +380,24 @@ export default function DashboardPage() {
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ delay: 0.2 }}
-					className="bg-white rounded-xl p-4 shadow-sm border border-slate-200/60 overflow-hidden"
+					className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-slate-200/60 dark:border-slate-700/60 overflow-hidden"
 				>
 					<div className="flex items-center justify-between mb-3">
 						<div className="flex-1">
-							<h2 className="text-base font-bold text-slate-900 mb-0.5">
+							<h2 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-0.5">
 								Today's Nisaab
 							</h2>
 							{isLoadingNisaab ? (
-								<p className="text-xs text-slate-500">Loading...</p>
+								<p className="text-xs text-slate-500 dark:text-slate-400">Loading...</p>
 							) : nisaabData?.hijriDate ? (
 								<div className="flex items-center gap-1.5">
-									<CalendarIcon className="w-3 h-3 text-slate-400" />
-									<p className="text-xs font-medium text-slate-600">
+									<CalendarIcon className="w-3 h-3 text-slate-400 dark:text-slate-500" />
+									<p className="text-xs font-medium text-slate-600 dark:text-slate-400">
 										{formatHijriDate(nisaabData.hijriDate)}
 									</p>
 								</div>
 							) : (
-								<p className="text-xs text-slate-500">Date unavailable</p>
+								<p className="text-xs text-slate-500 dark:text-slate-400">Date unavailable</p>
 							)}
 						</div>
 						<div className="relative">
@@ -410,13 +412,13 @@ export default function DashboardPage() {
 
 					{isLoadingNisaab ? (
 						<div className="space-y-2">
-							<div className="h-16 bg-slate-100 rounded-lg animate-pulse" />
-							<div className="h-16 bg-slate-100 rounded-lg animate-pulse" />
+							<div className="h-16 bg-slate-100 dark:bg-slate-700 rounded-lg animate-pulse" />
+							<div className="h-16 bg-slate-100 dark:bg-slate-700 rounded-lg animate-pulse" />
 						</div>
 					) : nisaabData ? (
 						<div className="space-y-2 mb-3">
 							{/* Gold Nisaab */}
-							<div className="relative overflow-hidden p-3 bg-gradient-to-br from-secondary-50 via-secondary-50/60 to-secondary-50/80 rounded-lg border border-secondary-200/50">
+							<div className="relative overflow-hidden p-3 bg-gradient-to-br from-secondary-50 dark:from-secondary-900/20 via-secondary-50/60 dark:via-secondary-900/10 to-secondary-50/80 dark:to-secondary-900/5 rounded-lg border border-secondary-200/50 dark:border-secondary-800/30">
 								<div className="flex items-center gap-3">
 									<div className="flex-shrink-0">
 										<div className="w-10 h-10 bg-gradient-to-br from-secondary-500 to-secondary-600 rounded-lg flex items-center justify-center shadow-sm">
@@ -424,13 +426,13 @@ export default function DashboardPage() {
 										</div>
 									</div>
 									<div className="flex-1 min-w-0">
-										<p className="text-xs font-semibold text-slate-700 uppercase tracking-wide mb-0.5">
+										<p className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-0.5">
 											Gold
 										</p>
-										<p className="text-base font-bold text-slate-900">
+										<p className="text-base font-bold text-slate-900 dark:text-slate-100">
 											{formatCurrency(nisaabData.goldNisaabValue)}
 										</p>
-										<p className="text-xs text-slate-600/80 font-medium">
+										<p className="text-xs text-slate-600/80 dark:text-slate-400/80 font-medium">
 											{formatGrams(GOLD_NISAAB_GRAMS)}g
 										</p>
 									</div>
@@ -438,7 +440,7 @@ export default function DashboardPage() {
 							</div>
 
 							{/* Silver Nisaab */}
-							<div className="relative overflow-hidden p-3 bg-gradient-to-br from-slate-50 via-slate-50/60 to-slate-100/80 rounded-lg border border-slate-200/50">
+							<div className="relative overflow-hidden p-3 bg-gradient-to-br from-slate-50 dark:from-slate-700/50 via-slate-50/60 dark:via-slate-700/30 to-slate-100/80 dark:to-slate-700/20 rounded-lg border border-slate-200/50 dark:border-slate-600/50">
 								<div className="flex items-center gap-3">
 									<div className="flex-shrink-0">
 										<div className="w-10 h-10 bg-gradient-to-br from-slate-500 to-slate-600 rounded-lg flex items-center justify-center shadow-sm">
@@ -446,13 +448,13 @@ export default function DashboardPage() {
 										</div>
 									</div>
 									<div className="flex-1 min-w-0">
-										<p className="text-xs font-semibold text-slate-700 uppercase tracking-wide mb-0.5">
+										<p className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-0.5">
 											Silver
 										</p>
-										<p className="text-base font-bold text-slate-900">
+										<p className="text-base font-bold text-slate-900 dark:text-slate-100">
 											{formatCurrency(nisaabData.silverNisaabValue)}
 										</p>
-										<p className="text-xs text-slate-600/80 font-medium">
+										<p className="text-xs text-slate-600/80 dark:text-slate-400/80 font-medium">
 											{formatGrams(SILVER_NISAAB_GRAMS)}g
 										</p>
 									</div>
@@ -461,7 +463,7 @@ export default function DashboardPage() {
 						</div>
 					) : (
 						<div className="text-center py-4">
-							<p className="text-xs text-slate-500">Unable to load nisaab data</p>
+							<p className="text-xs text-slate-500 dark:text-slate-400">Unable to load nisaab data</p>
 						</div>
 					)}
 
@@ -479,7 +481,7 @@ export default function DashboardPage() {
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ delay: 0.3 }}
-					className="bg-white rounded-xl p-3 shadow-sm border border-slate-200/60"
+					className="bg-white dark:bg-slate-800 rounded-xl p-3 shadow-sm border border-slate-200/60 dark:border-slate-700/60"
 				>
 					<div className="flex items-center gap-2">
 						{quickLinks.map((link) => {
@@ -488,12 +490,12 @@ export default function DashboardPage() {
 								<button
 									key={link.label}
 									onClick={link.onClick}
-									className="flex-1 flex flex-col items-center gap-1.5 p-2.5 rounded-lg hover:bg-slate-50 transition-colors active:scale-[0.98]"
+									className="flex-1 flex flex-col items-center gap-1.5 p-2.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors active:scale-[0.98]"
 								>
-									<div className="w-9 h-9 bg-slate-100 rounded-lg flex items-center justify-center">
-										<Icon className="w-5 h-5 text-slate-700" />
+									<div className="w-9 h-9 bg-slate-100 dark:bg-slate-700 rounded-lg flex items-center justify-center">
+										<Icon className="w-5 h-5 text-slate-700 dark:text-slate-300" />
 									</div>
-									<p className="text-xs font-semibold text-slate-900">
+									<p className="text-xs font-semibold text-slate-900 dark:text-slate-100">
 										{link.label}
 									</p>
 								</button>
@@ -507,10 +509,10 @@ export default function DashboardPage() {
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ delay: 0.4 }}
-					className="bg-white rounded-xl p-4 shadow-sm border border-slate-200/60"
+					className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-slate-200/60 dark:border-slate-700/60"
 				>
 					<div className="flex items-center justify-between mb-3">
-						<h3 className="text-base font-bold text-slate-900">Community</h3>
+						<h3 className="text-base font-bold text-slate-900 dark:text-slate-100">Community</h3>
 						<button
 							onClick={() => navigate('/community')}
 							className="text-xs font-medium text-primary-600 hover:text-primary-700"
@@ -522,7 +524,7 @@ export default function DashboardPage() {
 						{communityPosts.map((post) => (
 							<div
 								key={post.id}
-								className="p-3 bg-slate-50 rounded-lg border border-slate-100"
+								className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-100 dark:border-slate-700"
 							>
 								<div className="flex items-start gap-2.5 mb-2">
 									<div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center flex-shrink-0">
@@ -532,17 +534,17 @@ export default function DashboardPage() {
 									</div>
 									<div className="flex-1 min-w-0">
 										<div className="flex items-center gap-2 mb-0.5">
-											<p className="text-xs font-semibold text-slate-900">
+											<p className="text-xs font-semibold text-slate-900 dark:text-slate-100">
 												{post.author}
 											</p>
-											<span className="text-slate-400">•</span>
-											<p className="text-xs text-slate-500">{post.time}</p>
+											<span className="text-slate-400 dark:text-slate-500">•</span>
+											<p className="text-xs text-slate-500 dark:text-slate-400">{post.time}</p>
 										</div>
-										<p className="text-sm text-slate-700 leading-relaxed mb-2">
+										<p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed mb-2">
 											{post.content}
 										</p>
 										{post.media && (
-											<div className="rounded-lg overflow-hidden mb-2 border border-slate-200">
+											<div className="rounded-lg overflow-hidden mb-2 border border-slate-200 dark:border-slate-700">
 												<img
 													src={post.media}
 													alt="Post media"
@@ -551,10 +553,10 @@ export default function DashboardPage() {
 											</div>
 										)}
 										{/* Interactions */}
-										<div className="flex items-center gap-4 pt-2 border-t border-slate-200">
+										<div className="flex items-center gap-4 pt-2 border-t border-slate-200 dark:border-slate-700">
 											<button
 												onClick={() => handlePostLike(post.id)}
-												className="flex items-center gap-1.5 text-slate-600 hover:text-error-500 transition-colors"
+												className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400 hover:text-error-500 transition-colors"
 											>
 												{post.isLiked ? (
 													<HeartIconSolid className="w-4 h-4 text-error-500" />
@@ -565,13 +567,13 @@ export default function DashboardPage() {
 													{post.likes}
 												</span>
 											</button>
-											<button className="flex items-center gap-1.5 text-slate-600 hover:text-primary-600 transition-colors">
+											<button className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400 hover:text-primary-600 transition-colors">
 												<ChatBubbleLeftIcon className="w-4 h-4" />
 												<span className="text-xs font-medium">
 													{post.comments}
 												</span>
 											</button>
-											<button className="flex items-center gap-1.5 text-slate-600 hover:text-primary-600 transition-colors">
+											<button className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400 hover:text-primary-600 transition-colors">
 												<ShareIcon className="w-4 h-4" />
 												<span className="text-xs font-medium">
 													{post.shares}
@@ -595,7 +597,7 @@ export default function DashboardPage() {
 				<div className="relative w-16 h-16">
 					<motion.button
 						onClick={() => setIsStoriesOpen(true)}
-						className="relative w-full h-full rounded-full shadow-2xl flex items-center justify-center overflow-visible group bg-white"
+						className="relative w-full h-full rounded-full shadow-2xl flex items-center justify-center overflow-visible group bg-white dark:bg-slate-800"
 						whileHover={{ scale: 1.1 }}
 						whileTap={{ scale: 0.95 }}
 						aria-label="View Impact Stories"

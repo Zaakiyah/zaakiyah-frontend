@@ -26,14 +26,14 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 
 		const variants = {
 			primary:
-				'bg-primary-500 text-white hover:bg-primary-600 focus:ring-primary-500 shadow-md shadow-primary-500/20 hover:shadow-lg hover:shadow-primary-500/30',
+				'bg-primary-500 dark:bg-primary-600 text-white hover:bg-primary-600 dark:hover:bg-primary-700 focus:ring-primary-500 dark:focus:ring-primary-400 shadow-md shadow-primary-500/20 dark:shadow-primary-600/20 hover:shadow-lg hover:shadow-primary-500/30 dark:hover:shadow-primary-600/30',
 			secondary:
-				'bg-secondary-500 text-primary-900 hover:bg-secondary-600 focus:ring-secondary-500 shadow-md shadow-secondary-500/20 hover:shadow-lg hover:shadow-secondary-500/30',
+				'bg-secondary-500 dark:bg-secondary-600 text-primary-900 dark:text-primary-100 hover:bg-secondary-600 dark:hover:bg-secondary-700 focus:ring-secondary-500 dark:focus:ring-secondary-400 shadow-md shadow-secondary-500/20 dark:shadow-secondary-600/20 hover:shadow-lg hover:shadow-secondary-500/30 dark:hover:shadow-secondary-600/30',
 			outline:
-				'border-2 border-slate-300 text-slate-700 hover:bg-slate-50 focus:ring-slate-500 hover:border-slate-400 bg-white',
-			ghost: 'text-slate-700 hover:bg-slate-100 focus:ring-slate-500',
+				'border-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 focus:ring-slate-500 dark:focus:ring-slate-400 hover:border-slate-400 dark:hover:border-slate-500 bg-white dark:bg-slate-800',
+			ghost: 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 focus:ring-slate-500 dark:focus:ring-slate-400',
 			danger:
-				'bg-error-500 text-white hover:bg-error-600 focus:ring-error-500 shadow-md shadow-error-500/20 hover:shadow-lg hover:shadow-error-500/30',
+				'bg-error-500 dark:bg-error-600 text-white hover:bg-error-600 dark:hover:bg-error-700 focus:ring-error-500 dark:focus:ring-error-400 shadow-md shadow-error-500/20 dark:shadow-error-600/20 hover:shadow-lg hover:shadow-error-500/30 dark:hover:shadow-error-600/30',
 		};
 
 		const sizes = {

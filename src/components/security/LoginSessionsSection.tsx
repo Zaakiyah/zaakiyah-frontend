@@ -82,7 +82,10 @@ export default function LoginSessionsSection() {
 
 	const handleDeleteSessionClick = (sessionId: string) => {
 		if (sessionId === currentSessionId) {
-			alert('You cannot delete your current session. Please use another device to delete it.');
+			alert.warning(
+				'You cannot delete your current session. Please use another device to delete it.',
+				'Cannot Delete Session'
+			);
 			return;
 		}
 		setSessionToDelete(sessionId);
@@ -100,7 +103,7 @@ export default function LoginSessionsSection() {
 			setSessionToDelete(null);
 		} catch (error) {
 			console.error('Failed to delete session:', error);
-			alert('Failed to delete session. Please try again.');
+			alert.error('Failed to delete session. Please try again.', 'Error');
 		} finally {
 			setIsDeleting(null);
 		}
@@ -116,7 +119,7 @@ export default function LoginSessionsSection() {
 			setDeleteAllSessionsDialogOpen(false);
 		} catch (error) {
 			console.error('Failed to delete all sessions:', error);
-			alert('Failed to delete sessions. Please try again.');
+			alert.error('Failed to delete sessions. Please try again.', 'Error');
 		} finally {
 			setIsDeletingAll(false);
 		}
@@ -138,16 +141,16 @@ export default function LoginSessionsSection() {
 			initial={{ opacity: 0, y: 20 }}
 			animate={{ opacity: 1, y: 0 }}
 			transition={{ delay: 0.2 }}
-			className="bg-white rounded-xl p-4 shadow-sm border border-slate-200/60"
+			className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-slate-200/60 dark:border-slate-700/60"
 		>
 			<div className="flex items-start justify-between gap-3 mb-4">
 				<div className="flex items-start gap-3 flex-1">
-					<div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center shrink-0">
-						<DevicePhoneMobileIcon className="w-5 h-5 text-slate-600" />
+					<div className="w-10 h-10 bg-slate-100 dark:bg-slate-700 rounded-lg flex items-center justify-center shrink-0">
+						<DevicePhoneMobileIcon className="w-5 h-5 text-slate-600 dark:text-slate-300" />
 					</div>
 					<div className="flex-1">
-						<h2 className="text-base font-bold text-slate-900 mb-1">Login Sessions</h2>
-						<p className="text-xs text-slate-600">
+						<h2 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-1">Login Sessions</h2>
+						<p className="text-xs text-slate-600 dark:text-slate-400">
 							Manage devices where you're logged in
 						</p>
 					</div>
@@ -162,29 +165,29 @@ export default function LoginSessionsSection() {
 				<div className="space-y-3">
 					{/* Current Session */}
 					{sessions.find((s) => s.id === currentSessionId) && (
-						<div className="p-3 bg-primary-50 rounded-lg border border-primary-200">
+						<div className="p-3 bg-primary-50 dark:bg-primary-900/20 rounded-lg border border-primary-200 dark:border-primary-800/30">
 							<div className="flex items-start justify-between gap-3">
 								<div className="flex items-start gap-3 flex-1">
-									<div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center shrink-0 text-primary-600">
+									<div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center shrink-0 text-primary-600 dark:text-primary-400">
 										{getDeviceIcon(
 											sessions.find((s) => s.id === currentSessionId)?.userAgent || null
 										)}
 									</div>
 									<div className="flex-1 min-w-0">
 										<div className="flex items-center gap-2 mb-1">
-											<p className="text-sm font-semibold text-slate-900">
+											<p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
 												{sessions.find((s) => s.id === currentSessionId)?.deviceName ||
 													'This Device'}
 											</p>
-											<CheckCircleIcon className="w-4 h-4 text-primary-600" />
-											<span className="text-xs text-primary-600 font-medium">Current</span>
+											<CheckCircleIcon className="w-4 h-4 text-primary-600 dark:text-primary-400" />
+											<span className="text-xs text-primary-600 dark:text-primary-400 font-medium">Current</span>
 										</div>
 										{sessions.find((s) => s.id === currentSessionId)?.location && (
-											<p className="text-xs text-slate-600 mb-1">
+											<p className="text-xs text-slate-600 dark:text-slate-400 mb-1">
 												{sessions.find((s) => s.id === currentSessionId)?.location}
 											</p>
 										)}
-										<div className="flex items-center gap-4 text-xs text-slate-500">
+										<div className="flex items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
 											<div className="flex items-center gap-1">
 												<ClockIcon className="w-3.5 h-3.5" />
 												<span>
@@ -202,14 +205,14 @@ export default function LoginSessionsSection() {
 					{otherSessions.length > 0 && (
 						<>
 							<div className="flex items-center justify-between pt-2">
-								<p className="text-sm font-semibold text-slate-900">
+								<p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
 									Other Devices ({otherSessions.length})
 								</p>
 								{otherSessions.length > 1 && (
 									<button
 										onClick={() => setDeleteAllSessionsDialogOpen(true)}
 										disabled={isDeletingAll}
-										className="text-xs font-semibold text-error-600 hover:text-error-700 disabled:opacity-50"
+										className="text-xs font-semibold text-error-600 dark:text-error-400 hover:text-error-700 dark:hover:text-error-500 disabled:opacity-50"
 									>
 										{isDeletingAll ? 'Logging out...' : 'Log out all'}
 									</button>
@@ -220,21 +223,21 @@ export default function LoginSessionsSection() {
 								{otherSessions.map((session) => (
 									<div
 										key={session.id}
-										className="p-3 bg-slate-50 rounded-lg border border-slate-200"
+										className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-slate-600"
 									>
 										<div className="flex items-start justify-between gap-3">
 											<div className="flex items-start gap-3 flex-1">
-												<div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center shrink-0 text-slate-600">
+												<div className="w-10 h-10 bg-slate-100 dark:bg-slate-600 rounded-lg flex items-center justify-center shrink-0 text-slate-600 dark:text-slate-300">
 													{getDeviceIcon(session.userAgent)}
 												</div>
 												<div className="flex-1 min-w-0">
-													<p className="text-sm font-semibold text-slate-900 mb-1">
+													<p className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-1">
 														{session.deviceName || 'Unknown Device'}
 													</p>
 													{session.location && (
-														<p className="text-xs text-slate-600 mb-1">{session.location}</p>
+														<p className="text-xs text-slate-600 dark:text-slate-400 mb-1">{session.location}</p>
 													)}
-													<div className="flex items-center gap-4 text-xs text-slate-500">
+													<div className="flex items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
 														<div className="flex items-center gap-1">
 															<ClockIcon className="w-3.5 h-3.5" />
 															<span>{session.formattedTime}</span>
@@ -245,11 +248,11 @@ export default function LoginSessionsSection() {
 											<button
 												onClick={() => handleDeleteSessionClick(session.id)}
 												disabled={isDeleting === session.id}
-												className="p-2 rounded-lg hover:bg-error-50 text-error-600 transition-colors disabled:opacity-50"
+												className="p-2 rounded-lg hover:bg-error-50 dark:hover:bg-error-900/20 text-error-600 dark:text-error-400 transition-colors disabled:opacity-50"
 												title="Log out this device"
 											>
 												{isDeleting === session.id ? (
-													<div className="w-4 h-4 border-2 border-error-600 border-t-transparent rounded-full animate-spin" />
+													<div className="w-4 h-4 border-2 border-error-600 dark:border-error-400 border-t-transparent rounded-full animate-spin" />
 												) : (
 													<TrashIcon className="w-4 h-4" />
 												)}
@@ -262,7 +265,7 @@ export default function LoginSessionsSection() {
 					)}
 
 					{otherSessions.length === 0 && (
-						<p className="text-sm text-slate-500 text-center py-4">
+						<p className="text-sm text-slate-500 dark:text-slate-400 text-center py-4">
 							No other active sessions
 						</p>
 					)}

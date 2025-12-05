@@ -54,7 +54,7 @@ export default function BottomNavigation() {
 	const openChat = useAiChatStore((state) => state.openChat);
 
 	return (
-		<nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-50 safe-area-inset-bottom">
+		<nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 z-50 safe-area-inset-bottom">
 			<div className="flex items-center justify-around h-16 px-2 relative">
 				{/* Left navigation items */}
 				<div className="flex items-center justify-around flex-1">
@@ -71,15 +71,15 @@ export default function BottomNavigation() {
 								<Icon
 									className={`w-6 h-6 mb-1 ${
 										isActive
-											? 'text-primary-600'
-											: 'text-slate-400'
+											? 'text-primary-600 dark:text-primary-400'
+											: 'text-slate-400 dark:text-slate-500'
 									}`}
 								/>
 								<span
 									className={`text-xs font-medium ${
 										isActive
-											? 'text-primary-600'
-											: 'text-slate-500'
+											? 'text-primary-600 dark:text-primary-400'
+											: 'text-slate-500 dark:text-slate-400'
 									}`}
 								>
 									{item.label}
@@ -181,15 +181,15 @@ export default function BottomNavigation() {
 								<Icon
 									className={`w-6 h-6 mb-1 ${
 										isActive
-											? 'text-primary-600'
-											: 'text-slate-400'
+											? 'text-primary-600 dark:text-primary-400'
+											: 'text-slate-400 dark:text-slate-500'
 									}`}
 								/>
 								<span
 									className={`text-xs font-medium ${
 										isActive
-											? 'text-primary-600'
-											: 'text-slate-500'
+											? 'text-primary-600 dark:text-primary-400'
+											: 'text-slate-500 dark:text-slate-400'
 									}`}
 								>
 									{item.label}

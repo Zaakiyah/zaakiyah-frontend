@@ -107,29 +107,29 @@ export default function ConfirmDialog({
 							animate={{ opacity: 1, scale: 1, y: 0 }}
 							exit={{ opacity: 0, scale: 0.95, y: 20 }}
 							transition={{ duration: 0.2 }}
-							className="bg-white rounded-2xl shadow-xl border border-slate-200/60 w-full max-w-sm pointer-events-auto"
+							className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200/60 dark:border-slate-700/60 w-full max-w-sm pointer-events-auto"
 						>
 							<div className="p-6">
 								{/* Icon */}
 								<div className="flex justify-center mb-4">
 									<div
-										className={`w-12 h-12 rounded-full ${variantStyle.iconBg} flex items-center justify-center`}
+										className={`w-12 h-12 rounded-full ${variantStyle.iconBg} dark:${variantStyle.iconBg.replace('100', '900/30')} flex items-center justify-center`}
 									>
 										{icon || (
 											<DefaultIcon
-												className={`w-6 h-6 ${variantStyle.iconColor}`}
+												className={`w-6 h-6 ${variantStyle.iconColor} dark:${variantStyle.iconColor.replace('600', '400')}`}
 											/>
 										)}
 									</div>
 								</div>
 
 								{/* Title */}
-								<h3 className="text-lg font-bold text-slate-900 text-center mb-2">
+								<h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 text-center mb-2">
 									{title}
 								</h3>
 
 								{/* Message */}
-								<p className="text-sm text-slate-600 text-center mb-6">{message}</p>
+								<p className="text-sm text-slate-600 dark:text-slate-400 text-center mb-6">{message}</p>
 
 								{/* Actions */}
 								<div className="flex gap-3">

@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Tailwind v4 dark mode variant - required for dark: classes to work */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* Mobile fullscreen support */
 html {
     height: 100%;
@@ -17,8 +20,8 @@ body {
     overflow: hidden;
     position: fixed;
     width: 100%;
-    background-color: var(--color-slate-50);
-    color: var(--color-primary-900);
+    background-color: var(--bg-page);
+    color: var(--text-primary);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -28,6 +31,8 @@ body {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     user-select: none;
+    /* Smooth theme transitions */
+    transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 #root {
@@ -111,6 +116,30 @@ textarea,
     --color-error-700: #b91c1c;
     --color-error-800: #991b1b;
     --color-error-900: #7f1d1d;
+}
+
+/* Light theme (default) */
+:root {
+    --bg-page: var(--color-slate-50);
+    --bg-card: #ffffff;
+    --bg-card-hover: var(--color-slate-50);
+    --text-primary: var(--color-slate-900);
+    --text-secondary: var(--color-slate-600);
+    --text-tertiary: var(--color-slate-400);
+    --border-default: rgba(226, 232, 240, 0.6);
+    --bg-icon: var(--color-slate-100);
+}
+
+/* Dark theme */
+.dark {
+    --bg-page: var(--color-slate-900);
+    --bg-card: var(--color-slate-800);
+    --bg-card-hover: var(--color-slate-700);
+    --text-primary: var(--color-slate-100);
+    --text-secondary: var(--color-slate-400);
+    --text-tertiary: var(--color-slate-500);
+    --border-default: rgba(51, 65, 85, 0.6);
+    --bg-icon: var(--color-slate-700);
 }
 
 .text-balance {

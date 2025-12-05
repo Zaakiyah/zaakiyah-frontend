@@ -93,14 +93,14 @@ export default function AvatarEditSheet({ isOpen, onClose }: AvatarEditSheetProp
 		<BottomSheet isOpen={isOpen} onClose={onClose} title="Change Avatar">
 			<div className="space-y-4 pb-4">
 				{error && (
-					<div className="p-3 bg-error-50 border border-error-200 rounded-lg flex items-start justify-between gap-2">
-						<p className="text-sm text-error-600 flex-1">{error}</p>
+					<div className="p-3 bg-error-50 dark:bg-error-900/20 border border-error-200 dark:border-error-800/30 rounded-lg flex items-start justify-between gap-2">
+						<p className="text-sm text-error-600 dark:text-error-400 flex-1">{error}</p>
 						<button
 							type="button"
 							onClick={() => setError(null)}
-							className="p-1 rounded-lg hover:bg-error-100 transition-colors"
+							className="p-1 rounded-lg hover:bg-error-100 dark:hover:bg-error-900/30 transition-colors"
 						>
-							<XMarkIcon className="w-4 h-4 text-error-600" />
+							<XMarkIcon className="w-4 h-4 text-error-600 dark:text-error-400" />
 						</button>
 					</div>
 				)}

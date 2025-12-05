@@ -14,7 +14,7 @@ export default function PreferenceSelector({
 }: PreferenceSelectorProps) {
 	return (
 		<div>
-			<label className="block text-sm font-medium text-slate-700 mb-3">
+			<label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
 				Preferences (Select at least one)
 			</label>
 			<div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -27,15 +27,15 @@ export default function PreferenceSelector({
 						onClick={() => onToggle(pref)}
 						className={`p-3 rounded-xl border-2 transition-all ${
 							selectedPreferences.includes(pref)
-								? 'border-primary-500 bg-primary-50 text-primary-700'
-								: 'border-slate-300 hover:border-slate-400'
+								? 'border-primary-500 dark:border-primary-400 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400'
+								: 'border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100'
 						}`}
 					>
 						{pref}
 					</motion.button>
 				))}
 			</div>
-			{error && <p className="mt-2 text-sm text-red-600">{error}</p>}
+			{error && <p className="mt-2 text-sm text-red-600 dark:text-red-400">{error}</p>}
 		</div>
 	);
 }

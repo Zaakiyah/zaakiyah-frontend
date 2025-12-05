@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import LoginPage from './pages/auth/LoginPage';
 import SignupPage from './pages/auth/SignupPage';
 import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
@@ -12,25 +12,27 @@ import NisaabHistoryPage from './pages/NisaabHistoryPage';
 import NotificationsPage from './pages/NotificationsPage';
 import SecurityPage from './pages/SecurityPage';
 import SettingsPage from './pages/SettingsPage';
+import ComingSoonPage from './pages/ComingSoonPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import AuthRoute from './components/auth/AuthRoute';
 import RootRedirect from './components/auth/RootRedirect';
 import DeviceRegistration from './components/auth/DeviceRegistration';
-import BottomNavigation from './components/layout/BottomNavigation';
-import PageHeader from './components/layout/PageHeader';
 import ZakaatAdvisorChat from './components/ai/ZakaatAdvisorChat';
 import { useAiChatStore } from './store/aiChatStore';
+import ThemeProvider from './components/layout/ThemeProvider';
+import AlertProvider from './components/layout/AlertProvider';
 
 function App() {
 	const isChatOpen = useAiChatStore((state) => state.isOpen);
 	const closeChat = useAiChatStore((state) => state.closeChat);
+	const location = useLocation();
 
 	return (
-		<>
+		<ThemeProvider>
 			<DeviceRegistration />
-			{/* Global AI Chatbot - Available from all pages */}
+			<AlertProvider />
 			<ZakaatAdvisorChat isOpen={isChatOpen} onClose={closeChat} />
-			<Routes>
+			<Routes location={location} key={location.pathname}>
 				<Route path="/" element={<RootRedirect />} />
 				<Route path="/onboarding" element={<OnboardingPage />} />
 				<Route
@@ -78,15 +80,7 @@ function App() {
 					path="/donations"
 					element={
 						<ProtectedRoute>
-							<div className="min-h-screen bg-slate-50 pb-20">
-								<PageHeader title="Donations" showBack />
-								<main className="px-4 py-4">
-									<div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200/60 text-center">
-										<p className="text-sm text-slate-500">Coming soon...</p>
-									</div>
-								</main>
-								<BottomNavigation />
-							</div>
+							<ComingSoonPage title="Donations" />
 						</ProtectedRoute>
 					}
 				/>
@@ -94,15 +88,7 @@ function App() {
 					path="/community"
 					element={
 						<ProtectedRoute>
-							<div className="min-h-screen bg-slate-50 pb-20">
-								<PageHeader title="Community" showBack />
-								<main className="px-4 py-4">
-									<div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200/60 text-center">
-										<p className="text-sm text-slate-500">Coming soon...</p>
-									</div>
-								</main>
-								<BottomNavigation />
-							</div>
+							<ComingSoonPage title="Community" />
 						</ProtectedRoute>
 					}
 				/>
@@ -155,7 +141,7 @@ function App() {
 					}
 				/>
 			</Routes>
-		</>
+		</ThemeProvider>
 	);
 }
 

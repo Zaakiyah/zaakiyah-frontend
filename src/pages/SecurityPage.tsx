@@ -3,6 +3,8 @@ import { motion } from 'framer-motion';
 import { twoFactorService, TwoFactorMethod } from '../services/twoFactorService';
 import BottomNavigation from '../components/layout/BottomNavigation';
 import PageHeader from '../components/layout/PageHeader';
+import { useTheme } from '../hooks/useTheme';
+import { alert } from '../store/alertStore';
 import Button from '../components/ui/Button';
 import Email2FASetupSheet from '../components/security/Email2FASetupSheet';
 import TOTP2FASetupSheet from '../components/security/TOTP2FASetupSheet';
@@ -20,6 +22,7 @@ import {
 } from '@heroicons/react/24/outline';
 
 export default function SecurityPage() {
+	useTheme();
 	const [isEmailSetupOpen, setIsEmailSetupOpen] = useState(false);
 	const [isTOTPSetupOpen, setIsTOTPSetupOpen] = useState(false);
 	const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
@@ -89,14 +92,14 @@ export default function SecurityPage() {
 		} catch (err: any) {
 			const errorMessage =
 				err.response?.data?.message || 'Failed to disable 2FA. Please try again.';
-			alert(errorMessage);
+			alert.error(errorMessage, 'Error');
 		} finally {
 			setIsDisabling2FA(false);
 		}
 	};
 
 	return (
-		<div className="min-h-screen bg-slate-50 pb-20">
+		<div className="min-h-screen bg-slate-50 dark:bg-slate-900 pb-20">
 			<PageHeader title="Security & Privacy" showBack />
 
 			<main className="px-4 py-4 space-y-4">
@@ -104,15 +107,15 @@ export default function SecurityPage() {
 				<motion.div
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
-					className="bg-white rounded-xl p-4 shadow-sm border border-slate-200/60"
+					className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-slate-200/60 dark:border-slate-700/60"
 				>
 					<div className="flex items-start gap-3 mb-4">
-						<div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center shrink-0">
-							<KeyIcon className="w-5 h-5 text-slate-600" />
+						<div className="w-10 h-10 bg-slate-100 dark:bg-slate-700 rounded-lg flex items-center justify-center shrink-0">
+							<KeyIcon className="w-5 h-5 text-slate-600 dark:text-slate-300" />
 						</div>
 						<div className="flex-1">
-							<h2 className="text-base font-bold text-slate-900 mb-1">Change Password</h2>
-							<p className="text-xs text-slate-600">
+							<h2 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-1">Change Password</h2>
+							<p className="text-xs text-slate-600 dark:text-slate-400">
 								Update your account password to keep it secure
 							</p>
 						</div>
@@ -132,17 +135,17 @@ export default function SecurityPage() {
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ delay: 0.1 }}
-					className="bg-white rounded-xl p-4 shadow-sm border border-slate-200/60"
+					className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-slate-200/60 dark:border-slate-700/60"
 				>
 					<div className="flex items-start gap-3 mb-4">
-						<div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center shrink-0">
-							<ShieldCheckIcon className="w-5 h-5 text-primary-600" />
+						<div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center shrink-0">
+							<ShieldCheckIcon className="w-5 h-5 text-primary-600 dark:text-primary-400" />
 						</div>
 						<div className="flex-1">
-							<h2 className="text-base font-bold text-slate-900 mb-1">
+							<h2 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-1">
 								Two-Factor Authentication
 							</h2>
-							<p className="text-xs text-slate-600">
+							<p className="text-xs text-slate-600 dark:text-slate-400">
 								Add an extra layer of security to your account
 							</p>
 						</div>
@@ -156,14 +159,14 @@ export default function SecurityPage() {
 						<>
 							{/* 2FA Status */}
 							{twoFactorStatus?.enabled ? (
-								<div className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200 mb-4">
+								<div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800/30 mb-4">
 									<div className="flex items-center gap-2">
-										<CheckCircleIcon className="w-5 h-5 text-green-600" />
+										<CheckCircleIcon className="w-5 h-5 text-green-600 dark:text-green-400" />
 										<div>
-											<p className="text-sm font-semibold text-green-900">
+											<p className="text-sm font-semibold text-green-900 dark:text-green-100">
 												Two-Factor Authentication Enabled
 											</p>
-											<p className="text-xs text-green-700">
+											<p className="text-xs text-green-700 dark:text-green-400">
 												Method:{' '}
 												{twoFactorStatus.method === TwoFactorMethod.TOTP
 													? 'Authenticator App'
@@ -173,14 +176,14 @@ export default function SecurityPage() {
 									</div>
 								</div>
 							) : (
-								<div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-200 mb-4">
+								<div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-slate-600 mb-4">
 									<div className="flex items-center gap-2">
-										<XCircleIcon className="w-5 h-5 text-slate-400" />
+										<XCircleIcon className="w-5 h-5 text-slate-400 dark:text-slate-500" />
 										<div>
-											<p className="text-sm font-semibold text-slate-900">
+											<p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
 												Two-Factor Authentication Disabled
 											</p>
-											<p className="text-xs text-slate-600">
+											<p className="text-xs text-slate-600 dark:text-slate-400">
 												Your account is less secure
 											</p>
 										</div>
@@ -212,7 +215,7 @@ export default function SecurityPage() {
 								<Button
 									variant="outline"
 									onClick={() => setIsDisable2FADialogOpen(true)}
-									className="w-full border-error-200 text-error-600 hover:bg-error-50"
+									className="w-full border-error-200 dark:border-error-800/50 text-error-600 dark:text-error-400 hover:bg-error-50 dark:hover:bg-error-900/20"
 								>
 									Disable Two-Factor Authentication
 								</Button>
@@ -229,15 +232,15 @@ export default function SecurityPage() {
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ delay: 0.2 }}
-					className="bg-white rounded-xl p-4 shadow-sm border border-error-200/60"
+					className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-error-200/60 dark:border-error-700/50"
 				>
 					<div className="flex items-start gap-3 mb-4">
-						<div className="w-10 h-10 bg-error-100 rounded-lg flex items-center justify-center shrink-0">
-							<TrashIcon className="w-5 h-5 text-error-600" />
+						<div className="w-10 h-10 bg-error-100 dark:bg-error-900/30 rounded-lg flex items-center justify-center shrink-0">
+							<TrashIcon className="w-5 h-5 text-error-600 dark:text-error-400" />
 						</div>
 						<div className="flex-1">
-							<h2 className="text-base font-bold text-slate-900 mb-1">Delete Account</h2>
-							<p className="text-xs text-slate-600">
+							<h2 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-1">Delete Account</h2>
+							<p className="text-xs text-slate-600 dark:text-slate-400">
 								Permanently delete your account and all associated data
 							</p>
 						</div>

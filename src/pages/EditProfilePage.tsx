@@ -8,6 +8,7 @@ import { useAuthStore } from '../store/authStore';
 import { authService } from '../services/authService';
 import PageHeader from '../components/layout/PageHeader';
 import BottomNavigation from '../components/layout/BottomNavigation';
+import { useTheme } from '../hooks/useTheme';
 import Input from '../components/ui/Input';
 import PhoneInput from '../components/ui/PhoneInput';
 import Button from '../components/ui/Button';
@@ -26,6 +27,7 @@ type UpdateProfileFormData = z.infer<typeof updateProfileSchema>;
 export default function EditProfilePage() {
 	const navigate = useNavigate();
 	const { user, updateUser } = useAuthStore();
+	useTheme();
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [isFetchingProfile, setIsFetchingProfile] = useState(true);
@@ -125,16 +127,16 @@ export default function EditProfilePage() {
 
 	if (isFetchingProfile) {
 		return (
-			<div className="min-h-screen bg-slate-50 pb-20">
+			<div className="min-h-screen bg-slate-50 dark:bg-slate-900 pb-20">
 				<PageHeader title="Edit Profile" showBack />
 				<main className="px-4 py-4">
 					<div className="space-y-3">
 						{Array.from({ length: 5 }).map((_, index) => (
 							<div
 								key={index}
-								className="bg-white rounded-lg p-3 shadow-sm border border-slate-200/60"
+								className="bg-white dark:bg-slate-800 rounded-lg p-3 shadow-sm border border-slate-200/60 dark:border-slate-700/60"
 							>
-								<div className="h-16 bg-slate-100 rounded-lg animate-pulse" />
+								<div className="h-16 bg-slate-100 dark:bg-slate-700 rounded-lg animate-pulse" />
 							</div>
 						))}
 					</div>
@@ -145,14 +147,14 @@ export default function EditProfilePage() {
 	}
 
 	return (
-		<div className="min-h-screen bg-slate-50 pb-20">
+		<div className="min-h-screen bg-slate-50 dark:bg-slate-900 pb-20">
 			<PageHeader title="Edit Profile" showBack />
 
 			<main className="px-4 py-4">
 				<motion.div
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
-					className="bg-white rounded-xl shadow-sm border border-slate-200/60 p-4"
+					className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200/60 dark:border-slate-700/60 p-4"
 				>
 					{error && (
 						<motion.div

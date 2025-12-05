@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import { signupSchema } from '../../schemas/auth.schemas';
 import type { SignupFormData } from '../../types/auth.types';
 import { useSignup } from '../../hooks/useSignup';
+import { useTheme } from '../../hooks/useTheme';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import PasswordInput from '../../components/ui/PasswordInput';
@@ -14,11 +15,10 @@ import OtpInput from '../../components/ui/OtpInput';
 import PreferenceSelector from '../../components/auth/PreferenceSelector';
 import AvatarSelector from '../../components/auth/AvatarSelector';
 import SignupProgressSteps from '../../components/auth/SignupProgressSteps';
-import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 import { WEBSITE_PAGES } from '../../config/website';
 
 export default function SignupPage() {
-	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+	useTheme();
 	const [selectedPreferences, setSelectedPreferences] = useState<string[]>([]);
 	const [selectedAvatarId, setSelectedAvatarId] = useState<string | null>(null);
 	const [formData, setFormData] = useState<Partial<SignupFormData>>({});
@@ -52,14 +52,12 @@ export default function SignupPage() {
 		mode: 'onChange',
 	});
 
-	// Store form data as user progresses
 	const watchedData = watch();
 
 	useEffect(() => {
 		setFormData((prev) => ({ ...prev, ...watchedData }));
 	}, [watchedData]);
 
-	// Ensure email is available when form is submitted
 	useEffect(() => {
 		if (step === 'basicInfo' && !email) {
 			setError('Email is required. Please go back and verify your email.');
@@ -120,42 +118,35 @@ export default function SignupPage() {
 	};
 
 	return (
-		<div className="h-screen-vh bg-slate-50 flex items-center justify-center px-4 py-2 overflow-y-auto">
+		<div className="h-screen-vh bg-slate-50 dark:bg-slate-900 flex items-center justify-center px-4 py-2 overflow-y-auto">
 			<motion.div
 				initial={{ opacity: 0, y: 20 }}
 				animate={{ opacity: 1, y: 0 }}
 				transition={{ duration: 0.3 }}
-				className="w-full max-w-2xl bg-white rounded-xl shadow-sm border border-slate-200/60 p-4 sm:p-6 my-auto max-h-full overflow-y-auto"
+				className="w-full max-w-2xl bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200/60 dark:border-slate-700/60 p-4 sm:p-6 my-auto max-h-full overflow-y-auto"
 			>
-				{/* Header */}
 				<div className="text-center mb-6">
-					<h1 className="text-2xl font-bold text-slate-900 mb-1.5">
+					<h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-1.5">
 						Create Your Account
 					</h1>
-					<p className="text-sm text-slate-600">
-						Join Zaakiyah and start your journey
-					</p>
+					<p className="text-sm text-slate-600 dark:text-slate-400">Join Zaakiyah and start your journey</p>
 				</div>
 
-				{/* Progress Steps */}
 				<SignupProgressSteps currentStep={step} />
-
-				{/* Error Message */}
 				<AnimatePresence>
 					{error && (
 						<motion.div
 							initial={{ opacity: 0, y: -10 }}
 							animate={{ opacity: 1, y: 0 }}
 							exit={{ opacity: 0 }}
-							className="mb-4 p-3 bg-error-50 border border-error-200 rounded-lg"
+							className="mb-4 p-3 bg-error-50 dark:bg-error-900/20 border border-error-200 dark:border-error-800/30 rounded-lg"
 						>
-							<p className="text-sm text-error-600">{error}</p>
+							<p className="text-sm text-error-600 dark:text-error-400">{error}</p>
 						</motion.div>
 					)}
 				</AnimatePresence>
 
 				<AnimatePresence initial={false}>
-					{/* Step 1: Email */}
 					{step === 'email' && (
 						<motion.div
 							key="email"
@@ -184,7 +175,6 @@ export default function SignupPage() {
 						</motion.div>
 					)}
 
-					{/* Step 2: Verify Code */}
 					{step === 'verify' && (
 						<motion.div
 							key="verify"
@@ -194,9 +184,9 @@ export default function SignupPage() {
 							className="space-y-4"
 						>
 							<div>
-								<p className="text-base sm:text-sm text-slate-600 mb-8 sm:mb-6 text-center">
+								<p className="text-base sm:text-sm text-slate-600 dark:text-slate-400 mb-8 sm:mb-6 text-center">
 									We've sent a 6-digit code to{' '}
-									<strong className="text-slate-900">{email}</strong>
+									<strong className="text-slate-900 dark:text-slate-100">{email}</strong>
 								</p>
 								<OtpInput
 									length={6}
@@ -205,12 +195,12 @@ export default function SignupPage() {
 									}}
 									disabled={isLoading}
 								/>
-								<p className="text-sm sm:text-xs text-slate-500 mt-6 sm:mt-4 text-center">
+								<p className="text-sm sm:text-xs text-slate-500 dark:text-slate-400 mt-6 sm:mt-4 text-center">
 									Didn't receive the code?{' '}
 									<button
 										type="button"
 										onClick={handleSendCode}
-										className="text-primary-600 hover:text-primary-500 font-medium disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-1.5"
+										className="text-primary-600 dark:text-primary-400 hover:text-primary-500 dark:hover:text-primary-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-1.5"
 										disabled={isSendingCode || isLoading}
 									>
 										{isSendingCode && (
@@ -250,7 +240,6 @@ export default function SignupPage() {
 						</motion.div>
 					)}
 
-					{/* Step 3: Basic Info */}
 					{step === 'basicInfo' && (
 						<motion.div
 							key="basicInfo"
@@ -279,54 +268,24 @@ export default function SignupPage() {
 								type="email"
 								value={email}
 								disabled
-								className="bg-slate-50"
+								className="bg-slate-50 dark:bg-slate-700/50"
 							/>
 
 							<PasswordInput
 								label="Password"
 								placeholder="Create a strong password"
 								error={errors.password?.message}
+								showRequirements={true}
 								{...register('password')}
 							/>
 
-							<div className="relative">
-								<label className="block text-sm font-medium text-slate-900 mb-2">
-									Confirm Password
-								</label>
-								<div className="relative">
-									<input
-										type={showConfirmPassword ? 'text' : 'password'}
-										placeholder="Confirm your password"
-										className={`
-											w-full px-5 py-3
-											text-sm
-											rounded-xl border-2 transition-all duration-200
-											focus:outline-none focus:ring-2 focus:ring-offset-0
-											bg-white pr-12
-											${
-												errors.confirmPassword
-													? 'border-error-300 focus:border-error-500 focus:ring-error-500/20'
-													: 'border-slate-200 focus:border-primary-500 focus:ring-primary-500/20'
-											}
-										`}
-										{...register('confirmPassword')}
-									/>
-									<button
-										type="button"
-										onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-										className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700 focus:outline-none"
-									>
-										{showConfirmPassword ? (
-											<EyeSlashIcon className="h-5 w-5" />
-										) : (
-											<EyeIcon className="h-5 w-5" />
-										)}
-									</button>
-								</div>
-								{errors.confirmPassword && (
-									<p className="mt-2 text-sm text-error-600">{errors.confirmPassword.message}</p>
-								)}
-							</div>
+							<PasswordInput
+								label="Confirm Password"
+								placeholder="Confirm your password"
+								error={errors.confirmPassword?.message}
+								showRequirements={false}
+								{...register('confirmPassword')}
+							/>
 
 							<PhoneInput
 								label="Mobile Number (Optional)"
@@ -357,7 +316,6 @@ export default function SignupPage() {
 						</motion.div>
 					)}
 
-					{/* Step 4: Avatar Selection */}
 					{step === 'avatar' && (
 						<motion.div
 							key="avatar"
@@ -405,7 +363,6 @@ export default function SignupPage() {
 						</motion.div>
 					)}
 
-					{/* Step 5: Login PIN */}
 					{step === 'pin' && (
 						<motion.div
 							key="pin"
@@ -415,7 +372,7 @@ export default function SignupPage() {
 							className="space-y-4"
 						>
 							<div>
-								<label className="block text-base sm:text-sm font-medium text-slate-900 mb-4 sm:mb-3 text-center">
+								<label className="block text-base sm:text-sm font-medium text-slate-900 dark:text-slate-100 mb-4 sm:mb-3 text-center">
 									4-Digit Login PIN
 								</label>
 								<Input
@@ -427,7 +384,7 @@ export default function SignupPage() {
 									{...register('loginPin')}
 									className="text-center text-2xl tracking-widest"
 								/>
-								<p className="text-sm sm:text-xs text-slate-500 mt-3 text-center">
+								<p className="text-sm sm:text-xs text-slate-500 dark:text-slate-400 mt-3 text-center">
 									Enter a 4-digit PIN for quick login
 								</p>
 							</div>
@@ -454,7 +411,6 @@ export default function SignupPage() {
 						</motion.div>
 					)}
 
-					{/* Step 6: Preferences */}
 					{step === 'preferences' && (
 						<motion.form
 							key="preferences"
@@ -478,26 +434,26 @@ export default function SignupPage() {
 								<input
 									id="acceptTerms"
 									type="checkbox"
-									className="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-slate-300 rounded"
+									className="mt-1 h-4 w-4 text-primary-600 dark:text-primary-400 focus:ring-primary-500 dark:focus:ring-primary-400 border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800"
 									{...register('acceptTerms')}
 								/>
 								<label
 									htmlFor="acceptTerms"
-									className="ml-3 text-sm text-slate-700"
+									className="ml-3 text-sm text-slate-700 dark:text-slate-300"
 								>
 									I accept the{' '}
-									<a 
-										href={WEBSITE_PAGES.TERMS} 
+									<a
+										href={WEBSITE_PAGES.TERMS}
 										target="_blank"
 										rel="noopener noreferrer"
-										className="text-primary-600 hover:text-primary-500 underline"
+										className="text-primary-600 dark:text-primary-400 hover:text-primary-500 dark:hover:text-primary-300 underline"
 									>
 										Terms and Conditions
 									</a>
 								</label>
 							</div>
 							{errors.acceptTerms && (
-								<p className="text-sm text-red-600">{errors.acceptTerms.message}</p>
+								<p className="text-sm text-error-600 dark:text-error-400">{errors.acceptTerms.message}</p>
 							)}
 
 							<div className="flex gap-4">
@@ -523,12 +479,12 @@ export default function SignupPage() {
 					)}
 				</AnimatePresence>
 
-				{/* Sign In Link */}
-				<p className="mt-6 text-center text-sm text-slate-600">
+				<p className="mt-6 text-center text-sm text-slate-600 dark:text-slate-400">
 					Already have an account?{' '}
 					<Link
 						to="/login"
-						className="font-medium text-primary-600 hover:text-primary-700 transition-colors"
+						replace
+						className="font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors"
 					>
 						Sign in
 					</Link>

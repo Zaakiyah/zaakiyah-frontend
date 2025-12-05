@@ -47,7 +47,7 @@ export default function AvatarSelector({ selectedAvatarId, onSelect, error }: Av
 
 	return (
 		<div>
-			<label className="block text-base sm:text-sm font-medium text-slate-900 mb-4 sm:mb-3">
+			<label className="block text-base sm:text-sm font-medium text-slate-900 dark:text-slate-100 mb-4 sm:mb-3">
 				Select Your Avatar
 			</label>
 			<div className="grid grid-cols-4 sm:grid-cols-4 md:grid-cols-4 gap-3 sm:gap-4">
@@ -63,8 +63,8 @@ export default function AvatarSelector({ selectedAvatarId, onSelect, error }: Av
 							border-4 transition-all duration-200
 							${
 								selectedAvatarId === avatar.id
-									? 'border-primary-500 ring-4 ring-primary-200 shadow-lg shadow-primary-500/30'
-									: 'border-slate-200 hover:border-slate-300'
+									? 'border-primary-500 dark:border-primary-400 ring-4 ring-primary-200 dark:ring-primary-800/30 shadow-lg shadow-primary-500/30 dark:shadow-primary-600/30'
+									: 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
 							}
 						`}
 					>
@@ -73,17 +73,17 @@ export default function AvatarSelector({ selectedAvatarId, onSelect, error }: Av
 							alt={avatar.name}
 							className="w-full h-full object-cover"
 						/>
-						{selectedAvatarId === avatar.id && (
-							<motion.div
-								initial={{ scale: 0 }}
-								animate={{ scale: 1 }}
-								className="absolute inset-0 bg-primary-500/20 flex items-center justify-center"
-							>
-								<svg
-									className="w-8 h-8 text-primary-600"
-									fill="currentColor"
-									viewBox="0 0 20 20"
+							{selectedAvatarId === avatar.id && (
+								<motion.div
+									initial={{ scale: 0 }}
+									animate={{ scale: 1 }}
+									className="absolute inset-0 bg-primary-500/20 dark:bg-primary-400/20 flex items-center justify-center"
 								>
+									<svg
+										className="w-8 h-8 text-primary-600 dark:text-primary-400"
+										fill="currentColor"
+										viewBox="0 0 20 20"
+									>
 									<path
 										fillRule="evenodd"
 										d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
@@ -96,7 +96,7 @@ export default function AvatarSelector({ selectedAvatarId, onSelect, error }: Av
 				))}
 			</div>
 			{error && (
-				<p className="mt-3 text-sm text-red-600" role="alert">
+				<p className="mt-3 text-sm text-red-600 dark:text-red-400" role="alert">
 					{error}
 				</p>
 			)}

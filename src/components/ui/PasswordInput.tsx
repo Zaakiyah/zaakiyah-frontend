@@ -80,7 +80,7 @@ const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
 		return (
 			<div className="w-full">
 				{label && (
-					<label className="block text-sm font-medium text-slate-900 mb-2">
+					<label className="block text-sm font-medium text-slate-900 dark:text-slate-100 mb-2">
 						{label}
 					</label>
 				)}
@@ -94,12 +94,14 @@ const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
 							rounded-xl border-2 transition-all duration-200
 							text-sm
 							focus:outline-none focus:ring-2 focus:ring-offset-0
-							placeholder:text-slate-400
-							bg-white pr-12
+							placeholder:text-slate-400 dark:placeholder:text-slate-500
+							bg-white dark:bg-slate-800
+							text-slate-900 dark:text-slate-100
+							pr-12
 							${
 								error
-									? 'border-error-300 focus:border-error-500 focus:ring-error-500/20'
-									: 'border-slate-200 focus:border-primary-500 focus:ring-primary-500/20'
+									? 'border-error-300 dark:border-error-600 focus:border-error-500 dark:focus:border-error-500 focus:ring-error-500/20'
+									: 'border-slate-200 dark:border-slate-700 focus:border-primary-500 dark:focus:border-primary-400 focus:ring-primary-500/20 dark:focus:ring-primary-400/20'
 							}
 							${className}
 						`}
@@ -108,7 +110,7 @@ const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
 					<button
 						type="button"
 						onClick={() => setShowPassword(!showPassword)}
-						className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700 focus:outline-none"
+						className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 focus:outline-none"
 						tabIndex={-1}
 					>
 						{showPassword ? (
@@ -132,7 +134,7 @@ const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
 									)}
 									<span
 										className={`text-sm ${
-											isValid ? 'text-green-700' : 'text-red-600'
+											isValid ? 'text-green-700 dark:text-green-400' : 'text-red-600 dark:text-red-400'
 										}`}
 									>
 										{requirement.label}
@@ -144,12 +146,12 @@ const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
 				)}
 
 				{error && (
-					<p className="mt-2 text-sm text-error-600" role="alert">
+					<p className="mt-2 text-sm text-error-600 dark:text-error-400" role="alert">
 						{error}
 					</p>
 				)}
 				{helperText && !error && (
-					<p className="mt-2 text-sm text-slate-500">{helperText}</p>
+					<p className="mt-2 text-sm text-slate-500 dark:text-slate-400">{helperText}</p>
 				)}
 			</div>
 		);

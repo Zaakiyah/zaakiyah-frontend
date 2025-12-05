@@ -10,9 +10,11 @@ import {
 import { CheckIcon as CheckIconSolid } from '@heroicons/react/24/solid';
 import PageHeader from '../components/layout/PageHeader';
 import BottomNavigation from '../components/layout/BottomNavigation';
+import { useTheme } from '../hooks/useTheme';
 import { notificationService, type Notification } from '../services/notificationService';
 
 export default function NotificationsPage() {
+	useTheme();
 	const [notifications, setNotifications] = useState<Notification[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -166,7 +168,7 @@ export default function NotificationsPage() {
 	const unreadNotificationsCount = notifications.filter((notif) => !notif.isRead).length;
 
 	return (
-		<div className="min-h-screen bg-slate-50 pb-20">
+		<div className="min-h-screen bg-slate-50 dark:bg-slate-900 pb-20">
 			<PageHeader
 				title="Notifications"
 				showBack
@@ -175,7 +177,7 @@ export default function NotificationsPage() {
 						<button
 							onClick={handleMarkAllAsRead}
 							disabled={isMarkingAllRead}
-							className="px-3 py-1.5 text-xs font-medium text-primary-600 hover:text-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+							className="px-3 py-1.5 text-xs font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
 						>
 							{isMarkingAllRead ? 'Marking...' : 'Mark all read'}
 						</button>
@@ -188,20 +190,20 @@ export default function NotificationsPage() {
 				<div className="mb-3 space-y-2">
 					{/* Search */}
 					<div className="relative">
-						<MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+						<MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-slate-500" />
 						<input
 							type="text"
 							value={searchQuery}
 							onChange={(e) => handleSearchChange(e.target.value)}
 							placeholder="Search notifications..."
-							className="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border-2 border-slate-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none bg-white"
+							className="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border-2 border-slate-200 dark:border-slate-700 focus:border-primary-500 dark:focus:border-primary-400 focus:ring-2 focus:ring-primary-500/20 dark:focus:ring-primary-400/20 focus:outline-none bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
 						/>
 						{searchQuery && (
 							<button
 								onClick={() => handleSearchChange('')}
-								className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-lg hover:bg-slate-100 transition-colors"
+								className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
 							>
-								<XMarkIcon className="w-4 h-4 text-slate-400" />
+								<XMarkIcon className="w-4 h-4 text-slate-400 dark:text-slate-500" />
 							</button>
 						)}
 					</div>
@@ -211,8 +213,8 @@ export default function NotificationsPage() {
 						onClick={handleFilterToggle}
 						className={`w-full px-3 py-2 rounded-xl border-2 transition-all text-sm font-medium flex items-center justify-center gap-2 ${
 							onlyUnread
-								? 'bg-primary-50 border-primary-200 text-primary-700'
-								: 'bg-white border-slate-200 text-slate-700 hover:border-slate-300'
+								? 'bg-primary-50 dark:bg-primary-900/20 border-primary-200 dark:border-primary-800 text-primary-700 dark:text-primary-400'
+								: 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-600'
 						}`}
 					>
 						<FunnelIcon className="w-4 h-4" />
@@ -231,23 +233,23 @@ export default function NotificationsPage() {
 						{Array.from({ length: 5 }).map((_, index) => (
 							<div
 								key={index}
-								className="bg-white rounded-lg p-3 shadow-sm border border-slate-200/60"
+								className="bg-white dark:bg-slate-800 rounded-lg p-3 shadow-sm border border-slate-200/60 dark:border-slate-700/60"
 							>
-								<div className="h-16 bg-slate-100 rounded-lg animate-pulse" />
+								<div className="h-16 bg-slate-100 dark:bg-slate-700 rounded-lg animate-pulse" />
 							</div>
 						))}
 					</div>
 				) : notifications.length === 0 ? (
-					<div className="bg-white rounded-xl p-8 shadow-sm border border-slate-200/60 text-center">
-						<InboxIcon className="w-12 h-12 text-slate-400 mx-auto mb-3" />
-						<p className="text-sm font-medium text-slate-900 mb-1">
+					<div className="bg-white dark:bg-slate-800 rounded-xl p-8 shadow-sm border border-slate-200/60 dark:border-slate-700/60 text-center">
+						<InboxIcon className="w-12 h-12 text-slate-400 dark:text-slate-500 mx-auto mb-3" />
+						<p className="text-sm font-medium text-slate-900 dark:text-slate-100 mb-1">
 							{onlyUnread
 								? 'No unread notifications'
 								: searchQuery
 								? 'No notifications found'
 								: 'No notifications'}
 						</p>
-						<p className="text-xs text-slate-500">
+						<p className="text-xs text-slate-500 dark:text-slate-400">
 							{onlyUnread
 								? "You're all caught up! 🎉"
 								: searchQuery
@@ -264,17 +266,17 @@ export default function NotificationsPage() {
 									initial={{ opacity: 0, y: 10 }}
 									animate={{ opacity: 1, y: 0 }}
 									transition={{ delay: index * 0.02 }}
-									className={`bg-white rounded-lg p-3 shadow-sm border transition-all ${
+									className={`bg-white dark:bg-slate-800 rounded-lg p-3 shadow-sm border transition-all ${
 										notification.isRead
-											? 'border-slate-200/60 opacity-75'
-											: 'border-primary-200/60 bg-primary-50/30'
+											? 'border-slate-200/60 dark:border-slate-700/60 opacity-75'
+											: 'border-primary-200/60 dark:border-primary-800/60 bg-primary-50/30 dark:bg-primary-900/20'
 									}`}
 								>
 									<div className="flex items-start gap-3">
 										{/* Unread Indicator */}
 										{!notification.isRead && (
 											<div className="mt-1.5 shrink-0">
-												<div className="w-2 h-2 bg-primary-500 rounded-full" />
+												<div className="w-2 h-2 bg-primary-500 dark:bg-primary-400 rounded-full" />
 											</div>
 										)}
 
@@ -283,8 +285,8 @@ export default function NotificationsPage() {
 												<h3
 													className={`text-sm font-semibold ${
 														notification.isRead
-															? 'text-slate-700'
-															: 'text-slate-900'
+															? 'text-slate-700 dark:text-slate-300'
+															: 'text-slate-900 dark:text-slate-100'
 													}`}
 												>
 													{notification.title}
@@ -294,26 +296,26 @@ export default function NotificationsPage() {
 														onClick={() =>
 															handleMarkAsRead(notification.id)
 														}
-														className="p-1 rounded-lg hover:bg-white transition-colors shrink-0"
+														className="p-1 rounded-lg hover:bg-white dark:hover:bg-slate-700 transition-colors shrink-0"
 														title="Mark as read"
 													>
-														<CheckIcon className="w-4 h-4 text-slate-500" />
+														<CheckIcon className="w-4 h-4 text-slate-500 dark:text-slate-400" />
 													</button>
 												)}
 											</div>
 
 											{notification.message && (
-												<p className="text-xs text-slate-600 mb-2 line-clamp-2">
+												<p className="text-xs text-slate-600 dark:text-slate-400 mb-2 line-clamp-2">
 													{notification.message}
 												</p>
 											)}
 
 											<div className="flex items-center justify-between">
-												<p className="text-[10px] text-slate-500 font-medium">
+												<p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">
 													{formatTimeAgo(notification.createdAt)}
 												</p>
 												{notification.isRead && (
-													<CheckIconSolid className="w-3 h-3 text-slate-400" />
+													<CheckIconSolid className="w-3 h-3 text-slate-400 dark:text-slate-500" />
 												)}
 											</div>
 										</div>
@@ -328,13 +330,15 @@ export default function NotificationsPage() {
 							className="h-10 flex items-center justify-center py-4"
 						>
 							{isLoadingMore && (
-								<div className="flex items-center gap-2 text-sm text-slate-500">
-									<div className="w-4 h-4 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
+								<div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+									<div className="w-4 h-4 border-2 border-primary-500 dark:border-primary-400 border-t-transparent rounded-full animate-spin" />
 									Loading more...
 								</div>
 							)}
 							{!hasMore && notifications.length > 0 && (
-								<p className="text-xs text-slate-500">No more notifications</p>
+								<p className="text-xs text-slate-500 dark:text-slate-400">
+									No more notifications
+								</p>
 							)}
 						</div>
 					</>

@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { motion } from 'framer-motion';
@@ -6,16 +5,18 @@ import { useSearchParams, Link } from 'react-router-dom';
 import { resetPasswordSchema } from '../../schemas/auth.schemas';
 import type { ResetPasswordFormData } from '../../types/auth.types';
 import { useResetPassword } from '../../hooks/useResetPassword';
+import { useTheme } from '../../hooks/useTheme';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
+import PasswordInput from '../../components/ui/PasswordInput';
 import OtpInput from '../../components/ui/OtpInput';
-import { EyeIcon, EyeSlashIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import { CheckCircleIcon } from '@heroicons/react/24/outline';
 
 export default function ResetPasswordPage() {
 	const [searchParams] = useSearchParams();
 	const emailParam = searchParams.get('email') || '';
+	useTheme();
 
-	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 	const { isLoading, error, success, handleResetPassword } = useResetPassword();
 
 	const {
@@ -40,25 +41,25 @@ export default function ResetPasswordPage() {
 
 	if (success) {
 		return (
-			<div className="h-screen-vh bg-slate-50 flex items-center justify-center px-4 py-2 overflow-y-auto">
+			<div className="h-screen-vh bg-slate-50 dark:bg-slate-900 flex items-center justify-center px-4 py-2 overflow-y-auto">
 				<motion.div
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ duration: 0.3 }}
-					className="w-full max-w-md bg-white rounded-xl shadow-sm border border-slate-200/60 p-4 sm:p-6 text-center my-auto"
+					className="w-full max-w-md bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200/60 dark:border-slate-700/60 p-4 sm:p-6 text-center my-auto"
 				>
 					<motion.div
 						initial={{ scale: 0 }}
 						animate={{ scale: 1 }}
 						transition={{ type: 'spring', stiffness: 200, delay: 0.2 }}
-						className="mx-auto w-14 h-14 bg-primary-50 rounded-full flex items-center justify-center mb-4"
+						className="mx-auto w-14 h-14 bg-primary-50 dark:bg-primary-900/20 rounded-full flex items-center justify-center mb-4"
 					>
-						<CheckCircleIcon className="w-8 h-8 text-primary-600" />
+						<CheckCircleIcon className="w-8 h-8 text-primary-600 dark:text-primary-400" />
 					</motion.div>
-					<h2 className="text-xl font-bold text-slate-900 mb-2">
+					<h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">
 						Password Reset Successful!
 					</h2>
-					<p className="text-sm text-slate-600 mb-4">
+					<p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
 						Your password has been reset successfully. Redirecting to login...
 					</p>
 				</motion.div>
@@ -67,22 +68,22 @@ export default function ResetPasswordPage() {
 	}
 
 	return (
-		<div className="h-screen-vh bg-slate-50 flex items-center justify-center px-4 py-2 overflow-y-auto">
+		<div className="h-screen-vh bg-slate-50 dark:bg-slate-900 flex items-center justify-center px-4 py-2 overflow-y-auto">
 			<motion.div
 				initial={{ opacity: 0, y: 20 }}
 				animate={{ opacity: 1, y: 0 }}
 				transition={{ duration: 0.3 }}
-				className="w-full max-w-md bg-white rounded-xl shadow-sm border border-slate-200/60 p-4 sm:p-6 my-auto"
+				className="w-full max-w-md bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200/60 dark:border-slate-700/60 p-4 sm:p-6 my-auto"
 			>
 				<div className="text-center mb-6">
-					<h1 className="text-2xl font-bold text-slate-900 mb-1.5">
+					<h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-1.5">
 						Reset Your Password
 					</h1>
-					<p className="text-sm text-slate-600">
+					<p className="text-sm text-slate-600 dark:text-slate-400">
 						Enter the verification code sent to your email and create a new password.
 					</p>
 					{emailParam && (
-						<p className="text-xs text-primary-600 mt-2">
+						<p className="text-xs text-primary-600 dark:text-primary-400 mt-2">
 							Code sent to: <strong>{emailParam}</strong>
 						</p>
 					)}
@@ -92,9 +93,9 @@ export default function ResetPasswordPage() {
 					<motion.div
 						initial={{ opacity: 0, y: -10 }}
 						animate={{ opacity: 1, y: 0 }}
-						className="mb-4 p-3 bg-error-50 border border-error-200 rounded-lg"
+						className="mb-4 p-3 bg-error-50 dark:bg-error-900/20 border border-error-200 dark:border-error-800/30 rounded-lg"
 					>
-						<p className="text-sm text-error-600">{error}</p>
+						<p className="text-sm text-error-600 dark:text-error-400">{error}</p>
 					</motion.div>
 				)}
 
@@ -116,52 +117,21 @@ export default function ResetPasswordPage() {
 						)}
 					</div>
 
-					<Input
+					<PasswordInput
 						label="New Password"
-						type="password"
 						placeholder="Enter new password"
 						error={errors.password?.message}
+						showRequirements={true}
 						{...register('password')}
 					/>
 
-					<div className="relative">
-						<label className="block text-sm font-medium text-slate-900 mb-2">
-							Confirm Password
-						</label>
-						<div className="relative">
-							<input
-								type={showConfirmPassword ? 'text' : 'password'}
-								placeholder="Confirm new password"
-								className={`
-									w-full px-5 py-3
-									text-sm
-									rounded-xl border-2 transition-all duration-200
-									focus:outline-none focus:ring-2 focus:ring-offset-0
-									bg-white pr-12
-									${
-										errors.confirmPassword
-											? 'border-error-300 focus:border-error-500 focus:ring-error-500/20'
-											: 'border-slate-200 focus:border-primary-500 focus:ring-primary-500/20'
-									}
-								`}
-								{...register('confirmPassword')}
-							/>
-							<button
-								type="button"
-								onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-								className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700 focus:outline-none"
-							>
-								{showConfirmPassword ? (
-									<EyeSlashIcon className="h-5 w-5" />
-								) : (
-									<EyeIcon className="h-5 w-5" />
-								)}
-							</button>
-						</div>
-						{errors.confirmPassword && (
-							<p className="mt-2 text-sm text-error-600">{errors.confirmPassword.message}</p>
-						)}
-					</div>
+					<PasswordInput
+						label="Confirm Password"
+						placeholder="Confirm new password"
+						error={errors.confirmPassword?.message}
+						showRequirements={false}
+						{...register('confirmPassword')}
+					/>
 
 					<Button
 						type="submit"
@@ -174,11 +144,11 @@ export default function ResetPasswordPage() {
 					</Button>
 				</form>
 
-				<p className="mt-6 text-center text-sm text-slate-600">
+				<p className="mt-6 text-center text-sm text-slate-600 dark:text-slate-400">
 					Remember your password?{' '}
 					<Link
 						to="/login"
-						className="font-medium text-primary-600 hover:text-primary-700 transition-colors"
+						className="font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-500 transition-colors"
 					>
 						Sign in
 					</Link>
