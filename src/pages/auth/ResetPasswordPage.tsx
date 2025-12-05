@@ -7,7 +7,6 @@ import type { ResetPasswordFormData } from '../../types/auth.types';
 import { useResetPassword } from '../../hooks/useResetPassword';
 import { useTheme } from '../../hooks/useTheme';
 import Button from '../../components/ui/Button';
-import Input from '../../components/ui/Input';
 import PasswordInput from '../../components/ui/PasswordInput';
 import OtpInput from '../../components/ui/OtpInput';
 import { CheckCircleIcon } from '@heroicons/react/24/outline';

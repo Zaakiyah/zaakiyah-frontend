@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { loginSchema } from '../../schemas/auth.schemas';
 import type { LoginFormData } from '../../types/auth.types';
 import { useLogin } from '../../hooks/useLogin';
@@ -15,7 +15,6 @@ import { ArrowLeftIcon, LockClosedIcon } from '@heroicons/react/24/outline';
 import { TwoFactorMethod } from '../../services/twoFactorService';
 
 export default function LoginPage() {
-	const navigate = useNavigate();
 	useTheme();
 	const {
 		isLoading,

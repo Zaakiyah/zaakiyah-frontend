@@ -1,110 +1,105 @@
 # Zaakiyah Frontend
 
-A modern, mobile-first React application for Islamic finance management, built with React, TypeScript, Tailwind CSS, and Framer Motion.
+Modern React application for managing Zakat calculations and Islamic financial tracking.
 
-## Features
+## Tech Stack
 
-- 🔐 **Authentication**
-  - Email/password login
-  - Multi-step signup with email verification
-  - Password reset flow
-  - OAuth (Google & Apple)
-  - Protected routes
-
-- 🎨 **Modern UI/UX**
-  - Clean, sleek design
-  - Smooth animations with Framer Motion
-  - Mobile-first responsive design
-  - Accessible components
-
-- 🛠 **Tech Stack**
-  - React 19
-  - TypeScript
-  - Vite
-  - Tailwind CSS
-  - Framer Motion
-  - Zustand (state management)
-  - React Hook Form + Zod (form validation)
-  - React Router
-  - Axios
+- **React 19** - UI framework
+- **TypeScript** - Type safety
+- **Vite** - Build tool and dev server
+- **Tailwind CSS v4** - Styling
+- **React Router** - Routing
+- **Zustand** - State management
+- **Framer Motion** - Animations
+- **React Hook Form** - Form handling
+- **Zod** - Schema validation
+- **Axios** - HTTP client
+- **Firebase** - Push notifications
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js 18+ or pnpm
-- Backend API running (zaakiyah-rest-api)
+- Node.js 18 or higher
+- pnpm (install with `npm install -g pnpm`)
 
 ### Installation
 
-1. Install dependencies:
 ```bash
 pnpm install
 ```
 
-2. Create a `.env` file:
+### Development
+
+```bash
+pnpm run dev
+```
+
+The app will be available at `http://localhost:3000`
+
+### Build
+
+```bash
+pnpm run build
+```
+
+Production build will be in the `dist/` directory.
+
+### Preview Production Build
+
+```bash
+pnpm run preview
+```
+
+## Environment Variables
+
+Copy `.env.example` to `.env` and configure:
+
 ```bash
 cp .env.example .env
 ```
 
-3. Update `.env` with your API URL:
-```
-VITE_API_URL=http://localhost:3001
-```
-
-4. Start the development server:
-```bash
-pnpm dev
-```
-
-The app will be available at `http://localhost:3000`
+Required variables:
+- `VITE_API_URL` - Backend API URL
+- `VITE_FIREBASE_*` - Firebase configuration (optional)
 
 ## Project Structure
 
 ```
 src/
-├── components/       # Reusable UI components
-│   ├── auth/        # Authentication components
-│   └── ui/          # Base UI components
-├── lib/             # Utility libraries
-├── pages/           # Page components
-│   └── auth/        # Authentication pages
-├── services/        # API services
-├── store/           # Zustand stores
-└── App.tsx          # Main app component
+├── components/     # Reusable UI components
+│   ├── auth/       # Authentication components
+│   ├── layout/     # Layout components
+│   ├── profile/    # Profile-related components
+│   ├── security/   # Security components
+│   └── ui/         # Base UI components
+├── hooks/          # Custom React hooks
+├── lib/            # Library configurations
+├── pages/          # Page components
+├── schemas/        # Validation schemas
+├── services/       # API services
+├── store/          # Zustand stores
+├── types/          # TypeScript types
+└── utils/          # Utility functions
 ```
 
-## Available Scripts
+## Features
 
-- `pnpm dev` - Start development server
-- `pnpm build` - Build for production
-- `pnpm preview` - Preview production build
+- ✅ Dark mode support
+- ✅ Responsive design
+- ✅ Form validation
+- ✅ Error boundaries
+- ✅ Push notifications
+- ✅ Theme persistence
+- ✅ Currency conversion
+- ✅ Nisaab calculations
+- ✅ User authentication
+- ✅ Profile management
 
-## Authentication Flow
+## Deployment
 
-1. **Login**: Email/password authentication
-2. **Signup**: 
-   - Step 1: Enter email and receive verification code
-   - Step 2: Verify code
-   - Step 3: Complete profile information
-3. **Password Reset**:
-   - Request reset code
-   - Enter code and new password
-
-## API Integration
-
-The frontend communicates with the backend API at the URL specified in `VITE_API_URL`. The API endpoints are:
-
-- `POST /auth/login` - User login
-- `POST /auth/signup-code` - Request signup verification code
-- `POST /auth/signup-code/verify` - Verify signup code
-- `POST /auth/signup` - Complete signup
-- `POST /auth/forgot-password` - Request password reset
-- `POST /auth/reset-password` - Reset password
-- `POST /auth/logout` - User logout
-- `POST /auth/refresh-token` - Refresh access token
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed deployment instructions.
 
 ## License
 
-Private project
-
+Private - All rights reserved

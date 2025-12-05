@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
+import { alert } from '../../store/alertStore';
 import { sessionService, type Session } from '../../services/sessionService';
 import ConfirmDialog from '../ui/ConfirmDialog';
 import {
