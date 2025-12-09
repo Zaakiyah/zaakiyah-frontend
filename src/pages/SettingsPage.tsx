@@ -10,6 +10,7 @@ import CurrencySelector from '../components/ui/CurrencySelector';
 import { CurrencyDollarIcon, BellIcon, LanguageIcon, MoonIcon } from '@heroicons/react/24/outline';
 import ThemeSelector from '../components/ui/ThemeSelector';
 import ComingSoon from '../components/ui/ComingSoon';
+import NotificationPreferencesSection from '../components/settings/NotificationPreferencesSection';
 
 export default function SettingsPage() {
 	const { user, updateUser } = useAuthStore();
@@ -88,7 +89,7 @@ export default function SettingsPage() {
 					)}
 				</motion.div>
 
-				{/* Additional Settings Sections - Placeholder for future features */}
+				{/* Notification Preferences Section */}
 				<motion.div
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
@@ -96,19 +97,19 @@ export default function SettingsPage() {
 					className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-slate-200/60 dark:border-slate-700/60"
 				>
 					<div className="flex items-start gap-3 mb-4">
-						<div className="w-10 h-10 bg-slate-100 dark:bg-slate-700 rounded-lg flex items-center justify-center shrink-0">
-							<BellIcon className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+						<div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center shrink-0">
+							<BellIcon className="w-5 h-5 text-primary-600 dark:text-primary-400" />
 						</div>
 						<div className="flex-1">
 							<h2 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-1">
 								Notification Preferences
 							</h2>
 							<p className="text-xs text-slate-600 dark:text-slate-400">
-								Manage how and when you receive notifications
+								Manage how and when you receive notifications. These settings will be used as defaults for new calculations.
 							</p>
 						</div>
 					</div>
-					<ComingSoon variant="section" />
+					<NotificationPreferencesSection />
 				</motion.div>
 
 				<motion.div

@@ -1,13 +1,6 @@
-import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ExclamationTriangleIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import Button from './Button';
-import {
-	ExclamationTriangleIcon,
-	InformationCircleIcon,
-	CheckCircleIcon,
-} from '@heroicons/react/24/outline';
-
-export type ConfirmDialogVariant = 'danger' | 'warning' | 'info' | 'success';
 
 interface ConfirmDialogProps {
 	isOpen: boolean;
@@ -15,39 +8,12 @@ interface ConfirmDialogProps {
 	onConfirm: () => void | Promise<void>;
 	title: string;
 	message: string;
-	variant?: ConfirmDialogVariant;
 	confirmText?: string;
 	cancelText?: string;
+	variant?: 'danger' | 'warning' | 'info';
 	isLoading?: boolean;
-	icon?: React.ReactNode;
+	confirmVariant?: 'danger' | 'primary' | 'error';
 }
-
-const variantStyles = {
-	danger: {
-		iconBg: 'bg-error-100',
-		iconColor: 'text-error-600',
-		buttonVariant: 'danger' as const,
-		defaultIcon: ExclamationTriangleIcon,
-	},
-	warning: {
-		iconBg: 'bg-yellow-100',
-		iconColor: 'text-yellow-600',
-		buttonVariant: 'outline' as const,
-		defaultIcon: ExclamationTriangleIcon,
-	},
-	info: {
-		iconBg: 'bg-primary-100',
-		iconColor: 'text-primary-600',
-		buttonVariant: 'primary' as const,
-		defaultIcon: InformationCircleIcon,
-	},
-	success: {
-		iconBg: 'bg-green-100',
-		iconColor: 'text-green-600',
-		buttonVariant: 'primary' as const,
-		defaultIcon: CheckCircleIcon,
-	},
-};
 
 export default function ConfirmDialog({
 	isOpen,
@@ -55,35 +21,15 @@ export default function ConfirmDialog({
 	onConfirm,
 	title,
 	message,
-	variant = 'warning',
 	confirmText = 'Confirm',
 	cancelText = 'Cancel',
+	variant = 'danger',
 	isLoading = false,
-	icon,
+	confirmVariant,
 }: ConfirmDialogProps) {
-	const variantStyle = variantStyles[variant];
-	const DefaultIcon = variantStyle.defaultIcon;
-
-	useEffect(() => {
-		if (isOpen) {
-			document.body.style.overflow = 'hidden';
-		} else {
-			document.body.style.overflow = '';
-		}
-
-		return () => {
-			document.body.style.overflow = '';
-		};
-	}, [isOpen]);
-
 	const handleConfirm = async () => {
 		await onConfirm();
-	};
-
-	const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
-		if (e.target === e.currentTarget && !isLoading) {
-			onClose();
-		}
+		onClose();
 	};
 
 	return (
@@ -95,66 +41,79 @@ export default function ConfirmDialog({
 						initial={{ opacity: 0 }}
 						animate={{ opacity: 1 }}
 						exit={{ opacity: 0 }}
-						transition={{ duration: 0.2 }}
-						className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
-						onClick={handleBackdropClick}
+						onClick={onClose}
+						className="fixed inset-0 bg-black/50 z-50 backdrop-blur-sm"
 					/>
 
 					{/* Dialog */}
-					<div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
-						<motion.div
-							initial={{ opacity: 0, scale: 0.95, y: 20 }}
-							animate={{ opacity: 1, scale: 1, y: 0 }}
-							exit={{ opacity: 0, scale: 0.95, y: 20 }}
-							transition={{ duration: 0.2 }}
-							className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200/60 dark:border-slate-700/60 w-full max-w-sm pointer-events-auto"
-						>
-							<div className="p-6">
-								{/* Icon */}
-								<div className="flex justify-center mb-4">
-									<div
-										className={`w-12 h-12 rounded-full ${variantStyle.iconBg} dark:${variantStyle.iconBg.replace('100', '900/30')} flex items-center justify-center`}
-									>
-										{icon || (
-											<DefaultIcon
-												className={`w-6 h-6 ${variantStyle.iconColor} dark:${variantStyle.iconColor.replace('600', '400')}`}
-											/>
-										)}
-									</div>
+					<motion.div
+						initial={{ opacity: 0, scale: 0.95, y: 20 }}
+						animate={{ opacity: 1, scale: 1, y: 0 }}
+						exit={{ opacity: 0, scale: 0.95, y: 20 }}
+						className="fixed inset-0 z-50 flex items-center justify-center p-4"
+					>
+						<div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full p-6 border border-slate-200 dark:border-slate-700">
+							{/* Header */}
+							<div className="flex items-start gap-4 mb-4">
+								<div
+									className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center ${
+										variant === 'danger'
+											? 'bg-error-100 dark:bg-error-900/30'
+											: variant === 'warning'
+											? 'bg-warning-100 dark:bg-warning-900/30'
+											: 'bg-info-100 dark:bg-info-900/30'
+									}`}
+								>
+									<ExclamationTriangleIcon
+										className={`w-6 h-6 ${
+											variant === 'danger'
+												? 'text-error-600 dark:text-error-400'
+												: variant === 'warning'
+												? 'text-warning-600 dark:text-warning-400'
+												: 'text-info-600 dark:text-info-400'
+										}`}
+									/>
 								</div>
-
-								{/* Title */}
-								<h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 text-center mb-2">
-									{title}
-								</h3>
-
-								{/* Message */}
-								<p className="text-sm text-slate-600 dark:text-slate-400 text-center mb-6">{message}</p>
-
-								{/* Actions */}
-								<div className="flex gap-3">
-									<Button
-										type="button"
-										variant="outline"
-										onClick={onClose}
-										className="flex-1"
-										disabled={isLoading}
-									>
-										{cancelText}
-									</Button>
-									<Button
-										type="button"
-										variant={variantStyle.buttonVariant}
-										onClick={handleConfirm}
-										className="flex-1"
-										isLoading={isLoading}
-									>
-										{confirmText}
-									</Button>
+								<div className="flex-1 min-w-0">
+									<h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-1">
+										{title}
+									</h3>
+									<p className="text-sm text-slate-600 dark:text-slate-400">{message}</p>
 								</div>
+								<button
+									onClick={onClose}
+									className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors flex-shrink-0"
+								>
+									<XMarkIcon className="w-5 h-5 text-slate-500 dark:text-slate-400" />
+								</button>
 							</div>
-						</motion.div>
-					</div>
+
+							{/* Actions */}
+							<div className="flex gap-3">
+								<Button
+									variant="outline"
+									onClick={onClose}
+									className="flex-1"
+									disabled={isLoading}
+								>
+									{cancelText}
+								</Button>
+								<Button
+									variant={
+										confirmVariant === 'error' || confirmVariant === 'danger' || variant === 'danger'
+											? 'danger'
+											: 'primary'
+									}
+									onClick={handleConfirm}
+									className="flex-1"
+									disabled={isLoading}
+									isLoading={isLoading}
+								>
+									{confirmText}
+								</Button>
+							</div>
+						</div>
+					</motion.div>
 				</>
 			)}
 		</AnimatePresence>

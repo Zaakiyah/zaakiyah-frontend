@@ -57,7 +57,9 @@ export default function CurrencySelector({
 
 	const handleSelect = (currency: SupportedCurrency) => {
 		onChange?.(currency.code);
-		useCurrencyStore.getState().setPreferredCurrency(currency.code);
+		// Only update global preferred currency if this selector is being used for global settings
+		// Don't update it when used for individual assets/liabilities
+		// The onChange callback will handle the specific item's currency update
 		setIsOpen(false);
 		setSearchQuery('');
 	};

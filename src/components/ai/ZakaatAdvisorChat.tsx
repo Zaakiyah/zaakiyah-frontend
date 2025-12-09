@@ -14,7 +14,7 @@ export default function ZakaatAdvisorChat({ isOpen, onClose }: ZakaatAdvisorChat
 		{
 			role: 'assistant',
 			content:
-				"Assalamu Alaikum! I'm your AI Zakaat Advisor. I can help you understand Zakaat calculations, eligibility, Nisaab thresholds, and answer questions about Islamic finance. How can I assist you today?",
+				"Assalāmu 'alaykum! I'm your AI Zakaat Advisor. I can help you understand Zakaat calculations, eligibility, Nisaab thresholds, and answer questions about Islamic finance. How can I assist you today?",
 		},
 	]);
 	const [input, setInput] = useState('');

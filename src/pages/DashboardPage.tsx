@@ -10,7 +10,9 @@ import {
 	GOLD_NISAAB_GRAMS,
 	SILVER_NISAAB_GRAMS,
 } from '../services/nisaabService';
+import { wealthCalculationService } from '../services/wealthCalculationService';
 import { formatCurrency } from '../utils/currency';
+import { currencyService } from '../services/currencyService';
 import BottomNavigation from '../components/layout/BottomNavigation';
 import { WEBSITE_PAGES } from '../config/website';
 import StoriesViewer from '../components/stories/StoriesViewer';
@@ -32,12 +34,15 @@ import {
 	ChartBarIcon,
 	ChatBubbleLeftIcon,
 	ShareIcon,
+	CheckCircleIcon,
 } from '@heroicons/react/24/outline';
 import { CurrencyDollarIcon, HeartIcon as HeartIconSolid } from '@heroicons/react/24/solid';
 
 interface ZakaatCalculation {
 	amount: number;
+	currency: string; // Currency the calculation was done in
 	lastCalculated: Date;
+	meetsNisaab: boolean;
 }
 
 interface CommunityPost {
@@ -62,6 +67,8 @@ export default function DashboardPage() {
 	const [isLoadingNisaab, setIsLoadingNisaab] = useState(true);
 	const [isAmountVisible, setIsAmountVisible] = useState(true);
 	const [zakaatCalculation, setZakaatCalculation] = useState<ZakaatCalculation | null>(null);
+	const [convertedAmount, setConvertedAmount] = useState<number | null>(null);
+	const [isConverting, setIsConverting] = useState(false);
 	const [isStoriesOpen, setIsStoriesOpen] = useState(false);
 	const [communityPosts, setCommunityPosts] = useState<CommunityPost[]>([
 		{
@@ -117,14 +124,59 @@ export default function DashboardPage() {
 
 		isFetchingRef.current = true;
 
-		const fetchNisaab = async () => {
+		const fetchData = async () => {
 			try {
+				// Fetch Nisaab data
 				const currency = preferredCurrency || user?.preferredCurrency || 'USD';
-				const response = await nisaabService.getTodayNisaab(currency);
-				if (response?.data) {
-					setNisaabData(response.data);
+				const nisaabResponse = await nisaabService.getTodayNisaab(currency);
+				if (nisaabResponse?.data) {
+					setNisaabData(nisaabResponse.data);
 				}
 				setIsLoadingNisaab(false);
+
+				// Fetch latest active calculation
+				try {
+					const calculationsResponse = await wealthCalculationService.getCalculations(
+						1,
+						1,
+						'active'
+					);
+					if (
+						calculationsResponse?.data?.items &&
+						calculationsResponse.data.items.length > 0
+					) {
+						const latestCalculation = calculationsResponse.data.items[0] as any;
+						// Backend API returns zakatDue and meetsNisaab directly on the calculation object
+						const zakatDue =
+							latestCalculation.zakatDue ??
+							latestCalculation.calculationResult?.zakatDue ??
+							0;
+						const meetsNisaab =
+							latestCalculation.meetsNisaab ??
+							latestCalculation.calculationResult?.meetsNisaab ??
+							false;
+
+						// Always set zakaatCalculation if a calculation exists, even if zakatDue is 0 or null
+						const calculationCurrency =
+							latestCalculation.currency ||
+							preferredCurrency ||
+							user?.preferredCurrency ||
+							'USD';
+						setZakaatCalculation({
+							amount: zakatDue ?? 0,
+							currency: calculationCurrency,
+							lastCalculated: new Date(latestCalculation.calculationDate),
+							meetsNisaab: meetsNisaab ?? false,
+						});
+					} else {
+						// Explicitly set to null if no calculations exist
+						setZakaatCalculation(null);
+					}
+				} catch (error) {
+					console.error('[Dashboard] Error fetching latest calculation:', error);
+					// Don't set error state, just log - user can still use the dashboard
+					setZakaatCalculation(null);
+				}
 			} catch (error) {
 				console.error('[Dashboard] Error fetching nisaab:', error);
 				setIsLoadingNisaab(false);
@@ -133,14 +185,44 @@ export default function DashboardPage() {
 			}
 		};
 
-		fetchNisaab();
+		fetchData();
+	}, [preferredCurrency, user?.preferredCurrency]);
 
-		const mockCalculation: ZakaatCalculation = {
-			amount: 125000,
-			lastCalculated: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000),
-		};
-		setZakaatCalculation(mockCalculation);
-	}, []);
+	// Convert Zakaat amount if calculation currency differs from preferred currency
+	useEffect(() => {
+		if (
+			zakaatCalculation &&
+			zakaatCalculation.currency &&
+			zakaatCalculation.currency !== preferredCurrency &&
+			zakaatCalculation.amount > 0
+		) {
+			setIsConverting(true);
+			currencyService
+				.convertCurrency(
+					zakaatCalculation.currency,
+					preferredCurrency,
+					zakaatCalculation.amount
+				)
+				.then((response) => {
+					if (response.data) {
+						const converted =
+							response.data.convertedValue || response.data.convertedAmount;
+						setConvertedAmount(converted || null);
+					} else {
+						setConvertedAmount(null);
+					}
+				})
+				.catch((error) => {
+					console.error('Error converting Zakaat amount:', error);
+					setConvertedAmount(null);
+				})
+				.finally(() => {
+					setIsConverting(false);
+				});
+		} else {
+			setConvertedAmount(null);
+		}
+	}, [zakaatCalculation, preferredCurrency]);
 
 	const handlePostLike = (postId: number) => {
 		setCommunityPosts((posts) =>
@@ -281,7 +363,9 @@ export default function DashboardPage() {
 								)}
 							</button>
 							<div>
-								<p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Welcome back,</p>
+								<p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+									Welcome back,
+								</p>
 								<p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
 									{user?.firstName || 'User'} 👋
 								</p>
@@ -304,49 +388,178 @@ export default function DashboardPage() {
 				<motion.div
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
-					className="bg-gradient-to-br from-primary-50 dark:from-primary-900/20 via-primary-50/50 dark:via-primary-900/10 to-white dark:to-slate-800 rounded-xl p-4 shadow-sm border border-primary-100/50 dark:border-primary-800/30"
+					className="rounded-xl p-4 shadow-sm border overflow-hidden relative bg-gradient-to-br from-primary-50 dark:from-primary-900/20 via-primary-50/50 dark:via-primary-900/10 to-white dark:to-slate-800 border-primary-100/50 dark:border-primary-800/30"
 				>
-					<div className="flex items-center justify-between">
-						<div className="flex-1">
-							<p className="text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Zakaat Due</p>
-							<div className="flex items-center gap-2">
-								{isAmountVisible ? (
-									<>
-										<p className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-											{zakaatCalculation
-												? formatCurrency(zakaatCalculation.amount)
-												: '₦0.00'}
-										</p>
-										<button
-											onClick={() => setIsAmountVisible(false)}
-											className="p-1 rounded-lg hover:bg-white/50 transition-colors"
-										>
-											<EyeSlashIcon className="w-4 h-4 text-slate-600 dark:text-slate-400" />
-										</button>
-									</>
-								) : (
-									<>
-										<p className="text-2xl font-bold text-slate-900 dark:text-slate-100">••••••</p>
-										<button
-											onClick={() => setIsAmountVisible(true)}
-											className="p-1 rounded-lg hover:bg-white/50 transition-colors"
-										>
-											<EyeIcon className="w-4 h-4 text-slate-600 dark:text-slate-400" />
-										</button>
-									</>
-								)}
+					{zakaatCalculation &&
+					zakaatCalculation.meetsNisaab &&
+					zakaatCalculation.amount > 0 ? (
+						<div className="flex items-start gap-3">
+							<div className="flex-shrink-0">
+								<div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-sm">
+									<CurrencyDollarIcon className="w-6 h-6 text-white" />
+								</div>
 							</div>
-							{zakaatCalculation && (
-								<div className="flex items-center gap-1 mt-1.5">
+							<div className="flex-1 min-w-0">
+								<div className="flex items-center justify-between mb-1">
+									<div className="flex items-center gap-1.5">
+										<p className="text-xs font-medium text-slate-600 dark:text-slate-400">
+											Zakaat Due
+										</p>
+										<SparklesIcon className="w-3 h-3 text-primary-500 dark:text-primary-400" />
+									</div>
+									<button
+										onClick={() => navigate('/calculations')}
+										className="text-xs text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-semibold transition-colors inline-flex items-center gap-0.5"
+										type="button"
+									>
+										View all
+										<ArrowRightIcon className="w-3 h-3" />
+									</button>
+								</div>
+								<div className="flex items-center gap-2 mb-1.5">
+									{isAmountVisible ? (
+										<>
+											<div className="flex-1">
+												<p className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+													{formatCurrency(
+														zakaatCalculation.amount,
+														zakaatCalculation.currency
+													)}
+												</p>
+												{convertedAmount !== null &&
+													zakaatCalculation.currency !==
+														preferredCurrency && (
+														<p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+															≈{' '}
+															{formatCurrency(
+																convertedAmount,
+																preferredCurrency
+															)}
+															{isConverting && (
+																<span className="ml-1 text-slate-400">
+																	(converting...)
+																</span>
+															)}
+														</p>
+													)}
+											</div>
+											<button
+												onClick={() => setIsAmountVisible(false)}
+												className="p-1 rounded-lg hover:bg-primary-100/50 dark:hover:bg-primary-800/30 transition-colors"
+												aria-label="Hide amount"
+											>
+												<EyeSlashIcon className="w-3.5 h-3.5 text-slate-600 dark:text-slate-400" />
+											</button>
+										</>
+									) : (
+										<>
+											<p className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+												••••••
+											</p>
+											<button
+												onClick={() => setIsAmountVisible(true)}
+												className="p-1 rounded-lg hover:bg-primary-100/50 dark:hover:bg-primary-800/30 transition-colors"
+												aria-label="Show amount"
+											>
+												<EyeIcon className="w-3.5 h-3.5 text-slate-600 dark:text-slate-400" />
+											</button>
+										</>
+									)}
+								</div>
+								<div className="flex items-center gap-1">
 									<ClockIcon className="w-3 h-3 text-slate-500 dark:text-slate-400" />
 									<p className="text-xs text-slate-500 dark:text-slate-400">
 										Last calculated{' '}
 										{formatTimeAgo(zakaatCalculation.lastCalculated)}
 									</p>
 								</div>
-							)}
+							</div>
 						</div>
-					</div>
+					) : zakaatCalculation && !zakaatCalculation.meetsNisaab ? (
+						<div className="flex items-start gap-3">
+							<div className="flex-shrink-0">
+								<div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-sm">
+									<CheckCircleIcon className="w-6 h-6 text-white" />
+								</div>
+							</div>
+							<div className="flex-1 min-w-0">
+								<div className="flex items-center justify-between mb-1">
+									<div className="flex items-center gap-1.5">
+										<p className="text-xs font-medium text-slate-600 dark:text-slate-400">
+											No Zakaat Due
+										</p>
+										<SparklesIcon className="w-3 h-3 text-primary-500 dark:text-primary-400" />
+									</div>
+									<button
+										onClick={() => navigate('/calculations')}
+										className="text-xs text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-semibold transition-colors inline-flex items-center gap-0.5"
+										type="button"
+									>
+										View all
+										<ArrowRightIcon className="w-3 h-3" />
+									</button>
+								</div>
+								<p className="text-sm text-slate-700 dark:text-slate-300 mb-1.5 leading-relaxed">
+									Your wealth is below the Nisab threshold. You're not required to
+									pay Zakaat at this time. May Allāh continue to bless your
+									wealth.
+								</p>
+								<div className="flex items-center gap-1 mb-2">
+									<ClockIcon className="w-3 h-3 text-slate-500 dark:text-slate-400" />
+									<p className="text-xs text-slate-500 dark:text-slate-400">
+										Last checked{' '}
+										{formatTimeAgo(zakaatCalculation.lastCalculated)}
+									</p>
+								</div>
+								<button
+									onClick={() => navigate('/calculate')}
+									className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 bg-primary-500 hover:bg-primary-600 dark:bg-primary-600 dark:hover:bg-primary-700 text-white text-sm font-semibold rounded-lg transition-colors active:scale-95 shadow-sm"
+									type="button"
+								>
+									<CalculatorIcon className="w-4 h-4" />
+									<span>Recalculate</span>
+								</button>
+							</div>
+						</div>
+					) : (
+						<div className="flex items-start gap-3">
+							<div className="flex-shrink-0">
+								<div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-sm">
+									<CalculatorIcon className="w-6 h-6 text-white" />
+								</div>
+							</div>
+							<div className="flex-1 min-w-0">
+								<div className="flex items-center justify-between mb-1">
+									<div className="flex items-center gap-1.5">
+										<p className="text-xs font-medium text-slate-600 dark:text-slate-400">
+											Zakaat Due
+										</p>
+										<SparklesIcon className="w-3 h-3 text-primary-500 dark:text-primary-400" />
+									</div>
+									<button
+										onClick={() => navigate('/calculations')}
+										className="text-xs text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-semibold transition-colors inline-flex items-center gap-0.5"
+										type="button"
+									>
+										View all
+										<ArrowRightIcon className="w-3 h-3" />
+									</button>
+								</div>
+								<p className="text-sm text-slate-700 dark:text-slate-300 mb-2 leading-relaxed">
+									Calculate your Zakaat to see how much you owe and fulfill your
+									obligation.
+								</p>
+								<button
+									onClick={() => navigate('/calculate')}
+									className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 bg-primary-500 hover:bg-primary-600 dark:bg-primary-600 dark:hover:bg-primary-700 text-white text-sm font-semibold rounded-lg transition-colors active:scale-95 shadow-sm"
+									type="button"
+								>
+									<CalculatorIcon className="w-4 h-4" />
+									<span>Calculate</span>
+								</button>
+							</div>
+						</div>
+					)}
 				</motion.div>
 
 				{/* Compact Action Buttons */}
@@ -388,7 +601,9 @@ export default function DashboardPage() {
 								Today's Nisaab
 							</h2>
 							{isLoadingNisaab ? (
-								<p className="text-xs text-slate-500 dark:text-slate-400">Loading...</p>
+								<p className="text-xs text-slate-500 dark:text-slate-400">
+									Loading...
+								</p>
 							) : nisaabData?.hijriDate ? (
 								<div className="flex items-center gap-1.5">
 									<CalendarIcon className="w-3 h-3 text-slate-400 dark:text-slate-500" />
@@ -397,11 +612,13 @@ export default function DashboardPage() {
 									</p>
 								</div>
 							) : (
-								<p className="text-xs text-slate-500 dark:text-slate-400">Date unavailable</p>
+								<p className="text-xs text-slate-500 dark:text-slate-400">
+									Date unavailable
+								</p>
 							)}
 						</div>
 						<div className="relative">
-							<div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-sm overflow-hidden">
+							<div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-sm dark:shadow-none dark:ring-1 dark:ring-primary-500/20 overflow-hidden">
 								<CalendarIcon className="absolute w-14 h-14 text-white/15 -bottom-1.5 -right-1.5" />
 								<span className="relative text-xl font-bold text-white z-10">
 									{new Date().getDate()}
@@ -463,7 +680,9 @@ export default function DashboardPage() {
 						</div>
 					) : (
 						<div className="text-center py-4">
-							<p className="text-xs text-slate-500 dark:text-slate-400">Unable to load nisaab data</p>
+							<p className="text-xs text-slate-500 dark:text-slate-400">
+								Unable to load nisaab data
+							</p>
 						</div>
 					)}
 
@@ -512,7 +731,9 @@ export default function DashboardPage() {
 					className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-slate-200/60 dark:border-slate-700/60"
 				>
 					<div className="flex items-center justify-between mb-3">
-						<h3 className="text-base font-bold text-slate-900 dark:text-slate-100">Community</h3>
+						<h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
+							Community
+						</h3>
 						<button
 							onClick={() => navigate('/community')}
 							className="text-xs font-medium text-primary-600 hover:text-primary-700"
@@ -537,8 +758,12 @@ export default function DashboardPage() {
 											<p className="text-xs font-semibold text-slate-900 dark:text-slate-100">
 												{post.author}
 											</p>
-											<span className="text-slate-400 dark:text-slate-500">•</span>
-											<p className="text-xs text-slate-500 dark:text-slate-400">{post.time}</p>
+											<span className="text-slate-400 dark:text-slate-500">
+												•
+											</span>
+											<p className="text-xs text-slate-500 dark:text-slate-400">
+												{post.time}
+											</p>
 										</div>
 										<p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed mb-2">
 											{post.content}

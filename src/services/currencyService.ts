@@ -17,7 +17,8 @@ export interface CurrencyConversion {
 	baseCurrency: string;
 	targetCurrency: string;
 	amount: number;
-	convertedAmount: number;
+	convertedValue: number; // Backend returns 'convertedValue', not 'convertedAmount'
+	convertedAmount?: number; // Keep for backward compatibility, will map from convertedValue
 	rate: number;
 	source: string;
 	effectiveDate: string;
@@ -71,11 +72,17 @@ export const currencyService = {
 		targetCurrency: string,
 		amount: number
 	): Promise<ApiResponse<CurrencyConversion>> {
+		// Sanitize amount: ensure it's a valid number >= 0
+		const sanitizedAmount = (() => {
+			const num = typeof amount === 'number' ? amount : Number(amount);
+			return isNaN(num) || num < 0 ? 0 : num;
+		})();
+
 		const response = await api.get<ApiResponse<CurrencyConversion>>('/currency/convert', {
 			params: {
 				baseCurrency,
 				targetCurrency,
-				amount,
+				amount: sanitizedAmount,
 			},
 		});
 		return response.data;

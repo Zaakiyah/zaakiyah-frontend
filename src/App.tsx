@@ -13,6 +13,9 @@ import NotificationsPage from './pages/NotificationsPage';
 import SecurityPage from './pages/SecurityPage';
 import SettingsPage from './pages/SettingsPage';
 import ComingSoonPage from './pages/ComingSoonPage';
+import WealthCalculationPage from './pages/WealthCalculationPage';
+import CalculationsPage from './pages/CalculationsPage';
+import CalculationDetailsPage from './pages/CalculationDetailsPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import AuthRoute from './components/auth/AuthRoute';
 import RootRedirect from './components/auth/RootRedirect';
@@ -139,6 +142,30 @@ function App() {
 						element={
 							<ProtectedRoute>
 								<SettingsPage />
+							</ProtectedRoute>
+						}
+					/>
+					<Route
+						path="/calculate"
+						element={
+							<ProtectedRoute>
+								<WealthCalculationPage />
+							</ProtectedRoute>
+						}
+					/>
+					<Route
+						path="/calculations"
+						element={
+							<ProtectedRoute>
+								<CalculationsPage />
+							</ProtectedRoute>
+						}
+					/>
+					<Route
+						path="/calculations/:id"
+						element={
+							<ProtectedRoute>
+								<CalculationDetailsPage />
 							</ProtectedRoute>
 						}
 					/>

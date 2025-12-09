@@ -33,6 +33,20 @@ export interface User {
 	hasPassword: boolean;
 	hasOAuthAccounts: boolean;
 	preferredCurrency?: string;
+	notificationPreferences?: {
+		email: boolean;
+		inApp: boolean;
+		push: boolean;
+		frequency: 'monthly' | 'quarterly' | 'biannually' | 'annually' | 'custom';
+		customIntervalMonths?: number;
+		notifyRecalculate: boolean;
+		notifyZakatDue: boolean;
+		notifyNisaabChange: boolean;
+		notifySummary: boolean;
+		nisaabUpdatesEnabled: boolean;
+		sendHour: number;
+		timezone?: string;
+	} | null;
 }
 
 export interface LoginResponse {
@@ -130,6 +144,7 @@ export const authService = {
 		mobileNumber?: string;
 		address?: string;
 		preferredCurrency?: string;
+		notificationPreferences?: User['notificationPreferences'];
 	}): Promise<ApiResponse<User>> {
 		const response = await api.patch<ApiResponse<User>>('/me', data);
 		return response.data;
