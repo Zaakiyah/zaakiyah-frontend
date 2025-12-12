@@ -9,6 +9,7 @@ import { alert } from '../store/alertStore';
 import BottomNavigation from '../components/layout/BottomNavigation';
 import Button from '../components/ui/Button';
 import LoadingSkeleton from '../components/wealth/LoadingSkeleton';
+import CurrencyDisplay from '../components/wealth/CurrencyDisplay';
 import {
 	ArrowLeftIcon,
 	BanknotesIcon,
@@ -164,23 +165,32 @@ export default function CalculationDetailsPage() {
 								{calculation.meetsNisaab ? 'Zakaat is Due' : 'Zakaat Not Due'}
 							</h3>
 							<p className="text-sm text-slate-600 dark:text-slate-400">
-								Based on {calculation.nisaabBase === 'gold' ? 'Gold' : 'Silver'} Nisaab
+								Based on {calculation.nisaabBase === 'gold' ? 'Gold' : 'Silver'}{' '}
+								Nisaab
 							</p>
 						</div>
 					</div>
 
-					{calculation.meetsNisaab && calculation.zakatDue !== null && (
-						<div className="mt-4 pt-4 border-t border-success-200 dark:border-success-800">
-							<div className="flex items-baseline gap-2">
-								<span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-									Zakaat Due ({calculation.zakatRate}%):
-								</span>
-								<span className="text-2xl font-bold text-success-600 dark:text-success-400">
-									{formatCurrency(calculation.zakatDue, preferredCurrency)}
-								</span>
+					{calculation.meetsNisaab &&
+						calculation.zakatDue !== null &&
+						calculation.zakatDue !== undefined && (
+							<div className="mt-4 pt-4 border-t border-success-200 dark:border-success-800">
+								<div className="flex flex-col gap-2">
+									<span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+										Zakaat Due ({calculation.zakatRate || 2.5}%):
+									</span>
+									<CurrencyDisplay
+										amount={calculation.zakatDue}
+										originalCurrency={
+											calculation.currency || preferredCurrency || 'USD'
+										}
+										preferredCurrency={preferredCurrency || 'USD'}
+										size="lg"
+										variant="success"
+									/>
+								</div>
 							</div>
-						</div>
-					)}
+						)}
 				</motion.div>
 
 				{/* Breakdown */}
@@ -202,12 +212,19 @@ export default function CalculationDetailsPage() {
 								Total Assets
 							</h4>
 						</div>
-						<p className="text-2xl font-bold text-success-600 dark:text-success-400">
-							{formatCurrency(calculation.totalAssets, preferredCurrency)}
-						</p>
+						<CurrencyDisplay
+							amount={calculation.totalAssets || 0}
+							originalCurrency={calculation.currency || preferredCurrency || 'USD'}
+							preferredCurrency={preferredCurrency || 'USD'}
+							size="lg"
+							variant="success"
+						/>
 						<p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
-							{Array.isArray(calculation.assets) ? calculation.assets.length : 0} asset
-							{Array.isArray(calculation.assets) && calculation.assets.length !== 1 ? 's' : ''}
+							{Array.isArray(calculation.assets) ? calculation.assets.length : 0}{' '}
+							asset
+							{Array.isArray(calculation.assets) && calculation.assets.length !== 1
+								? 's'
+								: ''}
 						</p>
 					</div>
 
@@ -219,12 +236,22 @@ export default function CalculationDetailsPage() {
 								Total Liabilities
 							</h4>
 						</div>
-						<p className="text-2xl font-bold text-error-600 dark:text-error-400">
-							{formatCurrency(calculation.totalLiabilities, preferredCurrency)}
-						</p>
+						<CurrencyDisplay
+							amount={calculation.totalLiabilities || 0}
+							originalCurrency={calculation.currency || preferredCurrency || 'USD'}
+							preferredCurrency={preferredCurrency || 'USD'}
+							size="lg"
+							variant="error"
+						/>
 						<p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
-							{Array.isArray(calculation.liabilities) ? calculation.liabilities.length : 0} liability
-							{Array.isArray(calculation.liabilities) && calculation.liabilities.length !== 1 ? 'ies' : ''}
+							{Array.isArray(calculation.liabilities)
+								? calculation.liabilities.length
+								: 0}{' '}
+							liability
+							{Array.isArray(calculation.liabilities) &&
+							calculation.liabilities.length !== 1
+								? 'ies'
+								: ''}
 						</p>
 					</div>
 
@@ -236,9 +263,13 @@ export default function CalculationDetailsPage() {
 								Net Worth
 							</h4>
 						</div>
-						<p className="text-2xl font-bold text-primary-600 dark:text-primary-400">
-							{formatCurrency(calculation.netWorth, preferredCurrency)}
-						</p>
+						<CurrencyDisplay
+							amount={calculation.netWorth || 0}
+							originalCurrency={calculation.currency || preferredCurrency || 'USD'}
+							preferredCurrency={preferredCurrency || 'USD'}
+							size="lg"
+							variant="primary"
+						/>
 					</div>
 				</motion.div>
 
@@ -254,28 +285,51 @@ export default function CalculationDetailsPage() {
 					</h3>
 					<div className="space-y-2">
 						<div className="flex items-center justify-between">
-							<span className="text-sm text-slate-600 dark:text-slate-400">Base Used:</span>
+							<span className="text-sm text-slate-600 dark:text-slate-400">
+								Base Used:
+							</span>
 							<span className="text-sm font-semibold text-slate-900 dark:text-slate-100 capitalize">
 								{calculation.nisaabBase}
 							</span>
 						</div>
 						<div className="flex items-center justify-between">
-							<span className="text-sm text-slate-600 dark:text-slate-400">Threshold:</span>
-							<span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-								{formatCurrency(calculation.nisaabThreshold, preferredCurrency)}
+							<span className="text-sm text-slate-600 dark:text-slate-400">
+								Threshold:
 							</span>
+							<CurrencyDisplay
+								amount={calculation.nisaabThreshold || 0}
+								originalCurrency={
+									calculation.currency || preferredCurrency || 'USD'
+								}
+								preferredCurrency={preferredCurrency || 'USD'}
+								size="sm"
+							/>
 						</div>
 						<div className="flex items-center justify-between">
-							<span className="text-sm text-slate-600 dark:text-slate-400">Gold Nisaab:</span>
-							<span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-								{formatCurrency(calculation.goldNisaabValue, preferredCurrency)}
+							<span className="text-sm text-slate-600 dark:text-slate-400">
+								Gold Nisaab:
 							</span>
+							<CurrencyDisplay
+								amount={calculation.goldNisaabValue || 0}
+								originalCurrency={
+									calculation.currency || preferredCurrency || 'USD'
+								}
+								preferredCurrency={preferredCurrency || 'USD'}
+								size="sm"
+							/>
 						</div>
 						<div className="flex items-center justify-between">
-							<span className="text-sm text-slate-600 dark:text-slate-400">Silver Nisaab:</span>
-							<span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-								{formatCurrency(calculation.silverNisaabValue, preferredCurrency)}
+							<span className="text-sm text-slate-600 dark:text-slate-400">
+								Silver Nisaab:
 							</span>
+							<CurrencyDisplay
+								amount={calculation.silverNisaabValue || 0}
+								originalCurrency={
+									calculation.currency || preferredCurrency || 'USD'
+								}
+								preferredCurrency={preferredCurrency || 'USD'}
+								size="sm"
+							/>
 						</div>
 					</div>
 				</motion.div>
@@ -293,14 +347,18 @@ export default function CalculationDetailsPage() {
 						</h3>
 						<div className="space-y-2 text-sm">
 							<div className="flex items-center justify-between">
-								<span className="text-slate-600 dark:text-slate-400">Frequency:</span>
+								<span className="text-slate-600 dark:text-slate-400">
+									Frequency:
+								</span>
 								<span className="font-semibold text-slate-900 dark:text-slate-100 capitalize">
-         {calculation.notificationFrequency || 'Not set'}
+									{calculation.notificationFrequency || 'Not set'}
 								</span>
 							</div>
 							{calculation.nextNotificationDate && (
 								<div className="flex items-center justify-between">
-									<span className="text-slate-600 dark:text-slate-400">Next Notification:</span>
+									<span className="text-slate-600 dark:text-slate-400">
+										Next Notification:
+									</span>
 									<span className="font-semibold text-slate-900 dark:text-slate-100">
 										{formatDate(calculation.nextNotificationDate)}
 									</span>
@@ -338,4 +396,3 @@ export default function CalculationDetailsPage() {
 		</div>
 	);
 }
-

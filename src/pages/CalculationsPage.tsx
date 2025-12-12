@@ -10,6 +10,7 @@ import BottomNavigation from '../components/layout/BottomNavigation';
 import ConfirmDialog from '../components/ui/ConfirmDialog';
 import LoadingSkeleton from '../components/wealth/LoadingSkeleton';
 import EmptyState from '../components/wealth/EmptyState';
+import CurrencyDisplay from '../components/wealth/CurrencyDisplay';
 import {
 	ArrowLeftIcon,
 	CalculatorIcon,
@@ -76,7 +77,11 @@ export default function CalculationsPage() {
 			await wealthCalculationService.updateCalculation(id, {
 				status: archive ? 'archived' : 'active',
 			});
-			alert.success(archive ? 'Calculation archived successfully' : 'Calculation unarchived successfully');
+			alert.success(
+				archive
+					? 'Calculation archived successfully'
+					: 'Calculation unarchived successfully'
+			);
 			fetchCalculations();
 		} catch (error) {
 			console.error('Error archiving calculation:', error);
@@ -162,22 +167,24 @@ export default function CalculationsPage() {
 			{/* Filters */}
 			<div className="px-4 py-3 bg-white dark:bg-slate-800 border-b border-slate-200/60 dark:border-slate-700/60">
 				<div className="flex gap-2 overflow-x-auto scrollbar-hide">
-					{(['all', 'active', 'archived', 'completed'] as FilterStatus[]).map((status) => (
-						<button
-							key={status}
-							onClick={() => {
-								setFilterStatus(status);
-								setPage(1);
-							}}
-							className={`px-4 py-2 text-sm font-semibold rounded-lg whitespace-nowrap transition-all ${
-								filterStatus === status
-									? 'bg-primary-500 text-white shadow-sm'
-									: 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'
-							}`}
-						>
-							{status.charAt(0).toUpperCase() + status.slice(1)}
-						</button>
-					))}
+					{(['all', 'active', 'archived', 'completed'] as FilterStatus[]).map(
+						(status) => (
+							<button
+								key={status}
+								onClick={() => {
+									setFilterStatus(status);
+									setPage(1);
+								}}
+								className={`px-4 py-2 text-sm font-semibold rounded-lg whitespace-nowrap transition-all ${
+									filterStatus === status
+										? 'bg-primary-500 text-white shadow-sm'
+										: 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'
+								}`}
+							>
+								{status.charAt(0).toUpperCase() + status.slice(1)}
+							</button>
+						)
+					)}
 				</div>
 			</div>
 
@@ -187,7 +194,9 @@ export default function CalculationsPage() {
 					<LoadingSkeleton type="card" count={5} />
 				) : calculations.length === 0 ? (
 					<EmptyState
-						icon={<CalculatorIcon className="w-12 h-12 text-slate-400 dark:text-slate-500" />}
+						icon={
+							<CalculatorIcon className="w-12 h-12 text-slate-400 dark:text-slate-500" />
+						}
 						title={
 							filterStatus === 'all'
 								? 'No calculations yet'
@@ -249,18 +258,43 @@ export default function CalculationsPage() {
 								{/* Summary */}
 								<div className="grid grid-cols-2 gap-3 mb-3">
 									<div className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
-										<p className="text-xs text-slate-600 dark:text-slate-400 mb-1">Net Worth</p>
-										<p className="text-sm font-bold text-slate-900 dark:text-slate-100">
-											{formatCurrency(calculation.netWorth, preferredCurrency)}
-										</p>
+										<CurrencyDisplay
+											amount={calculation.netWorth || 0}
+											originalCurrency={
+												calculation.currency || preferredCurrency || 'USD'
+											}
+											preferredCurrency={preferredCurrency || 'USD'}
+											showLabel
+											label="Net Worth"
+											size="sm"
+										/>
 									</div>
 									<div className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
-										<p className="text-xs text-slate-600 dark:text-slate-400 mb-1">Zakaat Due</p>
-										<p className="text-sm font-bold text-success-600 dark:text-success-400">
-											{calculation.zakatDue
-												? formatCurrency(calculation.zakatDue, preferredCurrency)
-												: 'N/A'}
-										</p>
+										{calculation.zakatDue !== null &&
+										calculation.zakatDue !== undefined ? (
+											<CurrencyDisplay
+												amount={calculation.zakatDue}
+												originalCurrency={
+													calculation.currency ||
+													preferredCurrency ||
+													'USD'
+												}
+												preferredCurrency={preferredCurrency || 'USD'}
+												showLabel
+												label="Zakaat Due"
+												size="sm"
+												variant="success"
+											/>
+										) : (
+											<>
+												<p className="text-xs text-slate-600 dark:text-slate-400 mb-1">
+													Zakaat Due
+												</p>
+												<p className="text-sm font-bold text-slate-500 dark:text-slate-400">
+													N/A
+												</p>
+											</>
+										)}
 									</div>
 								</div>
 
@@ -269,12 +303,24 @@ export default function CalculationsPage() {
 									{calculation.meetsNisaab ? (
 										<div className="flex items-center gap-1.5 text-xs text-success-600 dark:text-success-400">
 											<CheckCircleIconSolid className="w-4 h-4" />
-											<span>Meets {calculation.nisaabBase === 'gold' ? 'Gold' : 'Silver'} Nisaab</span>
+											<span>
+												Meets{' '}
+												{calculation.nisaabBase === 'gold'
+													? 'Gold'
+													: 'Silver'}{' '}
+												Nisaab
+											</span>
 										</div>
 									) : (
 										<div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
 											<XCircleIcon className="w-4 h-4" />
-											<span>Below {calculation.nisaabBase === 'gold' ? 'Gold' : 'Silver'} Nisaab</span>
+											<span>
+												Below{' '}
+												{calculation.nisaabBase === 'gold'
+													? 'Gold'
+													: 'Silver'}{' '}
+												Nisaab
+											</span>
 										</div>
 									)}
 								</div>
@@ -373,4 +419,3 @@ export default function CalculationsPage() {
 		</div>
 	);
 }
-
