@@ -618,7 +618,7 @@ export default function DashboardPage() {
 							)}
 						</div>
 						<div className="relative">
-							<div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-sm dark:shadow-none dark:ring-1 dark:ring-primary-500/20 overflow-hidden">
+							<div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-sm dark:!shadow-none overflow-hidden">
 								<CalendarIcon className="absolute w-14 h-14 text-white/15 -bottom-1.5 -right-1.5" />
 								<span className="relative text-xl font-bold text-white z-10">
 									{new Date().getDate()}

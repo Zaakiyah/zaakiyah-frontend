@@ -126,10 +126,10 @@ export async function getFCMToken(): Promise<string | null> {
 		});
 
 		if (token) {
-			console.log('FCM token obtained:', token);
+			// Token obtained successfully
 			return token;
 		} else {
-			console.warn('No FCM token available. Request permission to get one.');
+			// No token available - user needs to grant permission
 			return null;
 		}
 	} catch (error) {
@@ -150,7 +150,7 @@ export async function onMessageListener(): Promise<any> {
 		}
 
 		onMessage(messagingInstance, (payload) => {
-			console.log('Message received in foreground:', payload);
+			// Message received in foreground
 			resolve(payload);
 		});
 	});

@@ -10,7 +10,7 @@ import type {
 } from '../types/wealth.types';
 
 // ============================================================================
-// MOCK DATA GENERATORS (For frontend-only development)
+// CLIENT-SIDE CALCULATION HELPERS
 // ============================================================================
 
 /**
@@ -77,7 +77,7 @@ export const getMockCalculationResult = (
 export const wealthCalculationService = {
 	/**
 	 * Calculate wealth (draft calculation)
-	 * This will make an API call in Phase 6
+	 * Performs client-side calculation for the wizard preview
 	 */
 	async calculate(
 		assets: Asset[],
@@ -85,8 +85,7 @@ export const wealthCalculationService = {
 		nisaabBase: NisaabBase,
 		currency: string
 	): Promise<CalculationResult> {
-		// TODO: Replace with actual API call in Phase 6
-		// For now, return mock calculation
+		// Client-side calculation for wizard preview
 		const mockNisaabData = getMockNisaabData(currency);
 		return getMockCalculationResult(assets, liabilities, nisaabBase, mockNisaabData);
 	},
@@ -337,16 +336,17 @@ export const wealthCalculationService = {
 
 	/**
 	 * Recalculate with current nisaab values
+	 * Note: This endpoint will be implemented in a future update
 	 */
 	async recalculate(
 		_calculationId: string,
 		_currentNisaabData: any
 	): Promise<ApiResponse<CalculationResult>> {
-		// TODO: Replace with actual API call in Phase 6
+		// Feature to be implemented in future release
 		return {
-			message: 'Calculation updated with current nisaab values',
-			statusCode: 200,
-			data: {} as CalculationResult, // Mock
+			message: 'Recalculation feature coming soon',
+			statusCode: 501,
+			data: {} as CalculationResult,
 		};
 	},
 };

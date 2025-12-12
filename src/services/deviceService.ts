@@ -44,7 +44,7 @@ class DeviceService {
 				// Request notification permission
 				const permission = await Notification.requestPermission();
 				if (permission !== 'granted') {
-					console.log('Notification permission denied');
+					// Permission denied - return null silently
 					return null;
 				}
 

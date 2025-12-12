@@ -1,13 +1,12 @@
 import { useEffect, useRef } from 'react';
-import { FieldErrors } from 'react-hook-form';
 
 /**
  * Hook to automatically scroll to the first form error
  * @param errors - The errors object from react-hook-form
  * @param options - Configuration options
  */
-export function useScrollToError<T extends Record<string, any>>(
-	errors: FieldErrors<T>,
+export function useScrollToError(
+	errors: Record<string, any>,
 	options: {
 		enabled?: boolean;
 		offset?: number;
@@ -51,9 +50,7 @@ export function useScrollToError<T extends Record<string, any>>(
 
 			// Strategy 3: Find by data-error-field attribute
 			if (!errorElement) {
-				errorElement = document.querySelector(
-					`[data-error-field="${firstErrorKey}"]`
-				);
+				errorElement = document.querySelector(`[data-error-field="${firstErrorKey}"]`);
 			}
 
 			// Strategy 4: Find by aria-describedby or aria-invalid
@@ -74,10 +71,13 @@ export function useScrollToError<T extends Record<string, any>>(
 				if (errorMessages.length > 0) {
 					// Find the closest input/textarea/select to the error message
 					const errorMsg = errorMessages[0] as HTMLElement;
-					const formGroup = errorMsg.closest('.space-y-4, .space-y-2, form, [class*="form"]');
+					const formGroup = errorMsg.closest(
+						'.space-y-4, .space-y-2, form, [class*="form"]'
+					);
 					if (formGroup) {
-						errorElement =
-							formGroup.querySelector('input, textarea, select') as HTMLElement;
+						errorElement = formGroup.querySelector(
+							'input, textarea, select'
+						) as HTMLElement;
 					}
 				}
 			}
@@ -108,4 +108,3 @@ export function useScrollToError<T extends Record<string, any>>(
 		previousErrorCount.current = currentErrorCount;
 	}, [errors, enabled, offset, behavior]);
 }
-
