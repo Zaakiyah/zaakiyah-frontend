@@ -142,10 +142,10 @@ export default function Email2FASetupSheet({
 
 						<div className="space-y-4">
 							<div className="text-center">
-								<p className="text-sm font-medium text-slate-900 mb-1">
+								<p className="text-sm font-medium text-slate-900 dark:text-slate-100 mb-1">
 									Enter Verification Code
 								</p>
-								<p className="text-xs text-slate-600">
+								<p className="text-xs text-slate-600 dark:text-slate-400">
 									We sent a 6-digit code to <strong>{user?.email}</strong>
 								</p>
 							</div>
@@ -158,12 +158,12 @@ export default function Email2FASetupSheet({
 							/>
 
 							<div className="flex items-center justify-center gap-2">
-								<p className="text-xs text-slate-500">Didn't receive the code?</p>
+								<p className="text-xs text-slate-500 dark:text-slate-400">Didn't receive the code?</p>
 								<button
 									type="button"
 									onClick={handleResendCode}
 									disabled={isSendingCode}
-									className="text-xs font-semibold text-primary-600 hover:text-primary-700 disabled:opacity-50"
+									className="text-xs font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 disabled:opacity-50"
 								>
 									{isSendingCode ? 'Sending...' : 'Resend'}
 								</button>

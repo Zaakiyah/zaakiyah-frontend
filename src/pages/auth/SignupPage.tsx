@@ -7,6 +7,7 @@ import { signupSchema } from '../../schemas/auth.schemas';
 import type { SignupFormData } from '../../types/auth.types';
 import { useSignup } from '../../hooks/useSignup';
 import { useTheme } from '../../hooks/useTheme';
+import { useScrollToError } from '../../hooks/useScrollToError';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import PasswordInput from '../../components/ui/PasswordInput';
@@ -51,6 +52,9 @@ export default function SignupPage() {
 		},
 		mode: 'onChange',
 	});
+
+	// Scroll to first error when form errors occur
+	useScrollToError(errors);
 
 	const watchedData = watch();
 

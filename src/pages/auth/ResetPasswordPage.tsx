@@ -6,15 +6,21 @@ import { resetPasswordSchema } from '../../schemas/auth.schemas';
 import type { ResetPasswordFormData } from '../../types/auth.types';
 import { useResetPassword } from '../../hooks/useResetPassword';
 import { useTheme } from '../../hooks/useTheme';
+import { useScrollToError } from '../../hooks/useScrollToError';
 import Button from '../../components/ui/Button';
 import PasswordInput from '../../components/ui/PasswordInput';
 import OtpInput from '../../components/ui/OtpInput';
 import { CheckCircleIcon } from '@heroicons/react/24/outline';
+import { useState } from 'react';
+import { authService } from '../../services/authService';
 
 export default function ResetPasswordPage() {
 	const [searchParams] = useSearchParams();
 	const emailParam = searchParams.get('email') || '';
 	useTheme();
+	const [isResending, setIsResending] = useState(false);
+	const [resendMessage, setResendMessage] = useState<string | null>(null);
+	const [resendError, setResendError] = useState<string | null>(null);
 
 	const { isLoading, error, success, handleResetPassword } = useResetPassword();
 
@@ -31,11 +37,33 @@ export default function ResetPasswordPage() {
 		},
 	});
 
+	// Scroll to first error when form errors occur
+	useScrollToError(errors);
+
 	const handleOtpComplete = (code: string) => {
 		setValue('otpCode', code, { shouldValidate: true });
 		setTimeout(() => {
 			handleSubmit(handleResetPassword)();
 		}, 50);
+	};
+
+	const handleResendCode = async () => {
+		if (!emailParam) return;
+		setIsResending(true);
+		setResendMessage(null);
+		setResendError(null);
+		try {
+			await authService.forgotPassword(emailParam);
+			setResendMessage('A new verification code has been sent.');
+		} catch (err: any) {
+			const msg =
+				err?.response?.data?.message ||
+				err?.message ||
+				'Unable to resend code right now. Please try again.';
+			setResendError(msg);
+		} finally {
+			setIsResending(false);
+		}
 	};
 
 	if (success) {
@@ -98,12 +126,9 @@ export default function ResetPasswordPage() {
 					</motion.div>
 				)}
 
-				<form
-					onSubmit={handleSubmit(handleResetPassword)}
-					className="space-y-4"
-				>
+				<form onSubmit={handleSubmit(handleResetPassword)} className="space-y-4">
 					<div>
-						<label className="block text-sm font-medium text-slate-900 mb-2">
+						<label className="block text-sm font-medium text-slate-900 dark:text-slate-100 mb-2">
 							Verification Code
 						</label>
 						<OtpInput
@@ -113,6 +138,31 @@ export default function ResetPasswordPage() {
 						/>
 						{errors.otpCode && (
 							<p className="mt-1 text-xs text-error-600">{errors.otpCode.message}</p>
+						)}
+						{emailParam && (
+							<div className="mt-2 flex items-center justify-between text-xs">
+								<p className="text-slate-600 dark:text-slate-400">
+									Didn't get the code?
+								</p>
+								<button
+									type="button"
+									onClick={handleResendCode}
+									disabled={isResending}
+									className="font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 disabled:opacity-50"
+								>
+									{isResending ? 'Sending…' : 'Resend'}
+								</button>
+							</div>
+						)}
+						{resendMessage && (
+							<p className="mt-1 text-xs text-green-600 dark:text-green-400">
+								{resendMessage}
+							</p>
+						)}
+						{resendError && (
+							<p className="mt-1 text-xs text-error-600 dark:text-error-400">
+								{resendError}
+							</p>
 						)}
 					</div>
 

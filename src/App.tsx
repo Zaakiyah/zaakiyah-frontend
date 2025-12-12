@@ -85,7 +85,47 @@ function App() {
 						path="/donations"
 						element={
 							<ProtectedRoute>
-								<ComingSoonPage title="Donations" />
+								<ComingSoonPage
+									title="Give Zakaat"
+									message="Give Zakaat"
+									description="Make your Zakaat payments securely and track your contributions. Connect with verified charitable organizations and causes."
+								/>
+							</ProtectedRoute>
+						}
+					/>
+					<Route
+						path="/donations/history"
+						element={
+							<ProtectedRoute>
+								<ComingSoonPage
+									title="Donation History"
+									message="Donation History"
+									description="View your complete donation history, track your contributions over time, and download receipts for your records."
+								/>
+							</ProtectedRoute>
+						}
+					/>
+					<Route
+						path="/sadaqah"
+						element={
+							<ProtectedRoute>
+								<ComingSoonPage
+									title="Sadaqah"
+									message="Give Sadaqah"
+									description="Make voluntary charitable donations (Sadaqah) to support various causes and help those in need. Every contribution makes a difference."
+								/>
+							</ProtectedRoute>
+						}
+					/>
+					<Route
+						path="/apply"
+						element={
+							<ProtectedRoute>
+								<ComingSoonPage
+									title="Apply for Assistance"
+									message="Apply for Zakaat"
+									description="Apply to receive Zakaat assistance if you meet the eligibility criteria. Our team will review your application and connect you with donors."
+								/>
 							</ProtectedRoute>
 						}
 					/>
@@ -93,7 +133,11 @@ function App() {
 						path="/community"
 						element={
 							<ProtectedRoute>
-								<ComingSoonPage title="Community" />
+								<ComingSoonPage
+									title="Community"
+									message="Community"
+									description="Connect with other members of the Zaakiyah community. Share experiences, ask questions, and learn together about Zakaat and charitable giving."
+								/>
 							</ProtectedRoute>
 						}
 					/>

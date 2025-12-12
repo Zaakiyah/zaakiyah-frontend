@@ -9,6 +9,7 @@ import { authService } from '../services/authService';
 import PageHeader from '../components/layout/PageHeader';
 import BottomNavigation from '../components/layout/BottomNavigation';
 import { useTheme } from '../hooks/useTheme';
+import { useScrollToError } from '../hooks/useScrollToError';
 import Input from '../components/ui/Input';
 import PhoneInput from '../components/ui/PhoneInput';
 import Button from '../components/ui/Button';
@@ -48,6 +49,9 @@ export default function EditProfilePage() {
 			address: user?.address || '',
 		},
 	});
+
+	// Scroll to first error when form errors occur
+	useScrollToError(errors);
 
 	const mobileNumber = watch('mobileNumber');
 

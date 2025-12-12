@@ -151,10 +151,10 @@ export default function TOTP2FASetupSheet({
 
 						<div className="space-y-4">
 							<div className="text-center">
-								<p className="text-sm font-medium text-slate-900 mb-2">
+								<p className="text-sm font-medium text-slate-900 dark:text-slate-100 mb-2">
 									Scan QR Code with Your Authenticator App
 								</p>
-								<p className="text-xs text-slate-600 mb-4">
+								<p className="text-xs text-slate-600 dark:text-slate-400 mb-4">
 									Use an app like Google Authenticator, Authy, or Microsoft Authenticator
 								</p>
 							</div>
@@ -172,19 +172,19 @@ export default function TOTP2FASetupSheet({
 							)}
 
 							{secret && (
-								<div className="p-3 bg-slate-50 rounded-lg border border-slate-200">
-									<p className="text-xs text-slate-500 mb-1">Or enter this code manually:</p>
-									<p className="text-sm font-mono font-semibold text-slate-900 break-all">
+								<div className="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-lg border border-slate-200 dark:border-slate-700">
+									<p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Or enter this code manually:</p>
+									<p className="text-sm font-mono font-semibold text-slate-900 dark:text-slate-100 break-all">
 										{secret}
 									</p>
 								</div>
 							)}
 
 							<div className="text-center">
-								<p className="text-sm font-medium text-slate-900 mb-1">
+								<p className="text-sm font-medium text-slate-900 dark:text-slate-100 mb-1">
 									Enter Verification Code
 								</p>
-								<p className="text-xs text-slate-600 mb-4">
+								<p className="text-xs text-slate-600 dark:text-slate-400 mb-4">
 									Enter the 6-digit code from your authenticator app
 								</p>
 							</div>

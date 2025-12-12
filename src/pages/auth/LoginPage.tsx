@@ -6,6 +6,7 @@ import { loginSchema } from '../../schemas/auth.schemas';
 import type { LoginFormData } from '../../types/auth.types';
 import { useLogin } from '../../hooks/useLogin';
 import { useTheme } from '../../hooks/useTheme';
+import { useScrollToError } from '../../hooks/useScrollToError';
 import { alert } from '../../store/alertStore';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
@@ -37,6 +38,9 @@ export default function LoginPage() {
 			rememberMe: false,
 		},
 	});
+
+	// Scroll to first error when form errors occur
+	useScrollToError(errors);
 
 	return (
 		<div className="h-screen-vh bg-slate-50 dark:bg-slate-900 flex items-center justify-center px-4 py-2 overflow-y-auto">
