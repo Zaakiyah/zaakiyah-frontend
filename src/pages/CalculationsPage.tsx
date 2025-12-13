@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../hooks/useTheme';
 import { useCurrencyStore } from '../store/currencyStore';
 import { wealthCalculationService } from '../services/wealthCalculationService';
-import { formatCurrency } from '../utils/currency';
 import { alert } from '../store/alertStore';
 import BottomNavigation from '../components/layout/BottomNavigation';
 import ConfirmDialog from '../components/ui/ConfirmDialog';
