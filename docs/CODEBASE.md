@@ -539,3 +539,5 @@ export default function Component({ prop }: ComponentProps) {
 - Interface over type for object shapes
 - Enums for constants
 
+
+

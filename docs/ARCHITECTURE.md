@@ -315,3 +315,5 @@ Used for:
 - Redis caching (frequently accessed data)
 - Lazy loading relationships
 
+
+
