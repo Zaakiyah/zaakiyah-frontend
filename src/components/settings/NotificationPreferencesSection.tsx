@@ -32,6 +32,7 @@ export default function NotificationPreferencesSection() {
 	const [notifyNisaabChange, setNotifyNisaabChange] = useState(true);
 	const [notifySummary, setNotifySummary] = useState(false);
 	const [nisaabUpdatesEnabled, setNisaabUpdatesEnabled] = useState(true);
+	const [communityNotifications, setCommunityNotifications] = useState(true);
 
 	// Delivery time
 	const [sendHour, setSendHour] = useState(7);
@@ -59,6 +60,7 @@ export default function NotificationPreferencesSection() {
 			setNotifyNisaabChange(prefs.notifyNisaabChange ?? true);
 			setNotifySummary(prefs.notifySummary ?? false);
 			setNisaabUpdatesEnabled(prefs.nisaabUpdatesEnabled ?? true);
+			setCommunityNotifications(prefs.communityNotifications ?? true);
 			setSendHour(prefs.sendHour ?? 7);
 			setTimezone(prefs.timezone || 'UTC');
 		}
@@ -87,6 +89,7 @@ export default function NotificationPreferencesSection() {
 				notifyNisaabChange,
 				notifySummary,
 				nisaabUpdatesEnabled,
+				communityNotifications,
 				sendHour,
 				timezone: timezone === 'UTC' ? undefined : timezone,
 			};
@@ -347,6 +350,18 @@ export default function NotificationPreferencesSection() {
 						/>
 						<span className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
 							Enable daily Nisaab update notifications
+						</span>
+					</label>
+
+					<label className="flex items-start gap-3 cursor-pointer">
+						<input
+							type="checkbox"
+							checked={communityNotifications}
+							onChange={(e) => setCommunityNotifications(e.target.checked)}
+							className="w-5 h-5 mt-0.5 text-primary-600 bg-white dark:bg-slate-700 border-2 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-primary-500 focus:ring-offset-0 cursor-pointer transition-all flex-shrink-0"
+						/>
+						<span className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+							Community notifications (likes, comments, follows)
 						</span>
 					</label>
 				</div>

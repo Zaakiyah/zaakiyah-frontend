@@ -43,7 +43,7 @@ export default function BottomSheet({ isOpen, onClose, title, children }: Bottom
 						animate={{ opacity: 1 }}
 						exit={{ opacity: 0 }}
 						onClick={onClose}
-						className="fixed inset-0 bg-black/50 z-50 backdrop-blur-sm"
+						className="fixed inset-0 bg-black/50 z-[100] backdrop-blur-sm"
 					/>
 
 					{/* Bottom Sheet */}
@@ -52,7 +52,8 @@ export default function BottomSheet({ isOpen, onClose, title, children }: Bottom
 						animate={{ y: 0 }}
 						exit={{ y: '100%' }}
 						transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-						className="fixed inset-x-0 bottom-0 z-50 bg-white dark:bg-slate-800 rounded-t-2xl shadow-2xl max-h-[90vh] flex flex-col"
+						className="fixed inset-x-0 bottom-0 z-[100] bg-white dark:bg-slate-800 rounded-t-2xl shadow-2xl max-h-[90vh] flex flex-col"
+						style={{ paddingBottom: 'env(safe-area-inset-bottom, 0)' }}
 					>
 						{/* Handle Bar */}
 						<div className="pt-3 pb-2 flex-shrink-0">

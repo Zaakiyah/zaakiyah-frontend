@@ -1,7 +1,9 @@
 {
 	"name": "zaakiyah-frontend",
+	"version": "0.1.0",
+	"description": "Zaakiyah - Web application for calculating and managing Zakaat obligations",
+	"author": "Zaakiyah",
 	"private": true,
-	"version": "0.0.0",
 	"type": "module",
 	"scripts": {
 		"dev": "vite",
@@ -26,6 +28,7 @@
 		"@heroicons/react": "^2.2.0",
 		"@hookform/resolvers": "^5.2.2",
 		"axios": "^1.13.2",
+		"date-fns": "^4.1.0",
 		"firebase": "^12.6.0",
 		"framer-motion": "^12.23.24",
 		"react": "^19.2.0",

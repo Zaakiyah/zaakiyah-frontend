@@ -1,4 +1,5 @@
 import api from '../lib/api';
+import { logger } from '../utils/logger';
 import type {
 	WealthCalculation,
 	Asset,
@@ -180,7 +181,7 @@ export const wealthCalculationService = {
 
 			return response.data;
 		} catch (error: any) {
-			console.error('Error saving calculation:', error);
+			logger.error('Error saving calculation:', error);
 			// Fallback to mock for development
 			const mockCalculation: WealthCalculation = {
 				...calculation,
@@ -227,7 +228,7 @@ export const wealthCalculationService = {
 				},
 			};
 		} catch (error: any) {
-			console.error('Error fetching calculations:', error);
+			logger.error('Error fetching calculations:', error);
 			return {
 				message: 'Failed to retrieve calculations',
 				statusCode: 500,
@@ -252,7 +253,7 @@ export const wealthCalculationService = {
 			const response = await api.get<ApiResponse<WealthCalculation>>(`/wealth/${id}`);
 			return response.data;
 		} catch (error: any) {
-			console.error('Error fetching calculation:', error);
+			logger.error('Error fetching calculation:', error);
 			throw error;
 		}
 	},
@@ -286,7 +287,7 @@ export const wealthCalculationService = {
 			});
 			return response.data;
 		} catch (error: any) {
-			console.error('Error updating calculation:', error);
+			logger.error('Error updating calculation:', error);
 			throw error;
 		}
 	},
@@ -299,7 +300,7 @@ export const wealthCalculationService = {
 			const response = await api.delete<ApiResponse<null>>(`/wealth/${id}`);
 			return response.data;
 		} catch (error: any) {
-			console.error('Error deleting calculation:', error);
+			logger.error('Error deleting calculation:', error);
 			throw error;
 		}
 	},
@@ -314,7 +315,7 @@ export const wealthCalculationService = {
 			});
 			return response.data;
 		} catch (error: any) {
-			console.error('Error archiving calculation:', error);
+			logger.error('Error archiving calculation:', error);
 			throw error;
 		}
 	},
@@ -329,7 +330,7 @@ export const wealthCalculationService = {
 			});
 			return response.data;
 		} catch (error: any) {
-			console.error('Error unarchiving calculation:', error);
+			logger.error('Error unarchiving calculation:', error);
 			throw error;
 		}
 	},

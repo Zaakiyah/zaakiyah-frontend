@@ -1,21 +1,5 @@
 import { Routes, Route, useLocation } from 'react-router-dom';
-import LoginPage from './pages/auth/LoginPage';
-import SignupPage from './pages/auth/SignupPage';
-import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
-import ResetPasswordPage from './pages/auth/ResetPasswordPage';
-import OAuthCallbackPage from './pages/auth/OAuthCallbackPage';
-import OnboardingPage from './pages/OnboardingPage';
-import DashboardPage from './pages/DashboardPage';
-import ProfilePage from './pages/ProfilePage';
-import EditProfilePage from './pages/EditProfilePage';
-import NisaabHistoryPage from './pages/NisaabHistoryPage';
-import NotificationsPage from './pages/NotificationsPage';
-import SecurityPage from './pages/SecurityPage';
-import SettingsPage from './pages/SettingsPage';
-import ComingSoonPage from './pages/ComingSoonPage';
-import WealthCalculationPage from './pages/WealthCalculationPage';
-import CalculationsPage from './pages/CalculationsPage';
-import CalculationDetailsPage from './pages/CalculationDetailsPage';
+import { lazy, Suspense } from 'react';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import AuthRoute from './components/auth/AuthRoute';
 import RootRedirect from './components/auth/RootRedirect';
@@ -25,6 +9,42 @@ import { useAiChatStore } from './store/aiChatStore';
 import ThemeProvider from './components/layout/ThemeProvider';
 import AlertProvider from './components/layout/AlertProvider';
 import ErrorBoundary from './components/ErrorBoundary';
+import LoadingSkeleton from './components/wealth/LoadingSkeleton';
+
+// Lazy load non-critical pages for better initial load performance
+// Keep auth pages eager for faster authentication flow
+const LoginPage = lazy(() => import('./pages/auth/LoginPage'));
+const SignupPage = lazy(() => import('./pages/auth/SignupPage'));
+const ForgotPasswordPage = lazy(() => import('./pages/auth/ForgotPasswordPage'));
+const ResetPasswordPage = lazy(() => import('./pages/auth/ResetPasswordPage'));
+const OAuthCallbackPage = lazy(() => import('./pages/auth/OAuthCallbackPage'));
+const OnboardingPage = lazy(() => import('./pages/OnboardingPage'));
+const DashboardPage = lazy(() => import('./pages/DashboardPage'));
+const ProfilePage = lazy(() => import('./pages/ProfilePage'));
+const EditProfilePage = lazy(() => import('./pages/EditProfilePage'));
+const NisaabHistoryPage = lazy(() => import('./pages/NisaabHistoryPage'));
+const NotificationsPage = lazy(() => import('./pages/NotificationsPage'));
+const SecurityPage = lazy(() => import('./pages/SecurityPage'));
+const SettingsPage = lazy(() => import('./pages/SettingsPage'));
+const ComingSoonPage = lazy(() => import('./pages/ComingSoonPage'));
+const WealthCalculationPage = lazy(() => import('./pages/WealthCalculationPage'));
+const CalculationsPage = lazy(() => import('./pages/CalculationsPage'));
+const CalculationDetailsPage = lazy(() => import('./pages/CalculationDetailsPage'));
+const CommunityPage = lazy(() => import('./pages/CommunityPage'));
+const CommunitySearchPage = lazy(() => import('./pages/CommunitySearchPage'));
+const PostDetailPage = lazy(() => import('./pages/PostDetailPage'));
+const PostEditorPage = lazy(() => import('./pages/PostEditorPage'));
+const MemberProfilePage = lazy(() => import('./pages/MemberProfilePage'));
+const FollowersPage = lazy(() => import('./pages/FollowersPage'));
+const FollowingPage = lazy(() => import('./pages/FollowingPage'));
+const KnowledgeResourcePlayerPage = lazy(() => import('./pages/KnowledgeResourcePlayerPage'));
+
+// Loading fallback component
+const PageLoader = () => (
+	<div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900">
+		<LoadingSkeleton />
+	</div>
+);
 
 function App() {
 	const isChatOpen = useAiChatStore((state) => state.isOpen);
@@ -37,7 +57,8 @@ function App() {
 				<DeviceRegistration />
 				<AlertProvider />
 				<ZakaatAdvisorChat isOpen={isChatOpen} onClose={closeChat} />
-				<Routes location={location} key={location.pathname}>
+				<Suspense fallback={<PageLoader />}>
+					<Routes location={location} key={location.pathname}>
 					<Route path="/" element={<RootRedirect />} />
 					<Route path="/onboarding" element={<OnboardingPage />} />
 					<Route
@@ -133,11 +154,71 @@ function App() {
 						path="/community"
 						element={
 							<ProtectedRoute>
-								<ComingSoonPage
-									title="Community"
-									message="Community"
-									description="Connect with other members of the Zaakiyah community. Share experiences, ask questions, and learn together about Zakaat and charitable giving."
-								/>
+								<CommunityPage />
+							</ProtectedRoute>
+						}
+					/>
+					<Route
+						path="/community/search"
+						element={
+							<ProtectedRoute>
+								<CommunitySearchPage />
+							</ProtectedRoute>
+						}
+					/>
+					<Route
+						path="/community/posts/new"
+						element={
+							<ProtectedRoute>
+								<PostEditorPage />
+							</ProtectedRoute>
+						}
+					/>
+					<Route
+						path="/community/posts/:id"
+						element={
+							<ProtectedRoute>
+								<PostDetailPage />
+							</ProtectedRoute>
+						}
+					/>
+					<Route
+						path="/community/posts/:id/edit"
+						element={
+							<ProtectedRoute>
+								<PostEditorPage />
+							</ProtectedRoute>
+						}
+					/>
+					<Route
+						path="/community/members/:id"
+						element={
+							<ProtectedRoute>
+								<MemberProfilePage />
+							</ProtectedRoute>
+						}
+					/>
+					<Route
+						path="/community/members/:id/followers"
+						element={
+							<ProtectedRoute>
+								<FollowersPage />
+							</ProtectedRoute>
+						}
+					/>
+					<Route
+						path="/community/members/:id/following"
+						element={
+							<ProtectedRoute>
+								<FollowingPage />
+							</ProtectedRoute>
+						}
+					/>
+					<Route
+						path="/community/knowledge/:id"
+						element={
+							<ProtectedRoute>
+								<KnowledgeResourcePlayerPage />
 							</ProtectedRoute>
 						}
 					/>
@@ -213,7 +294,8 @@ function App() {
 							</ProtectedRoute>
 						}
 					/>
-				</Routes>
+					</Routes>
+				</Suspense>
 			</ThemeProvider>
 		</ErrorBoundary>
 	);

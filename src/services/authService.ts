@@ -28,6 +28,7 @@ export interface User {
 	address?: string;
 	preferences: string[];
 	isAdmin: boolean;
+	isVerified: boolean;
 	createdAt: string;
 	updatedAt: string;
 	hasPassword: boolean;
@@ -44,6 +45,7 @@ export interface User {
 		notifyNisaabChange: boolean;
 		notifySummary: boolean;
 		nisaabUpdatesEnabled: boolean;
+		communityNotifications?: boolean;
 		sendHour: number;
 		timezone?: string;
 	} | null;

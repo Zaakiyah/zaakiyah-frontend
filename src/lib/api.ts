@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { deviceService } from '../services/deviceService'
 import { useAuthStore } from '../store/authStore'
+import { logger } from '../utils/logger'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
 
@@ -20,6 +21,11 @@ api.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`
     }
 
+    // Don't override Content-Type for FormData (let browser set it with boundary)
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type']
+    }
+
     // Add device info to headers for auth endpoints
     const isAuthEndpoint = config.url?.includes('/auth/')
     if (isAuthEndpoint) {
@@ -36,7 +42,7 @@ api.interceptors.request.use(
         }
       } catch (error) {
         // Silently fail - device info is optional
-        console.warn('Failed to get device info:', error)
+        logger.warn('Failed to get device info:', error)
       }
     }
 
