@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import {
 	CheckIcon,
 	MagnifyingGlassIcon,
@@ -15,6 +16,7 @@ import { notificationService, type Notification } from '../services/notification
 
 export default function NotificationsPage() {
 	useTheme();
+	const navigate = useNavigate();
 	const [notifications, setNotifications] = useState<Notification[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -164,6 +166,58 @@ export default function NotificationsPage() {
 		return `${Math.floor(diffInMonths / 12)}y ago`;
 	};
 
+	/**
+	 * Get navigation path based on notification metadata
+	 */
+	const getNotificationPath = (notification: Notification): string | null => {
+		if (!notification.metadata || !notification.metadata.type) {
+			return null;
+		}
+
+		const { type, postId, followerId } = notification.metadata;
+
+		switch (type) {
+			case 'post_liked':
+				return postId ? `/community/posts/${postId}` : null;
+			case 'comment_created':
+			case 'comment_reply':
+				return postId ? `/community/posts/${postId}` : null;
+			case 'comment_liked':
+				// Navigate to the post that contains the comment
+				return postId ? `/community/posts/${postId}` : null;
+			case 'user_followed':
+				return followerId ? `/community/members/${followerId}` : null;
+			default:
+				return null;
+		}
+	};
+
+	/**
+	 * Handle notification click - navigate and mark as read
+	 */
+	const handleNotificationClick = async (notification: Notification) => {
+		const path = getNotificationPath(notification);
+
+		// Mark as read if unread
+		if (!notification.isRead) {
+			try {
+				await notificationService.markAsRead(notification.id);
+				setNotifications((prev) =>
+					prev.map((notif) =>
+						notif.id === notification.id ? { ...notif, isRead: true } : notif
+					)
+				);
+			} catch (error) {
+				console.error('Failed to mark notification as read:', error);
+			}
+		}
+
+		// Navigate to relevant page
+		if (path) {
+			navigate(path);
+		}
+	};
+
 	const hasUnreadNotifications = notifications.some((notif) => !notif.isRead);
 	const unreadNotificationsCount = notifications.filter((notif) => !notif.isRead).length;
 
@@ -260,68 +314,80 @@ export default function NotificationsPage() {
 				) : (
 					<>
 						<div className="space-y-2">
-							{notifications.map((notification, index) => (
-								<motion.div
-									key={notification.id}
-									initial={{ opacity: 0, y: 10 }}
-									animate={{ opacity: 1, y: 0 }}
-									transition={{ delay: index * 0.02 }}
-									className={`bg-white dark:bg-slate-800 rounded-lg p-3 shadow-sm border transition-all ${
-										notification.isRead
-											? 'border-slate-200/60 dark:border-slate-700/60 opacity-75'
-											: 'border-primary-200/60 dark:border-primary-800/60 bg-primary-50/30 dark:bg-primary-900/20'
-									}`}
-								>
-									<div className="flex items-start gap-3">
-										{/* Unread Indicator */}
-										{!notification.isRead && (
-											<div className="mt-1.5 shrink-0">
-												<div className="w-2 h-2 bg-primary-500 dark:bg-primary-400 rounded-full" />
-											</div>
-										)}
-
-										<div className="flex-1 min-w-0">
-											<div className="flex items-start justify-between gap-2 mb-1">
-												<h3
-													className={`text-sm font-semibold ${
-														notification.isRead
-															? 'text-slate-700 dark:text-slate-300'
-															: 'text-slate-900 dark:text-slate-100'
-													}`}
-												>
-													{notification.title}
-												</h3>
-												{!notification.isRead && (
-													<button
-														onClick={() =>
-															handleMarkAsRead(notification.id)
-														}
-														className="p-1 rounded-lg hover:bg-white dark:hover:bg-slate-700 transition-colors shrink-0"
-														title="Mark as read"
-													>
-														<CheckIcon className="w-4 h-4 text-slate-500 dark:text-slate-400" />
-													</button>
-												)}
-											</div>
-
-											{notification.message && (
-												<p className="text-xs text-slate-600 dark:text-slate-400 mb-2 line-clamp-2">
-													{notification.message}
-												</p>
+							{notifications.map((notification, index) => {
+								const hasNavigation = getNotificationPath(notification) !== null;
+								return (
+									<motion.div
+										key={notification.id}
+										initial={{ opacity: 0, y: 10 }}
+										animate={{ opacity: 1, y: 0 }}
+										transition={{ delay: index * 0.02 }}
+										className={`bg-white dark:bg-slate-800 rounded-lg p-3 shadow-sm border transition-all ${
+											notification.isRead
+												? 'border-slate-200/60 dark:border-slate-700/60 opacity-75'
+												: 'border-primary-200/60 dark:border-primary-800/60 bg-primary-50/30 dark:bg-primary-900/20'
+										} ${hasNavigation ? 'cursor-pointer hover:shadow-md hover:border-primary-300 dark:hover:border-primary-700' : ''}`}
+										onClick={() => hasNavigation && handleNotificationClick(notification)}
+									>
+										<div className="flex items-start gap-3">
+											{/* Unread Indicator */}
+											{!notification.isRead && (
+												<div className="mt-1.5 shrink-0">
+													<div className="w-2 h-2 bg-primary-500 dark:bg-primary-400 rounded-full" />
+												</div>
 											)}
 
-											<div className="flex items-center justify-between">
-												<p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">
-													{formatTimeAgo(notification.createdAt)}
-												</p>
-												{notification.isRead && (
-													<CheckIconSolid className="w-3 h-3 text-slate-400 dark:text-slate-500" />
+											<div className="flex-1 min-w-0">
+												<div className="flex items-start justify-between gap-2 mb-1">
+													<h3
+														className={`text-sm font-semibold ${
+															notification.isRead
+																? 'text-slate-700 dark:text-slate-300'
+																: 'text-slate-900 dark:text-slate-100'
+														}`}
+													>
+														{notification.title}
+													</h3>
+													{!notification.isRead && (
+														<button
+															onClick={(e) => {
+																e.stopPropagation();
+																handleMarkAsRead(notification.id);
+															}}
+															className="p-1 rounded-lg hover:bg-white dark:hover:bg-slate-700 transition-colors shrink-0"
+															title="Mark as read"
+														>
+															<CheckIcon className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+														</button>
+													)}
+												</div>
+
+												{notification.message && (
+													<p className="text-xs text-slate-600 dark:text-slate-400 mb-2 line-clamp-2">
+														{notification.message}
+													</p>
 												)}
+
+												<div className="flex items-center justify-between">
+													<p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">
+														{formatTimeAgo(notification.createdAt)}
+													</p>
+													<div className="flex items-center gap-2">
+														{hasNavigation && (
+															<span className="text-[10px] text-primary-600 dark:text-primary-400 font-medium">
+																View →
+															</span>
+														)}
+														{notification.isRead && (
+															<CheckIconSolid className="w-3 h-3 text-slate-400 dark:text-slate-500" />
+														)}
+													</div>
+												</div>
 											</div>
 										</div>
-									</div>
-								</motion.div>
-							))}
+									</motion.div>
+								);
+							})}
 						</div>
 
 						{/* Infinite Scroll Trigger */}

@@ -5,6 +5,7 @@ import { useTheme } from '../hooks/useTheme';
 import { useCurrencyStore } from '../store/currencyStore';
 import { wealthCalculationService } from '../services/wealthCalculationService';
 import { alert } from '../store/alertStore';
+import { logger } from '../utils/logger';
 import BottomNavigation from '../components/layout/BottomNavigation';
 import Button from '../components/ui/Button';
 import LoadingSkeleton from '../components/wealth/LoadingSkeleton';
@@ -38,7 +39,7 @@ export default function CalculationDetailsPage() {
 					setCalculation(response.data);
 				}
 			} catch (error) {
-				console.error('Error fetching calculation:', error);
+				logger.error('Error fetching calculation:', error);
 				alert.error('Failed to load calculation. Please try again.');
 				navigate('/calculations');
 			} finally {
