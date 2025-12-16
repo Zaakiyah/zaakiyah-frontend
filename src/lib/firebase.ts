@@ -2,6 +2,7 @@ import { initializeApp, getApps } from 'firebase/app';
 import type { FirebaseApp } from 'firebase/app';
 import { getMessaging, getToken, onMessage } from 'firebase/messaging';
 import type { Messaging } from 'firebase/messaging';
+import { logger } from '../utils/logger';
 
 const firebaseConfig = {
 	apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -30,16 +31,18 @@ export function initializeFirebase(): FirebaseApp | null {
 	}
 
 	// Validate config - check if all required values are present
-	const hasValidConfig = 
-		firebaseConfig.apiKey && 
-		firebaseConfig.projectId && 
+	const hasValidConfig =
+		firebaseConfig.apiKey &&
+		firebaseConfig.projectId &&
 		firebaseConfig.authDomain &&
 		firebaseConfig.messagingSenderId &&
 		firebaseConfig.appId;
 
 	if (!hasValidConfig) {
-		console.warn('Firebase config is missing or incomplete. Push notifications will be disabled.');
-		console.warn('Please add Firebase configuration to your .env file. See FIREBASE_SETUP.md for details.');
+		logger.warn(
+			'Firebase config is missing or incomplete. Push notifications will be disabled.'
+		);
+		logger.warn('Please add Firebase configuration to your .env file.');
 		return null;
 	}
 
@@ -47,7 +50,7 @@ export function initializeFirebase(): FirebaseApp | null {
 		app = initializeApp(firebaseConfig);
 		return app;
 	} catch (error) {
-		console.error('Error initializing Firebase:', error);
+		logger.error('Error initializing Firebase:', error);
 		return null;
 	}
 }
@@ -78,9 +81,12 @@ export async function getFirebaseMessaging(): Promise<Messaging | null> {
 		// Register service worker and pass config
 		if ('serviceWorker' in navigator) {
 			try {
-				const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js', {
-					scope: '/',
-				});
+				const registration = await navigator.serviceWorker.register(
+					'/firebase-messaging-sw.js',
+					{
+						scope: '/',
+					}
+				);
 
 				// Wait for service worker to be ready
 				await navigator.serviceWorker.ready;
@@ -93,14 +99,14 @@ export async function getFirebaseMessaging(): Promise<Messaging | null> {
 					});
 				}
 			} catch (swError) {
-				console.warn('Service worker registration failed:', swError);
+				logger.warn('Service worker registration failed:', swError);
 			}
 		}
 
 		messaging = getMessaging(firebaseApp);
 		return messaging;
 	} catch (error) {
-		console.error('Error getting Firebase Messaging:', error);
+		logger.error('Error getting Firebase Messaging:', error);
 		return null;
 	}
 }
@@ -116,7 +122,7 @@ export async function getFCMToken(): Promise<string | null> {
 
 	const vapidKey = import.meta.env.VITE_FIREBASE_VAPID_KEY;
 	if (!vapidKey) {
-		console.warn('VAPID key is missing. Push notifications will be disabled.');
+		logger.warn('VAPID key is missing. Push notifications will be disabled.');
 		return null;
 	}
 
@@ -155,4 +161,3 @@ export async function onMessageListener(): Promise<any> {
 		});
 	});
 }
-

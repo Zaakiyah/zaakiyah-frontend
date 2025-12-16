@@ -5,6 +5,7 @@ import { useTheme } from '../hooks/useTheme';
 import { useCurrencyStore } from '../store/currencyStore';
 import { wealthCalculationService } from '../services/wealthCalculationService';
 import { alert } from '../store/alertStore';
+import { logger } from '../utils/logger';
 import BottomNavigation from '../components/layout/BottomNavigation';
 import ConfirmDialog from '../components/ui/ConfirmDialog';
 import LoadingSkeleton from '../components/wealth/LoadingSkeleton';
@@ -46,7 +47,7 @@ export default function CalculationsPage() {
 				setTotalPages(response.data.pagination.totalPages);
 			}
 		} catch (error) {
-			console.error('Error fetching calculations:', error);
+			logger.error('Error fetching calculations:', error);
 			alert.error('Failed to load calculations. Please try again.');
 		} finally {
 			setIsLoading(false);
@@ -65,7 +66,7 @@ export default function CalculationsPage() {
 			setDeleteDialogOpen(false);
 			setCalculationToDelete(null);
 		} catch (error) {
-			console.error('Error deleting calculation:', error);
+			logger.error('Error deleting calculation:', error);
 			alert.error('Failed to delete calculation. Please try again.');
 		}
 	};
@@ -83,7 +84,7 @@ export default function CalculationsPage() {
 			);
 			fetchCalculations();
 		} catch (error) {
-			console.error('Error archiving calculation:', error);
+			logger.error('Error archiving calculation:', error);
 			alert.error('Failed to update calculation. Please try again.');
 		} finally {
 			setArchivingId(null);
@@ -98,7 +99,7 @@ export default function CalculationsPage() {
 			alert.success('Calculation marked as completed');
 			fetchCalculations();
 		} catch (error) {
-			console.error('Error updating calculation:', error);
+			logger.error('Error updating calculation:', error);
 			alert.error('Failed to update calculation. Please try again.');
 		}
 	};

@@ -1,3 +1,5 @@
+import { logger } from '../utils/logger';
+
 interface DeviceInfo {
 	deviceToken?: string;
 	deviceType: string;
@@ -55,11 +57,11 @@ class DeviceService {
 					return token;
 				} catch (firebaseError) {
 					// If Firebase is not configured, return null gracefully
-					console.warn('Firebase not configured or error getting token:', firebaseError);
+					logger.warn('Firebase not configured or error getting token:', firebaseError);
 					return null;
 				}
 			} catch (error) {
-				console.error('Error getting device token:', error);
+				logger.error('Error getting device token:', error);
 				return null;
 			}
 		})();

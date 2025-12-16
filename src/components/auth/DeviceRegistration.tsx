@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { useAuthStore } from '../../store/authStore';
 import { deviceService } from '../../services/deviceService';
 import api from '../../lib/api';
+import { logger } from '../../utils/logger';
 
 /**
  * Component to handle device registration for authenticated users
@@ -34,7 +35,7 @@ export default function DeviceRegistration() {
 			} catch (error) {
 				// Silently fail - device registration is optional
 				if (isMounted) {
-					console.warn('Failed to register device:', error);
+					logger.warn('Failed to register device:', error);
 					hasRegisteredRef.current = false; // Allow retry on error
 				}
 			}
