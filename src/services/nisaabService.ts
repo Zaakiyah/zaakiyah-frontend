@@ -47,10 +47,17 @@ export const nisaabService = {
 	async getNisaabHistory(
 		page = 1,
 		limit = 30,
-		currency?: string
+		currency?: string,
+		startDate?: string,
+		endDate?: string
 	): Promise<ApiResponse<PaginatedNisaabHistory>> {
+		const params: any = { page, limit };
+		if (currency) params.currency = currency;
+		if (startDate) params.startDate = startDate;
+		if (endDate) params.endDate = endDate;
+
 		const response = await api.get<ApiResponse<PaginatedNisaabHistory>>('/nisaab/history', {
-			params: { page, limit, ...(currency ? { currency } : {}) },
+			params,
 		});
 		return response.data;
 	},
@@ -62,4 +69,3 @@ export const nisaabService = {
 		return response.data;
 	},
 };
-

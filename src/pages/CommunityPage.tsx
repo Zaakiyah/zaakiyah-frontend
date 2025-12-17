@@ -22,14 +22,6 @@ export default function CommunityPage() {
 			<header className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-40">
 				<div className="px-4 py-3">
 					<div className="flex items-center gap-3 mb-3">
-						<button
-							onClick={() => navigate('/dashboard')}
-							className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-							aria-label="Go back"
-							type="button"
-						>
-							<ArrowLeftIcon className="w-5 h-5 text-slate-700 dark:text-slate-300" />
-						</button>
 						<h1 className="text-lg font-bold text-slate-900 dark:text-slate-50">
 							Community
 						</h1>
@@ -43,7 +35,11 @@ export default function CommunityPage() {
 							onSubmit={(e) => {
 								e.preventDefault();
 								if (searchQuery.trim()) {
-									navigate(`/community/search?q=${encodeURIComponent(searchQuery.trim())}`);
+									navigate(
+										`/community/search?q=${encodeURIComponent(
+											searchQuery.trim()
+										)}`
+									);
 								}
 							}}
 						>
@@ -143,16 +139,14 @@ export default function CommunityPage() {
 									ease: 'easeInOut',
 								}}
 							/>
-							
+
 							{/* Plus Icon */}
 							<PlusIcon className="w-6 h-6 relative z-10 transform group-hover:rotate-90 transition-transform duration-300" />
-							
+
 							{/* Shine effect on hover */}
-							<motion.div
-								className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"
-							/>
+							<motion.div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
 						</motion.button>
-						
+
 						{/* Tooltip/Label */}
 						<div className="absolute right-full mr-3 top-1/2 -translate-y-1/2 whitespace-nowrap px-3 py-1.5 bg-slate-900 dark:bg-slate-800 text-white text-xs font-medium rounded-lg shadow-lg pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-200">
 							Create Post
@@ -167,6 +161,3 @@ export default function CommunityPage() {
 		</div>
 	);
 }
-
-
-

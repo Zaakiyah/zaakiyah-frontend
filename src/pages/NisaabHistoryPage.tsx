@@ -7,12 +7,11 @@ import {
 	CurrencyDollarIcon,
 	FunnelIcon,
 	XMarkIcon,
-	MagnifyingGlassIcon,
 	ShareIcon,
 } from '@heroicons/react/24/outline';
 import PageHeader from '../components/layout/PageHeader';
 import BottomNavigation from '../components/layout/BottomNavigation';
-import DatePicker from '../components/ui/DatePicker';
+import DateRangePicker from '../components/ui/DateRangePicker';
 import { useAuthStore } from '../store/authStore';
 import { useCurrencyStore } from '../store/currencyStore';
 import { useTheme } from '../hooks/useTheme';
@@ -40,9 +39,9 @@ export default function NisaabHistoryPage() {
 	});
 	const [showFilters, setShowFilters] = useState(false);
 	const [searchParams] = useSearchParams();
-	const [searchDate, setSearchDate] = useState(searchParams.get('date') || '');
+	const [startDate, setStartDate] = useState('');
+	const [endDate, setEndDate] = useState('');
 	const [searchResult, setSearchResult] = useState<NisaabData | null>(null);
-	const [isSearching, setIsSearching] = useState(false);
 	const [searchError, setSearchError] = useState<string | null>(null);
 	const observerTarget = useRef<HTMLDivElement>(null);
 	const isFetchingRef = useRef(false);
@@ -60,7 +59,13 @@ export default function NisaabHistoryPage() {
 
 			try {
 				const currency = preferredCurrency || user?.preferredCurrency || 'USD';
-				const response = await nisaabService.getNisaabHistory(page, 30, currency);
+				const response = await nisaabService.getNisaabHistory(
+					page,
+					30,
+					currency,
+					startDate || undefined,
+					endDate || undefined
+				);
 				if (response.data && 'items' in response.data && 'pagination' in response.data) {
 					const newItems = response.data.items;
 					const pagination = response.data.pagination;
@@ -82,7 +87,7 @@ export default function NisaabHistoryPage() {
 				isFetchingRef.current = false;
 			}
 		},
-		[preferredCurrency, user?.preferredCurrency]
+		[preferredCurrency, user?.preferredCurrency, startDate, endDate]
 	);
 
 	// Sync currency with user profile on mount
@@ -97,13 +102,16 @@ export default function NisaabHistoryPage() {
 		if (history.length === 0 && !searchResult) return;
 
 		// If we have a search result, refetch it with new currency
-		if (searchResult && searchDate) {
+		if (searchResult && (startDate || endDate)) {
 			const refetchSearchResult = async () => {
 				try {
 					const currency = preferredCurrency || user?.preferredCurrency || 'USD';
-					const response = await nisaabService.getNisaabByDate(searchDate, currency);
-					if (response.data) {
-						setSearchResult(response.data);
+					// If both dates are the same, search for that specific date
+					if (startDate && endDate && startDate === endDate) {
+						const response = await nisaabService.getNisaabByDate(startDate, currency);
+						if (response.data) {
+							setSearchResult(response.data);
+						}
 					}
 				} catch (error: any) {
 					console.error('Failed to refetch search result with new currency:', error);
@@ -111,21 +119,21 @@ export default function NisaabHistoryPage() {
 			};
 			refetchSearchResult();
 		}
-		// If we have history and no search, refetch history
-		else if (!searchParams.get('date') && history.length > 0) {
+		// If we have history and no date range, refetch history
+		else if (!startDate && !endDate && history.length > 0) {
 			fetchHistory(1, true);
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [preferredCurrency, user?.preferredCurrency]);
 
 	useEffect(() => {
-		// Check if there's a date parameter in the URL
+		// Check if there's a date parameter in the URL (for backward compatibility)
 		const urlDate = searchParams.get('date');
 		if (urlDate) {
-			setSearchDate(urlDate);
+			setStartDate(urlDate);
+			setEndDate(urlDate);
 			// Automatically search for the date from URL
 			const searchForDate = async () => {
-				setIsSearching(true);
 				setSearchError(null);
 				setSearchResult(null);
 
@@ -137,11 +145,10 @@ export default function NisaabHistoryPage() {
 					}
 				} catch (error: any) {
 					setSearchError(
-						error.response?.data?.message || 'Nisaab not found for this date. Please try another date.'
+						error.response?.data?.message ||
+							'Nisaab not found for this date. Please try another date.'
 					);
 					setSearchResult(null);
-				} finally {
-					setIsSearching(false);
 				}
 			};
 			searchForDate();
@@ -154,7 +161,12 @@ export default function NisaabHistoryPage() {
 	useEffect(() => {
 		const observer = new IntersectionObserver(
 			(entries) => {
-				if (entries[0].isIntersecting && hasMore && !isLoadingMore && !isFetchingRef.current) {
+				if (
+					entries[0].isIntersecting &&
+					hasMore &&
+					!isLoadingMore &&
+					!isFetchingRef.current
+				) {
 					fetchHistory(currentPage + 1, false);
 				}
 			},
@@ -173,14 +185,20 @@ export default function NisaabHistoryPage() {
 		};
 	}, [hasMore, isLoadingMore, currentPage, fetchHistory]);
 
-	// Filter history based on selected month/year
+	// Filter history based on selected month/year and date range
 	const filteredHistory = history.filter((item) => {
-		if (!filters.month && !filters.year) return true;
-
 		const date = new Date(item.gregorianDate);
 		const itemMonth = (date.getMonth() + 1).toString();
 		const itemYear = date.getFullYear().toString();
+		const itemDateStr = date.toISOString().split('T')[0];
 
+		// Date range filter
+		if (startDate || endDate) {
+			if (startDate && itemDateStr < startDate) return false;
+			if (endDate && itemDateStr > endDate) return false;
+		}
+
+		// Month/Year filter (complements date range)
 		if (filters.month && filters.year) {
 			return itemMonth === filters.month && itemYear === filters.year;
 		}
@@ -202,40 +220,22 @@ export default function NisaabHistoryPage() {
 
 	const clearFilters = () => {
 		setFilters({ month: '', year: new Date().getFullYear().toString() });
+		handleDateRangeChange(undefined, undefined);
 		setShowFilters(false);
 		fetchHistory(1, true);
 	};
 
-	const handleDateSearch = async () => {
-		if (!searchDate) {
-			setSearchError('Please select a date');
-			return;
-		}
-
-		setIsSearching(true);
+	const handleDateRangeChange = (
+		newStartDate: string | undefined,
+		newEndDate: string | undefined
+	) => {
+		setStartDate(newStartDate || '');
+		setEndDate(newEndDate || '');
 		setSearchError(null);
 		setSearchResult(null);
-
-		try {
-			const currency = preferredCurrency || user?.preferredCurrency || 'USD';
-			// Format date as YYYY-MM-DD
-			const dateParts = searchDate.split('-');
-			if (dateParts.length !== 3) {
-				throw new Error('Invalid date format');
-			}
-			const formattedDate = `${dateParts[0]}-${dateParts[1]}-${dateParts[2]}`;
-
-			const response = await nisaabService.getNisaabByDate(formattedDate, currency);
-			if (response.data) {
-				setSearchResult(response.data);
-			}
-		} catch (error: any) {
-			setSearchError(
-				error.response?.data?.message || 'Nisaab not found for this date. Please try another date.'
-			);
-			setSearchResult(null);
-		} finally {
-			setIsSearching(false);
+		// Automatically fetch history when date range changes
+		if (newStartDate || newEndDate) {
+			fetchHistory(1, true);
 		}
 	};
 
@@ -350,7 +350,8 @@ export default function NisaabHistoryPage() {
 		{ value: '12', label: 'December' },
 	];
 
-	const hasActiveFilters = filters.month !== '' || filters.year !== new Date().getFullYear().toString();
+	const hasActiveFilters =
+		filters.month !== '' || filters.year !== new Date().getFullYear().toString();
 
 	const renderNisaabCard = (item: NisaabData, index?: number) => (
 		<motion.div
@@ -370,7 +371,9 @@ export default function NisaabHistoryPage() {
 						</span>
 					</div>
 					<div>
-						<p className="text-xs font-bold text-slate-900 dark:text-slate-100">{formatDate(item.gregorianDate)}</p>
+						<p className="text-xs font-bold text-slate-900 dark:text-slate-100">
+							{formatDate(item.gregorianDate)}
+						</p>
 						{item.hijriDate && (
 							<p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">
 								{formatHijriDate(item.hijriDate)}
@@ -395,7 +398,9 @@ export default function NisaabHistoryPage() {
 						<SparklesIcon className="w-3 h-3 text-white" />
 					</div>
 					<div className="min-w-0 flex-1">
-						<p className="text-[9px] font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide">Gold</p>
+						<p className="text-[9px] font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide">
+							Gold
+						</p>
 						<p
 							className={`text-xs font-bold truncate ${
 								formatCurrencyWithFallback(item.goldNisaabValue) === 'Not Available'
@@ -414,10 +419,13 @@ export default function NisaabHistoryPage() {
 						<CurrencyDollarIcon className="w-3 h-3 text-white" />
 					</div>
 					<div className="min-w-0 flex-1">
-						<p className="text-[9px] font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide">Silver</p>
+						<p className="text-[9px] font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide">
+							Silver
+						</p>
 						<p
 							className={`text-xs font-bold truncate ${
-								formatCurrencyWithFallback(item.silverNisaabValue) === 'Not Available'
+								formatCurrencyWithFallback(item.silverNisaabValue) ===
+								'Not Available'
 									? 'text-slate-400 dark:text-slate-500'
 									: 'text-slate-900 dark:text-slate-100'
 							}`}
@@ -450,36 +458,23 @@ export default function NisaabHistoryPage() {
 			/>
 
 			<main className="px-4 py-3">
-				{/* Date Search */}
+				{/* Date Range Filter */}
 				<div className="mb-3 bg-white dark:bg-slate-800 rounded-xl p-3 shadow-sm border border-slate-200/60 dark:border-slate-700/60">
-					<div className="flex gap-2">
-						<div className="flex-1">
-							<DatePicker
-								value={searchDate}
-								onChange={(date) => {
-									setSearchDate(date);
-									setSearchError(null);
-									setSearchResult(null);
-								}}
-								maxDate={new Date().toISOString().split('T')[0]}
-								placeholder="Search by date"
-							/>
-						</div>
-						<button
-							onClick={handleDateSearch}
-							disabled={isSearching || !searchDate}
-							className="px-4 py-2 bg-primary-500 dark:bg-primary-600 text-white rounded-lg hover:bg-primary-600 dark:hover:bg-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors active:scale-95 flex items-center gap-2"
-						>
-							{isSearching ? (
-								<div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-							) : (
-								<MagnifyingGlassIcon className="w-4 h-4" />
-							)}
-							<span className="text-sm font-medium">Search</span>
-						</button>
-					</div>
+					<label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-2">
+						Date Range
+					</label>
+					<DateRangePicker
+						startDate={startDate || undefined}
+						endDate={endDate || undefined}
+						onChange={handleDateRangeChange}
+						placeholder="Select date range"
+						maxDate={new Date().toISOString().split('T')[0]}
+						className="w-full"
+					/>
 					{searchError && (
-						<p className="mt-2 text-xs text-error-600 dark:text-error-400">{searchError}</p>
+						<p className="mt-2 text-xs text-error-600 dark:text-error-400">
+							{searchError}
+						</p>
 					)}
 				</div>
 
@@ -491,11 +486,14 @@ export default function NisaabHistoryPage() {
 						className="mb-3"
 					>
 						<div className="flex items-center justify-between mb-2">
-							<h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Search Result</h3>
+							<h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+								Search Result
+							</h3>
 							<button
 								onClick={() => {
 									setSearchResult(null);
-									setSearchDate('');
+									setStartDate('');
+									setEndDate('');
 									setSearchError(null);
 								}}
 								className="text-xs text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
@@ -516,7 +514,9 @@ export default function NisaabHistoryPage() {
 						className="mb-3 bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-slate-200/60 dark:border-slate-700/60 space-y-3"
 					>
 						<div className="flex items-center justify-between mb-2">
-							<h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Filter by</h3>
+							<h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+								Filter by
+							</h3>
 							{hasActiveFilters && (
 								<button
 									onClick={clearFilters}
@@ -529,7 +529,9 @@ export default function NisaabHistoryPage() {
 
 						<div className="grid grid-cols-2 gap-3">
 							<div>
-								<label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">Month</label>
+								<label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+									Month
+								</label>
 								<select
 									value={filters.month}
 									onChange={(e) => handleFilterChange('month', e.target.value)}
@@ -545,7 +547,9 @@ export default function NisaabHistoryPage() {
 							</div>
 
 							<div>
-								<label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">Year</label>
+								<label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+									Year
+								</label>
 								<select
 									value={filters.year}
 									onChange={(e) => handleFilterChange('year', e.target.value)}
@@ -565,23 +569,66 @@ export default function NisaabHistoryPage() {
 				{/* Active Filters Display */}
 				{hasActiveFilters && !searchResult && (
 					<div className="mb-3 flex flex-wrap gap-2">
+						{startDate && (
+							<span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 rounded-lg text-xs font-medium">
+								From:{' '}
+								{new Date(startDate).toLocaleDateString('en-US', {
+									month: 'short',
+									day: 'numeric',
+									year: 'numeric',
+								})}
+								<button
+									onClick={() => {
+										setStartDate('');
+										if (!endDate) fetchHistory(1, true);
+									}}
+									className="hover:text-primary-900 dark:hover:text-primary-100"
+								>
+									<XMarkIcon className="w-3 h-3" />
+								</button>
+							</span>
+						)}
+						{endDate && (
+							<span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 rounded-lg text-xs font-medium">
+								To:{' '}
+								{new Date(endDate).toLocaleDateString('en-US', {
+									month: 'short',
+									day: 'numeric',
+									year: 'numeric',
+								})}
+								<button
+									onClick={() => {
+										setEndDate('');
+										if (!startDate) fetchHistory(1, true);
+									}}
+									className="hover:text-primary-900 dark:hover:text-primary-100"
+								>
+									<XMarkIcon className="w-3 h-3" />
+								</button>
+							</span>
+						)}
 						{filters.month && (
-							<span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary-50 text-primary-700 rounded-lg text-xs font-medium">
+							<span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 rounded-lg text-xs font-medium">
 								{months.find((m) => m.value === filters.month)?.label}
 								<button
 									onClick={() => handleFilterChange('month', '')}
-									className="hover:text-primary-900"
+									className="hover:text-primary-900 dark:hover:text-primary-100"
 								>
 									<XMarkIcon className="w-3 h-3" />
 								</button>
 							</span>
 						)}
 						{filters.year && filters.year !== new Date().getFullYear().toString() && (
-							<span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary-50 text-primary-700 rounded-lg text-xs font-medium">
+							<span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 rounded-lg text-xs font-medium">
 								{filters.year}
 								<button
-									onClick={() => handleFilterChange('year', new Date().getFullYear().toString())}
-									className="hover:text-primary-900"
+									onClick={() =>
+										handleFilterChange(
+											'year',
+											new Date().getFullYear().toString()
+										)
+									}
+									className="hover:text-primary-900 dark:hover:text-primary-100"
 								>
 									<XMarkIcon className="w-3 h-3" />
 								</button>
@@ -605,7 +652,9 @@ export default function NisaabHistoryPage() {
 				) : filteredHistory.length === 0 && !searchResult ? (
 					<div className="bg-white dark:bg-slate-800 rounded-xl p-8 shadow-sm border border-slate-200/60 dark:border-slate-700/60 text-center">
 						<CalendarIcon className="w-12 h-12 text-slate-400 dark:text-slate-500 mx-auto mb-3" />
-						<p className="text-sm font-medium text-slate-900 dark:text-slate-100 mb-1">No history found</p>
+						<p className="text-sm font-medium text-slate-900 dark:text-slate-100 mb-1">
+							No history found
+						</p>
 						<p className="text-xs text-slate-500 dark:text-slate-400">
 							{hasActiveFilters
 								? 'Try adjusting your filters to see more results.'
@@ -616,11 +665,16 @@ export default function NisaabHistoryPage() {
 					!searchResult && (
 						<>
 							<div className="grid grid-cols-1 gap-2">
-								{filteredHistory.map((item, index) => renderNisaabCard(item, index))}
+								{filteredHistory.map((item, index) =>
+									renderNisaabCard(item, index)
+								)}
 							</div>
 
 							{/* Infinite Scroll Trigger */}
-							<div ref={observerTarget} className="h-10 flex items-center justify-center py-4">
+							<div
+								ref={observerTarget}
+								className="h-10 flex items-center justify-center py-4"
+							>
 								{isLoadingMore && (
 									<div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
 										<div className="w-4 h-4 border-2 border-primary-500 dark:border-primary-400 border-t-transparent rounded-full animate-spin" />
@@ -628,7 +682,9 @@ export default function NisaabHistoryPage() {
 									</div>
 								)}
 								{!hasMore && history.length > 0 && (
-									<p className="text-xs text-slate-500 dark:text-slate-400">No more records</p>
+									<p className="text-xs text-slate-500 dark:text-slate-400">
+										No more records
+									</p>
 								)}
 							</div>
 						</>

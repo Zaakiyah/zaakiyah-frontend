@@ -48,12 +48,11 @@ export default function PostCard({
 	const [isTogglingFollow, setIsTogglingFollow] = useState(false);
 
 	// Check ownership: use isOwner from backend (works for anonymous posts) or fallback to ID comparison
-	const isOwner = post.isOwner ?? (user?.id === post.author.id);
+	const isOwner = post.isOwner ?? user?.id === post.author.id;
 	const MAX_VISIBLE_MEDIA = 4; // Show up to 4 media items in grid
-	
+
 	// Use backend's isFollowing as source of truth (controlled from BE)
 	const userIsFollowing = post.author.isFollowing ?? false;
-
 
 	const handleDelete = async () => {
 		try {
@@ -105,18 +104,18 @@ export default function PostCard({
 		try {
 			const date = new Date(dateString);
 			const months = [
-				'January',
-				'February',
-				'March',
-				'April',
+				'Jan',
+				'Feb',
+				'Mar',
+				'Apr',
 				'May',
-				'June',
-				'July',
-				'August',
-				'September',
-				'October',
-				'November',
-				'December',
+				'Jun',
+				'Jul',
+				'Aug',
+				'Sep',
+				'Oct',
+				'Nov',
+				'Dec',
 			];
 			const month = months[date.getMonth()];
 			const day = date.getDate();
@@ -136,7 +135,6 @@ export default function PostCard({
 		// Allow 5 seconds difference to account for database precision
 		return updatedAt - createdAt > 5000;
 	};
-
 
 	// Render content with clickable hashtags and links
 	const renderContentWithHashtags = (text: string): React.ReactNode => {
@@ -200,16 +198,19 @@ export default function PostCard({
 							</button>
 							{/* Follow button - show when not owner, not following, and not anonymous */}
 							{/* Condition controlled from BE: isFollowing field in post.author */}
-							{user && !isOwner && userIsFollowing === false && !post.author.isAnonymous && (
-								<button
-									onClick={handleToggleFollow}
-									disabled={isTogglingFollow}
-									className="px-3 py-1.5 text-xs font-semibold bg-primary-500 text-white rounded-lg hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors active:scale-95 flex items-center gap-1.5 flex-shrink-0"
-								>
-									<UserPlusIcon className="w-3.5 h-3.5" />
-									Follow
-								</button>
-							)}
+							{user &&
+								!isOwner &&
+								userIsFollowing === false &&
+								!post.author.isAnonymous && (
+									<button
+										onClick={handleToggleFollow}
+										disabled={isTogglingFollow}
+										className="px-3 py-1.5 text-xs font-semibold bg-primary-500 text-white rounded-lg hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors active:scale-95 flex items-center gap-1.5 flex-shrink-0"
+									>
+										<UserPlusIcon className="w-3.5 h-3.5" />
+										Follow
+									</button>
+								)}
 						</div>
 					</div>
 					{user && (
@@ -253,19 +254,27 @@ export default function PostCard({
 								const remainingCount = post.mediaUrls!.length - MAX_VISIBLE_MEDIA;
 								const showMoreIndicator =
 									index === MAX_VISIBLE_MEDIA - 1 && remainingCount > 0;
-								const mediaCount = Math.min(post.mediaUrls?.length || 0, MAX_VISIBLE_MEDIA);
+								const mediaCount = Math.min(
+									post.mediaUrls?.length || 0,
+									MAX_VISIBLE_MEDIA
+								);
 
 								return (
 									<div
 										key={index}
-										className={`relative ${getMediaItemClass(mediaCount, index)} cursor-pointer group overflow-hidden bg-slate-100 dark:bg-slate-700`}
+										className={`relative ${getMediaItemClass(
+											mediaCount,
+											index
+										)} cursor-pointer group overflow-hidden bg-slate-100 dark:bg-slate-700`}
 										onClick={() => handleMediaClick(index)}
 									>
 										{isVideo ? (
 											<>
 												<video
 													src={url}
-													className={`w-full ${mediaCount === 1 ? 'h-auto' : 'h-full'} object-cover group-hover:scale-105 transition-transform duration-200`}
+													className={`w-full ${
+														mediaCount === 1 ? 'h-auto' : 'h-full'
+													} object-cover group-hover:scale-105 transition-transform duration-200`}
 													preload="metadata"
 													muted
 												/>
@@ -279,7 +288,9 @@ export default function PostCard({
 											<img
 												src={url}
 												alt={`Post media ${index + 1}`}
-												className={`w-full ${mediaCount === 1 ? 'h-auto' : 'h-full'} object-cover group-hover:scale-105 transition-transform duration-200`}
+												className={`w-full ${
+													mediaCount === 1 ? 'h-auto' : 'h-full'
+												} object-cover group-hover:scale-105 transition-transform duration-200`}
 												loading="lazy"
 											/>
 										)}
@@ -374,11 +385,7 @@ export default function PostCard({
 			)}
 
 			{/* Post Actions Bottom Sheet */}
-			<BottomSheet
-				isOpen={showMenu}
-				onClose={() => setShowMenu(false)}
-				title="Post Options"
-			>
+			<BottomSheet isOpen={showMenu} onClose={() => setShowMenu(false)} title="Post Options">
 				<div className="space-y-1">
 					{isOwner ? (
 						<>
@@ -424,7 +431,11 @@ export default function PostCard({
 							if (navigator.share) {
 								navigator
 									.share({
-										title: `Post by ${post.author.isAnonymous ? 'Anonymous' : `${post.author.firstName} ${post.author.lastName}`}`,
+										title: `Post by ${
+											post.author.isAnonymous
+												? 'Anonymous'
+												: `${post.author.firstName} ${post.author.lastName}`
+										}`,
 										text: post.content?.substring(0, 100) || '',
 										url: postUrl,
 									})

@@ -41,7 +41,7 @@ export default function MemberProfilePage() {
 		if (!id) return;
 		try {
 			setIsLoading(true);
-			
+
 			// Fetch user info directly (works even if user has no posts/comments)
 			try {
 				const userInfoResponse = await communityService.getUserInfo(id);
@@ -57,7 +57,7 @@ export default function MemberProfilePage() {
 				}
 				logger.error('Error fetching user info:', userInfoError);
 			}
-			
+
 			// Fetch follow stats (this will work even if user has no posts/comments)
 			try {
 				const statsResponse = await communityService.getFollowStats(id);
@@ -121,13 +121,16 @@ export default function MemberProfilePage() {
 		fetchMemberPosts();
 		// Also fetch comment count on mount
 		if (id) {
-			communityService.getUserComments(id, 1, 1).then((response) => {
-				if (response.data && response.data.meta) {
-					setCommentsCount(response.data.meta.total);
-				}
-			}).catch((error) => {
-				logger.error('Error fetching comment count:', error);
-			});
+			communityService
+				.getUserComments(id, 1, 1)
+				.then((response) => {
+					if (response.data && response.data.meta) {
+						setCommentsCount(response.data.meta.total);
+					}
+				})
+				.catch((error) => {
+					logger.error('Error fetching comment count:', error);
+				});
 		}
 	}, [fetchMemberProfile, fetchMemberPosts, id]);
 
@@ -165,11 +168,8 @@ export default function MemberProfilePage() {
 	};
 
 	const handlePostUpdated = (updatedPost: Post) => {
-		setPosts((prev) =>
-			prev.map((post) => (post.id === updatedPost.id ? updatedPost : post))
-		);
+		setPosts((prev) => prev.map((post) => (post.id === updatedPost.id ? updatedPost : post)));
 	};
-
 
 	if (isLoading) {
 		return (
@@ -178,7 +178,6 @@ export default function MemberProfilePage() {
 					<div className="px-4 py-3">
 						<div className="flex items-center gap-3">
 							<div className="w-10 h-10 bg-slate-200 dark:bg-slate-700 rounded-full animate-pulse" />
-							<div className="h-6 bg-slate-200 dark:bg-slate-700 rounded w-32 animate-pulse" />
 						</div>
 					</div>
 				</header>
@@ -215,81 +214,81 @@ export default function MemberProfilePage() {
 						>
 							<ArrowLeftIcon className="w-5 h-5 text-slate-700 dark:text-slate-300" />
 						</button>
-						<h1 className="text-lg font-bold text-slate-900 dark:text-slate-50">
-							Profile
-						</h1>
 					</div>
 
-				{/* Profile Info - Clean Layout */}
-				<div className="mb-3">
-					<div className="flex items-start gap-3 mb-2">
-						<Avatar
-							avatarUrl={member.avatarUrl}
-							firstName={member.firstName}
-							lastName={member.lastName}
-							size="xl"
-							isVerified={member.isVerified}
-							isAdmin={member.isAdmin}
-						/>
-						<div className="flex-1 min-w-0">
-							<h2 className="text-base font-bold text-slate-900 dark:text-slate-50 mb-1">
-								{member.firstName} {member.lastName}
-							</h2>
-							{/* Member Since - Single line */}
-							{member.createdAt && (
-								<div className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">
-									<CalendarDaysIcon className="w-3 h-3 flex-shrink-0" />
-									<span className="truncate">
-										{new Date(member.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
-									</span>
+					{/* Profile Info - Clean Layout */}
+					<div className="mb-3">
+						<div className="flex items-start gap-3 mb-2">
+							<Avatar
+								avatarUrl={member.avatarUrl}
+								firstName={member.firstName}
+								lastName={member.lastName}
+								size="xl"
+								isVerified={member.isVerified}
+								isAdmin={member.isAdmin}
+							/>
+							<div className="flex-1 min-w-0">
+								<h2 className="text-base font-bold text-slate-900 dark:text-slate-50 mb-1">
+									{member.firstName} {member.lastName}
+								</h2>
+								{/* Member Since - Single line */}
+								{member.createdAt && (
+									<div className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">
+										<CalendarDaysIcon className="w-3 h-3 flex-shrink-0" />
+										<span className="truncate">
+											{new Date(member.createdAt).toLocaleDateString(
+												'en-US',
+												{ month: 'short', year: 'numeric' }
+											)}
+										</span>
+									</div>
+								)}
+							</div>
+							{/* Follow Button - Separate, no overlap */}
+							{user && user.id !== id && (
+								<div className="flex-shrink-0">
+									<FollowButton
+										userId={id!}
+										isFollowing={isFollowing}
+										onFollowChange={(following) => {
+											setIsFollowing(following);
+											setFollowStats((prev) => ({
+												...prev,
+												followersCount: following
+													? prev.followersCount + 1
+													: prev.followersCount - 1,
+											}));
+										}}
+										variant="default"
+										size="sm"
+									/>
 								</div>
 							)}
 						</div>
-						{/* Follow Button - Separate, no overlap */}
-						{user && user.id !== id && (
-							<div className="flex-shrink-0">
-								<FollowButton
-									userId={id!}
-									isFollowing={isFollowing}
-									onFollowChange={(following) => {
-										setIsFollowing(following);
-										setFollowStats((prev) => ({
-											...prev,
-											followersCount: following
-												? prev.followersCount + 1
-												: prev.followersCount - 1,
-										}));
-									}}
-									variant="default"
-									size="sm"
-								/>
-							</div>
-						)}
+						{/* Follow Stats - Separate row */}
+						<div className="flex items-center gap-4 pl-14">
+							<button
+								onClick={() => navigate(`/community/members/${id}/followers`)}
+								className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition-colors"
+							>
+								<UserGroupIcon className="w-3.5 h-3.5" />
+								<span className="font-semibold text-slate-900 dark:text-slate-50">
+									{followStats.followersCount}
+								</span>
+								<span>followers</span>
+							</button>
+							<button
+								onClick={() => navigate(`/community/members/${id}/following`)}
+								className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition-colors"
+							>
+								<UserPlusIcon className="w-3.5 h-3.5" />
+								<span className="font-semibold text-slate-900 dark:text-slate-50">
+									{followStats.followingCount}
+								</span>
+								<span>following</span>
+							</button>
+						</div>
 					</div>
-					{/* Follow Stats - Separate row */}
-					<div className="flex items-center gap-4 pl-14">
-						<button
-							onClick={() => navigate(`/community/members/${id}/followers`)}
-							className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition-colors"
-						>
-							<UserGroupIcon className="w-3.5 h-3.5" />
-							<span className="font-semibold text-slate-900 dark:text-slate-50">
-								{followStats.followersCount}
-							</span>
-							<span>followers</span>
-						</button>
-						<button
-							onClick={() => navigate(`/community/members/${id}/following`)}
-							className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition-colors"
-						>
-							<UserPlusIcon className="w-3.5 h-3.5" />
-							<span className="font-semibold text-slate-900 dark:text-slate-50">
-								{followStats.followingCount}
-							</span>
-							<span>following</span>
-						</button>
-					</div>
-				</div>
 
 					{/* Tabs */}
 					<div className="flex gap-1">
@@ -358,7 +357,10 @@ export default function MemberProfilePage() {
 						) : (
 							<div className="space-y-4">
 								{comments.map((comment) => (
-									<div key={comment.id} className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
+									<div
+										key={comment.id}
+										className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4"
+									>
 										<CommentCard
 											comment={comment}
 											onReply={() => {}}
@@ -372,7 +374,11 @@ export default function MemberProfilePage() {
 										{comment.post && (
 											<div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700">
 												<button
-													onClick={() => navigate(`/community/posts/${comment.post?.id}`)}
+													onClick={() =>
+														navigate(
+															`/community/posts/${comment.post?.id}`
+														)
+													}
 													className="text-xs text-slate-500 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400"
 												>
 													View post →
@@ -392,4 +398,3 @@ export default function MemberProfilePage() {
 		</div>
 	);
 }
-

@@ -567,27 +567,45 @@ export default function DashboardPage() {
 					)}
 				</motion.div>
 
-				{/* Compact Action Buttons */}
+				{/* Elegant Action Tiles */}
 				<motion.div
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ delay: 0.1 }}
-					className="grid grid-cols-4 gap-2"
+					className="grid grid-cols-2 gap-3"
 				>
-					{actionButtons.map((button) => {
+					{actionButtons.map((button, index) => {
 						const Icon = button.icon;
+						const gradients = [
+							'from-primary-500 to-primary-600',
+							'from-emerald-500 to-emerald-600',
+							'from-amber-500 to-amber-600',
+							'from-blue-500 to-blue-600',
+						];
+						const gradient = gradients[index % gradients.length];
 						return (
 							<button
 								key={button.label}
 								onClick={button.onClick}
-								className="bg-white dark:bg-slate-800 rounded-xl p-2.5 shadow-sm border border-slate-200/60 dark:border-slate-700/60 hover:shadow-md hover:border-primary-200/60 dark:hover:border-primary-600/60 transition-all active:scale-[0.98] flex flex-col items-center gap-1.5"
+								className="group relative bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm border border-slate-200/60 dark:border-slate-700/60 hover:shadow-lg hover:border-primary-200/60 dark:hover:border-primary-600/60 transition-all duration-300 active:scale-[0.98] overflow-hidden"
 							>
-								<div className="w-9 h-9 bg-gradient-to-br from-primary-500 to-primary-600 rounded-lg flex items-center justify-center shadow-sm">
-									<Icon className="w-4.5 h-4.5 text-white" />
+								{/* Subtle gradient overlay on hover */}
+								<div
+									className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-300`}
+								/>
+
+								<div className="relative flex items-center gap-3">
+									<div
+										className={`w-12 h-12 bg-gradient-to-br ${gradient} rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg group-hover:scale-110 transition-all duration-300`}
+									>
+										<Icon className="w-6 h-6 text-white" />
+									</div>
+									<div className="flex-1 min-w-0">
+										<p className="text-sm font-bold text-slate-900 dark:text-slate-100 text-left leading-tight">
+											{button.label}
+										</p>
+									</div>
 								</div>
-								<p className="text-[10px] font-semibold text-slate-900 dark:text-slate-100 text-center leading-tight whitespace-nowrap">
-									{button.label}
-								</p>
 							</button>
 						);
 					})}
