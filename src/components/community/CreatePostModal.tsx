@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { communityService } from '../../services/communityService';
 import { alert } from '../../store/alertStore';
 import { logger } from '../../utils/logger';
-import { XMarkIcon, PhotoIcon, VideoCameraIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, PhotoIcon, TrashIcon } from '@heroicons/react/24/outline';
 import Checkbox from '../ui/Checkbox';
 import type { CreatePostData } from '../../types/community.types';
 import { PostType } from '../../types/community.types';

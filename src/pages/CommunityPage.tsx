@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../hooks/useTheme';
 import BottomNavigation from '../components/layout/BottomNavigation';
 import NotificationIcon from '../components/ui/NotificationIcon';
-import { ArrowLeftIcon, PlusIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import CommunityFeed from '../components/community/CommunityFeed';
 import KnowledgeBase from '../components/community/KnowledgeBase';
 
