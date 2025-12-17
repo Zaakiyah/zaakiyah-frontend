@@ -38,6 +38,30 @@ export const communityService = {
 	},
 
 	/**
+	 * Upload a document file (PDF, DOC, DOCX, etc.)
+	 */
+	async uploadDocument(file: File): Promise<ApiResponse<{ url: string }>> {
+		try {
+			const formData = new FormData();
+			formData.append('file', file);
+			formData.append('allowDocuments', 'true');
+			const response = await api.post<ApiResponse<{ url: string }>>(
+				'/media/upload',
+				formData,
+				{
+					headers: {
+						'Content-Type': 'multipart/form-data',
+					},
+				}
+			);
+			return response.data;
+		} catch (error: any) {
+			logger.error('Error uploading document:', error);
+			throw error;
+		}
+	},
+
+	/**
 	 * Upload multiple media files
 	 */
 	async uploadMultipleMedia(files: File[]): Promise<ApiResponse<{ urls: string[] }>> {

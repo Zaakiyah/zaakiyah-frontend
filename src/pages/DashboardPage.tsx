@@ -334,7 +334,7 @@ export default function DashboardPage() {
 		{
 			icon: DocumentTextIcon,
 			label: 'Apply',
-			onClick: () => navigate('/apply'),
+			onClick: () => navigate('/zakaat/apply'),
 		},
 	];
 

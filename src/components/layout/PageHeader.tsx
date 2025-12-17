@@ -4,11 +4,12 @@ import { useNavigate } from 'react-router-dom';
 
 interface PageHeaderProps {
 	title: string;
+	subtitle?: string;
 	showBack?: boolean;
 	rightAction?: ReactNode;
 }
 
-export default function PageHeader({ title, showBack = false, rightAction }: PageHeaderProps) {
+export default function PageHeader({ title, subtitle, showBack = false, rightAction }: PageHeaderProps) {
 	const navigate = useNavigate();
 
 	return (
@@ -24,7 +25,16 @@ export default function PageHeader({ title, showBack = false, rightAction }: Pag
 								<ArrowLeftIcon className="w-5 h-5 text-slate-700 dark:text-slate-300" />
 							</button>
 						)}
-						<h1 className="text-lg font-bold text-slate-900 dark:text-slate-100">{title}</h1>
+						<div>
+							<h1 className="text-lg font-bold text-slate-900 dark:text-slate-100" id="page-title">
+								{title}
+							</h1>
+							{subtitle && (
+								<p className="text-xs text-slate-500 dark:text-slate-400" aria-describedby="page-title">
+									{subtitle}
+								</p>
+							)}
+						</div>
 					</div>
 					{rightAction && <div>{rightAction}</div>}
 				</div>

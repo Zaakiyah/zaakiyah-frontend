@@ -11,6 +11,7 @@ interface DatePickerProps {
 	minDate?: string;
 	disabled?: boolean;
 	className?: string;
+	label?: React.ReactNode;
 }
 
 export default function DatePicker({
@@ -21,6 +22,7 @@ export default function DatePicker({
 	minDate,
 	disabled = false,
 	className = '',
+	label,
 }: DatePickerProps) {
 	useTheme();
 	const [isOpen, setIsOpen] = useState(false);
@@ -133,6 +135,11 @@ export default function DatePicker({
 
 	return (
 		<div ref={containerRef} className={`relative ${className}`}>
+			{label && (
+				<label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+					{label}
+				</label>
+			)}
 			{/* Input Button */}
 			<button
 				type="button"
