@@ -33,7 +33,7 @@ projects:
                   buildCommand: pnpm install --frozen-lockfile; pnpm run build
                   staticPublishPath: dist
                   autoDeployTrigger: commit
-                  routes:
-                      - type: rewrite
-                        source: /*
+                  redirects:
+                      - source: /*
                         destination: /index.html
+                        status: 200
