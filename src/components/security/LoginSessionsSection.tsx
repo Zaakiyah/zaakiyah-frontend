@@ -139,15 +139,18 @@ export default function LoginSessionsSection() {
 
 	return (
 		<motion.div
-			initial={{ opacity: 0, y: 20 }}
-			animate={{ opacity: 1, y: 0 }}
-			transition={{ delay: 0.2 }}
-			className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-slate-200/60 dark:border-slate-700/60"
+			initial={{ opacity: 0, y: 20, scale: 0.95 }}
+			animate={{ opacity: 1, y: 0, scale: 1 }}
+			transition={{ delay: 0.2, type: 'spring', stiffness: 100 }}
+			className="relative bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl p-5 shadow-lg border-2 border-slate-200/60 dark:border-slate-700/60 overflow-hidden"
 		>
-			<div className="flex items-start justify-between gap-3 mb-4">
+			{/* Decorative gradient overlay */}
+			<div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-slate-500/5 via-slate-400/5 to-slate-300/5 rounded-full blur-2xl -z-0" />
+			
+			<div className="flex items-start justify-between gap-3 mb-4 relative z-10">
 				<div className="flex items-start gap-3 flex-1">
-					<div className="w-10 h-10 bg-slate-100 dark:bg-slate-700 rounded-lg flex items-center justify-center shrink-0">
-						<DevicePhoneMobileIcon className="w-5 h-5 text-slate-600 dark:text-slate-300" />
+					<div className="w-12 h-12 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 rounded-xl flex items-center justify-center shrink-0 shadow-sm">
+						<DevicePhoneMobileIcon className="w-6 h-6 text-slate-600 dark:text-slate-300" />
 					</div>
 					<div className="flex-1">
 						<h2 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-1">Login Sessions</h2>
@@ -166,10 +169,10 @@ export default function LoginSessionsSection() {
 				<div className="space-y-3">
 					{/* Current Session */}
 					{sessions.find((s) => s.id === currentSessionId) && (
-						<div className="p-3 bg-primary-50 dark:bg-primary-900/20 rounded-lg border border-primary-200 dark:border-primary-800/30">
+						<div className="p-4 bg-gradient-to-r from-primary-50 to-primary-100 dark:from-primary-900/30 dark:to-primary-800/20 rounded-xl border-2 border-primary-200 dark:border-primary-800/30 shadow-sm relative z-10">
 							<div className="flex items-start justify-between gap-3">
 								<div className="flex items-start gap-3 flex-1">
-									<div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center shrink-0 text-primary-600 dark:text-primary-400">
+									<div className="w-12 h-12 bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/40 dark:to-primary-800/30 rounded-xl flex items-center justify-center shrink-0 shadow-sm text-primary-600 dark:text-primary-400">
 										{getDeviceIcon(
 											sessions.find((s) => s.id === currentSessionId)?.userAgent || null
 										)}
@@ -220,15 +223,15 @@ export default function LoginSessionsSection() {
 								)}
 							</div>
 
-							<div className="space-y-2">
+							<div className="space-y-2 relative z-10">
 								{otherSessions.map((session) => (
 									<div
 										key={session.id}
-										className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-slate-600"
+										className="p-4 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-700/50 dark:to-slate-800/50 rounded-xl border-2 border-slate-200/60 dark:border-slate-600/60 shadow-sm"
 									>
 										<div className="flex items-start justify-between gap-3">
 											<div className="flex items-start gap-3 flex-1">
-												<div className="w-10 h-10 bg-slate-100 dark:bg-slate-600 rounded-lg flex items-center justify-center shrink-0 text-slate-600 dark:text-slate-300">
+												<div className="w-12 h-12 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-600 dark:to-slate-700 rounded-xl flex items-center justify-center shrink-0 shadow-sm text-slate-600 dark:text-slate-300">
 													{getDeviceIcon(session.userAgent)}
 												</div>
 												<div className="flex-1 min-w-0">

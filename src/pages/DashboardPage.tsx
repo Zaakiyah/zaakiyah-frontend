@@ -41,8 +41,13 @@ import {
 	VideoCameraIcon,
 	MusicalNoteIcon,
 	PlayIcon,
+	ShieldCheckIcon,
 } from '@heroicons/react/24/outline';
-import { CurrencyDollarIcon, HeartIcon as HeartIconSolid } from '@heroicons/react/24/solid';
+import {
+	CurrencyDollarIcon,
+	HeartIcon as HeartIconSolid,
+	CheckBadgeIcon,
+} from '@heroicons/react/24/solid';
 
 interface ZakaatCalculation {
 	amount: number;
@@ -357,9 +362,9 @@ export default function DashboardPage() {
 	];
 
 	return (
-		<div className="min-h-screen bg-slate-50 dark:bg-slate-900 pb-20">
+		<div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 pb-20">
 			{/* Compact Header */}
-			<header className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border-b border-slate-200/60 dark:border-slate-700/60 sticky top-0 z-40 shadow-sm">
+			<header className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl border-b-2 border-primary-500/20 dark:border-primary-400/20 sticky top-0 z-40 shadow-sm">
 				<div className="px-4 py-3">
 					<div className="flex items-center justify-between">
 						<div className="flex items-center gap-2.5">
@@ -389,43 +394,49 @@ export default function DashboardPage() {
 
 			{/* Main Content */}
 			<main className="px-4 py-4 space-y-4">
-				{/* Compact Zakaat Due Card */}
+				{/* Modern Zakaat Due Card */}
 				<motion.div
-					initial={{ opacity: 0, y: 20 }}
-					animate={{ opacity: 1, y: 0 }}
-					className="rounded-xl p-4 shadow-sm border overflow-hidden relative bg-gradient-to-br from-primary-50 dark:from-primary-900/20 via-primary-50/50 dark:via-primary-900/10 to-white dark:to-slate-800 border-primary-100/50 dark:border-primary-800/30"
+					initial={{ opacity: 0, y: 20, scale: 0.95 }}
+					animate={{ opacity: 1, y: 0, scale: 1 }}
+					transition={{ type: 'spring', stiffness: 100 }}
+					whileHover={{ scale: 1.01, y: -2 }}
+					className="group relative overflow-hidden rounded-2xl p-5 shadow-xl border-2 border-primary-200/60 dark:border-primary-800/60 bg-gradient-to-br from-primary-50 via-white to-slate-50 dark:from-slate-800 dark:via-slate-800 dark:to-slate-900"
 				>
+					{/* Decorative gradient overlay */}
+					<div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-primary-500/10 via-secondary-500/10 to-primary-400/5 rounded-full blur-3xl -z-0 pointer-events-none" />
+					<div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-secondary-500/10 to-transparent rounded-full blur-2xl -z-0 pointer-events-none" />
 					{zakaatCalculation &&
 					zakaatCalculation.meetsNisaab &&
 					zakaatCalculation.amount > 0 ? (
-						<div className="flex items-start gap-3">
+						<div className="flex items-start gap-4 relative z-20">
 							<div className="flex-shrink-0">
-								<div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-sm">
-									<CurrencyDollarIcon className="w-6 h-6 text-white" />
+								<div className="w-16 h-16 bg-gradient-to-br from-primary-500 via-primary-600 to-primary-700 dark:from-primary-700 dark:via-primary-800 dark:to-primary-900 rounded-2xl flex items-center justify-center shadow-lg shadow-primary-500/30 dark:shadow-primary-700/30 overflow-hidden">
+									<div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent dark:opacity-0" />
+									<CurrencyDollarIcon className="w-8 h-8 text-white relative z-10" />
 								</div>
 							</div>
 							<div className="flex-1 min-w-0">
-								<div className="flex items-center justify-between mb-1">
-									<div className="flex items-center gap-1.5">
-										<p className="text-xs font-medium text-slate-600 dark:text-slate-400">
+								<div className="flex items-center justify-between mb-2">
+									<div className="flex items-center gap-2">
+										<p className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
 											Zakaat Due
 										</p>
-										<SparklesIcon className="w-3 h-3 text-primary-500 dark:text-primary-400" />
+										<SparklesIcon className="w-4 h-4 text-primary-500 dark:text-primary-400" />
 									</div>
 									<button
 										onClick={() => navigate('/calculations')}
-										className="text-xs text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-semibold transition-colors inline-flex items-center gap-0.5"
+										className="relative z-20 text-xs font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors inline-flex items-center gap-1 px-2 py-1 rounded-xl hover:bg-gradient-to-br hover:from-primary-50 hover:to-primary-100 dark:hover:from-primary-900/30 dark:hover:to-primary-800/20"
 										type="button"
 									>
 										View all
-										<ArrowRightIcon className="w-3 h-3" />
+										<ArrowRightIcon className="w-3.5 h-3.5" />
 									</button>
 								</div>
-								<div className="flex items-center gap-2 mb-1.5">
+								<div className="flex items-center gap-2 mb-2">
 									{isAmountVisible ? (
 										<>
 											<div className="flex-1">
-												<p className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+												<p className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-1">
 													{formatCurrency(
 														zakaatCalculation.amount,
 														zakaatCalculation.currency
@@ -450,7 +461,7 @@ export default function DashboardPage() {
 											</div>
 											<button
 												onClick={() => setIsAmountVisible(false)}
-												className="p-1 rounded-lg hover:bg-primary-100/50 dark:hover:bg-primary-800/30 transition-colors"
+												className="relative z-20 p-1 rounded-xl hover:bg-gradient-to-br hover:from-primary-100 hover:to-primary-200 dark:hover:from-primary-800 dark:hover:to-primary-700 transition-all"
 												aria-label="Hide amount"
 											>
 												<EyeSlashIcon className="w-3.5 h-3.5 text-slate-600 dark:text-slate-400" />
@@ -463,7 +474,7 @@ export default function DashboardPage() {
 											</p>
 											<button
 												onClick={() => setIsAmountVisible(true)}
-												className="p-1 rounded-lg hover:bg-primary-100/50 dark:hover:bg-primary-800/30 transition-colors"
+												className="relative z-20 p-1 rounded-xl hover:bg-gradient-to-br hover:from-primary-100 hover:to-primary-200 dark:hover:from-primary-800 dark:hover:to-primary-700 transition-all"
 												aria-label="Show amount"
 											>
 												<EyeIcon className="w-3.5 h-3.5 text-slate-600 dark:text-slate-400" />
@@ -471,9 +482,9 @@ export default function DashboardPage() {
 										</>
 									)}
 								</div>
-								<div className="flex items-center gap-1">
-									<ClockIcon className="w-3 h-3 text-slate-500 dark:text-slate-400" />
-									<p className="text-xs text-slate-500 dark:text-slate-400">
+								<div className="flex items-center gap-1.5 mt-2">
+									<ClockIcon className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+									<p className="text-xs font-medium text-slate-500 dark:text-slate-400">
 										Last calculated{' '}
 										{formatTimeAgo(zakaatCalculation.lastCalculated)}
 									</p>
@@ -481,85 +492,87 @@ export default function DashboardPage() {
 							</div>
 						</div>
 					) : zakaatCalculation && !zakaatCalculation.meetsNisaab ? (
-						<div className="flex items-start gap-3">
+						<div className="flex items-start gap-4 relative z-20">
 							<div className="flex-shrink-0">
-								<div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-sm">
-									<CheckCircleIcon className="w-6 h-6 text-white" />
+								<div className="w-16 h-16 bg-gradient-to-br from-emerald-500 via-emerald-600 to-emerald-700 dark:from-emerald-700 dark:via-emerald-800 dark:to-emerald-900 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/30 dark:shadow-emerald-700/30 overflow-hidden">
+									<div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent dark:opacity-0" />
+									<CheckCircleIcon className="w-8 h-8 text-white relative z-10" />
 								</div>
 							</div>
 							<div className="flex-1 min-w-0">
-								<div className="flex items-center justify-between mb-1">
-									<div className="flex items-center gap-1.5">
-										<p className="text-xs font-medium text-slate-600 dark:text-slate-400">
+								<div className="flex items-center justify-between mb-2">
+									<div className="flex items-center gap-2">
+										<p className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
 											No Zakaat Due
 										</p>
-										<SparklesIcon className="w-3 h-3 text-primary-500 dark:text-primary-400" />
+										<SparklesIcon className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
 									</div>
 									<button
 										onClick={() => navigate('/calculations')}
-										className="text-xs text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-semibold transition-colors inline-flex items-center gap-0.5"
+										className="relative z-20 text-xs font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors inline-flex items-center gap-1 px-2 py-1 rounded-xl hover:bg-gradient-to-br hover:from-primary-50 hover:to-primary-100 dark:hover:from-primary-900/30 dark:hover:to-primary-800/20"
 										type="button"
 									>
 										View all
-										<ArrowRightIcon className="w-3 h-3" />
+										<ArrowRightIcon className="w-3.5 h-3.5" />
 									</button>
 								</div>
-								<p className="text-sm text-slate-700 dark:text-slate-300 mb-1.5 leading-relaxed">
+								<p className="text-sm text-slate-700 dark:text-slate-300 mb-3 leading-relaxed">
 									Your wealth is below the Nisab threshold. You're not required to
 									pay Zakaat at this time. May Allāh continue to bless your
 									wealth.
 								</p>
-								<div className="flex items-center gap-1 mb-2">
-									<ClockIcon className="w-3 h-3 text-slate-500 dark:text-slate-400" />
-									<p className="text-xs text-slate-500 dark:text-slate-400">
+								<div className="flex items-center gap-1.5 mb-3">
+									<ClockIcon className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+									<p className="text-xs font-medium text-slate-500 dark:text-slate-400">
 										Last checked{' '}
 										{formatTimeAgo(zakaatCalculation.lastCalculated)}
 									</p>
 								</div>
 								<button
 									onClick={() => navigate('/calculate')}
-									className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 bg-primary-500 hover:bg-primary-600 dark:bg-primary-600 dark:hover:bg-primary-700 text-white text-sm font-semibold rounded-lg transition-colors active:scale-95 shadow-sm"
+									className="relative z-20 w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white text-sm font-semibold rounded-xl transition-all active:scale-95 shadow-lg shadow-primary-500/30"
 									type="button"
 								>
-									<CalculatorIcon className="w-4 h-4" />
+									<CalculatorIcon className="w-5 h-5" />
 									<span>Recalculate</span>
 								</button>
 							</div>
 						</div>
 					) : (
-						<div className="flex items-start gap-3">
+						<div className="flex items-start gap-4 relative z-20">
 							<div className="flex-shrink-0">
-								<div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-sm">
-									<CalculatorIcon className="w-6 h-6 text-white" />
+								<div className="w-16 h-16 bg-gradient-to-br from-primary-500 via-primary-600 to-primary-700 rounded-2xl flex items-center justify-center shadow-lg shadow-primary-500/30 overflow-hidden">
+									<div className="absolute inset-0 bg-gradient-to-br from-white/20 dark:opacity-0 to-transparent" />
+									<CalculatorIcon className="w-8 h-8 text-white relative z-10" />
 								</div>
 							</div>
 							<div className="flex-1 min-w-0">
-								<div className="flex items-center justify-between mb-1">
-									<div className="flex items-center gap-1.5">
-										<p className="text-xs font-medium text-slate-600 dark:text-slate-400">
+								<div className="flex items-center justify-between mb-2">
+									<div className="flex items-center gap-2">
+										<p className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
 											Zakaat Due
 										</p>
-										<SparklesIcon className="w-3 h-3 text-primary-500 dark:text-primary-400" />
+										<SparklesIcon className="w-4 h-4 text-primary-500 dark:text-primary-400" />
 									</div>
 									<button
 										onClick={() => navigate('/calculations')}
-										className="text-xs text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-semibold transition-colors inline-flex items-center gap-0.5"
+										className="relative z-20 text-xs font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors inline-flex items-center gap-1 px-2 py-1 rounded-xl hover:bg-gradient-to-br hover:from-primary-50 hover:to-primary-100 dark:hover:from-primary-900/30 dark:hover:to-primary-800/20"
 										type="button"
 									>
 										View all
-										<ArrowRightIcon className="w-3 h-3" />
+										<ArrowRightIcon className="w-3.5 h-3.5" />
 									</button>
 								</div>
-								<p className="text-sm text-slate-700 dark:text-slate-300 mb-2 leading-relaxed">
+								<p className="text-sm text-slate-700 dark:text-slate-300 mb-3 leading-relaxed">
 									Calculate your Zakaat to see how much you owe and fulfill your
 									obligation.
 								</p>
 								<button
 									onClick={() => navigate('/calculate')}
-									className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 bg-primary-500 hover:bg-primary-600 dark:bg-primary-600 dark:hover:bg-primary-700 text-white text-sm font-semibold rounded-lg transition-colors active:scale-95 shadow-sm"
+									className="relative z-20 w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white text-sm font-semibold rounded-xl transition-all active:scale-95 shadow-lg shadow-primary-500/30"
 									type="button"
 								>
-									<CalculatorIcon className="w-4 h-4" />
+									<CalculatorIcon className="w-5 h-5" />
 									<span>Calculate</span>
 								</button>
 							</div>
@@ -567,143 +580,152 @@ export default function DashboardPage() {
 					)}
 				</motion.div>
 
-				{/* Elegant Action Tiles */}
+				{/* Modern Action Tiles */}
 				<motion.div
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ delay: 0.1 }}
-					className="grid grid-cols-2 gap-3"
+					className="grid grid-cols-2 gap-4"
 				>
 					{actionButtons.map((button, index) => {
 						const Icon = button.icon;
 						const gradients = [
-							'from-primary-500 to-primary-600',
-							'from-emerald-500 to-emerald-600',
-							'from-amber-500 to-amber-600',
-							'from-blue-500 to-blue-600',
+							'from-primary-500 via-primary-600 to-primary-700',
+							'from-emerald-500 via-emerald-600 to-emerald-700',
+							'from-amber-500 via-amber-600 to-amber-700',
+							'from-blue-500 via-blue-600 to-blue-700',
 						];
 						const gradient = gradients[index % gradients.length];
 						return (
-							<button
+							<motion.button
 								key={button.label}
 								onClick={button.onClick}
-								className="group relative bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm border border-slate-200/60 dark:border-slate-700/60 hover:shadow-lg hover:border-primary-200/60 dark:hover:border-primary-600/60 transition-all duration-300 active:scale-[0.98] overflow-hidden"
+								whileHover={{ scale: 1.02, y: -2 }}
+								whileTap={{ scale: 0.98 }}
+								className="group relative bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:via-slate-800 dark:to-slate-900 rounded-2xl p-5 shadow-lg border-2 border-slate-200/60 dark:border-slate-700/60 hover:shadow-xl transition-all duration-300 overflow-hidden"
 							>
-								{/* Subtle gradient overlay on hover */}
-								<div
-									className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-300`}
-								/>
+								{/* Decorative gradient overlay */}
+								<div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-primary-500/10 to-secondary-500/10 rounded-full blur-2xl -z-0" />
 
-								<div className="relative flex items-center gap-3">
+								<div className="relative flex flex-col items-center gap-3 z-10">
 									<div
-										className={`w-12 h-12 bg-gradient-to-br ${gradient} rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg group-hover:scale-110 transition-all duration-300`}
+										className={`w-14 h-14 bg-gradient-to-br ${gradient} dark:from-slate-700 dark:via-slate-800 dark:to-slate-900 rounded-2xl flex items-center justify-center shadow-lg shadow-primary-500/30 dark:shadow-slate-700/30 group-hover:scale-110 transition-all duration-300 overflow-hidden`}
 									>
-										<Icon className="w-6 h-6 text-white" />
+										<div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent dark:opacity-0" />
+										<Icon className="w-7 h-7 text-white dark:text-slate-300 relative z-10" />
 									</div>
-									<div className="flex-1 min-w-0">
-										<p className="text-sm font-bold text-slate-900 dark:text-slate-100 text-left leading-tight">
-											{button.label}
-										</p>
-									</div>
+									<p className="text-sm font-bold text-slate-900 dark:text-slate-100 text-center leading-tight">
+										{button.label}
+									</p>
 								</div>
-							</button>
+							</motion.button>
 						);
 					})}
 				</motion.div>
 
-				{/* Compact Nisaab Card */}
+				{/* Modern Nisaab Card */}
 				<motion.div
-					initial={{ opacity: 0, y: 20 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ delay: 0.2 }}
-					className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-slate-200/60 dark:border-slate-700/60 overflow-hidden"
+					initial={{ opacity: 0, y: 20, scale: 0.95 }}
+					animate={{ opacity: 1, y: 0, scale: 1 }}
+					transition={{ delay: 0.2, type: 'spring', stiffness: 100 }}
+					whileHover={{ scale: 1.01, y: -2 }}
+					className="group relative bg-gradient-to-br from-white via-slate-50 to-white dark:from-slate-800 dark:via-slate-800 dark:to-slate-900 rounded-2xl p-5 shadow-xl border-2 border-slate-200/60 dark:border-slate-700/60 overflow-hidden"
 				>
-					<div className="flex items-center justify-between mb-3">
-						<div className="flex-1">
-							<h2 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-0.5">
-								Today's Nisaab
-							</h2>
-							{isLoadingNisaab ? (
-								<p className="text-xs text-slate-500 dark:text-slate-400">
-									Loading...
-								</p>
-							) : nisaabData?.hijriDate ? (
-								<div className="flex items-center gap-1.5">
-									<CalendarIcon className="w-3 h-3 text-slate-400 dark:text-slate-500" />
-									<p className="text-xs font-medium text-slate-600 dark:text-slate-400">
-										{formatHijriDate(nisaabData.hijriDate)}
-									</p>
+					{/* Decorative gradient overlay */}
+					<div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-primary-500/10 via-secondary-500/10 to-primary-400/5 rounded-full blur-3xl -z-0" />
+					<div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-secondary-500/10 to-transparent rounded-full blur-2xl -z-0" />
+
+					{/* Header */}
+					<div className="flex items-start justify-between mb-4 relative z-10">
+						<div className="flex items-center gap-3 flex-1">
+							<div className="relative">
+								<div className="w-16 h-16 bg-gradient-to-br from-primary-500 via-primary-600 to-primary-700 dark:from-primary-700 dark:via-primary-800 dark:to-primary-900 rounded-2xl flex items-center justify-center shadow-lg shadow-primary-500/30 dark:shadow-primary-700/30 overflow-hidden">
+									<div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent dark:opacity-0" />
+									<CalendarIcon className="w-8 h-8 text-white relative z-10" />
 								</div>
-							) : (
-								<p className="text-xs text-slate-500 dark:text-slate-400">
-									Date unavailable
-								</p>
-							)}
-						</div>
-						<div className="relative">
-							<div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-sm dark:!shadow-none overflow-hidden">
-								<CalendarIcon className="absolute w-14 h-14 text-white/15 -bottom-1.5 -right-1.5" />
-								<span className="relative text-xl font-bold text-white z-10">
-									{new Date().getDate()}
-								</span>
+								<div className="absolute -bottom-1 -right-1 w-7 h-7 bg-white dark:bg-slate-800 rounded-full flex items-center justify-center shadow-md border-2 border-primary-500">
+									<span className="text-[11px] font-bold text-primary-600 dark:text-primary-400">
+										{new Date().getDate()}
+									</span>
+								</div>
+							</div>
+							<div className="flex-1 min-w-0">
+								<h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-1">
+									Today's Nisaab
+								</h2>
+								{isLoadingNisaab ? (
+									<div className="h-4 w-32 bg-gradient-to-r from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-800 rounded animate-pulse" />
+								) : nisaabData?.hijriDate ? (
+									<div className="flex items-center gap-1.5">
+										<CalendarIcon className="w-4 h-4 text-primary-500 dark:text-primary-400" />
+										<p className="text-xs font-semibold text-slate-600 dark:text-slate-400">
+											{formatHijriDate(nisaabData.hijriDate)}
+										</p>
+									</div>
+								) : (
+									<p className="text-xs text-slate-500 dark:text-slate-400">
+										Date unavailable
+									</p>
+								)}
 							</div>
 						</div>
 					</div>
 
 					{isLoadingNisaab ? (
-						<div className="space-y-2">
-							<div className="h-16 bg-slate-100 dark:bg-slate-700 rounded-lg animate-pulse" />
-							<div className="h-16 bg-slate-100 dark:bg-slate-700 rounded-lg animate-pulse" />
+						<div className="space-y-3 mb-4 relative z-10">
+							<div className="h-20 bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-800 rounded-xl animate-pulse shadow-sm" />
+							<div className="h-20 bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-800 rounded-xl animate-pulse shadow-sm" />
 						</div>
 					) : nisaabData ? (
-						<div className="space-y-2 mb-3">
+						<div className="grid grid-cols-2 gap-3 mb-4 relative z-10">
 							{/* Gold Nisaab */}
-							<div className="relative overflow-hidden p-3 bg-gradient-to-br from-secondary-50 dark:from-secondary-900/20 via-secondary-50/60 dark:via-secondary-900/10 to-secondary-50/80 dark:to-secondary-900/5 rounded-lg border border-secondary-200/50 dark:border-secondary-800/30">
-								<div className="flex items-center gap-3">
-									<div className="flex-shrink-0">
-										<div className="w-10 h-10 bg-gradient-to-br from-secondary-500 to-secondary-600 rounded-lg flex items-center justify-center shadow-sm">
+							<div className="relative group/gold overflow-hidden rounded-xl bg-gradient-to-br from-amber-50 via-yellow-50 to-amber-100/50 dark:from-amber-900/20 dark:via-yellow-900/10 dark:to-amber-800/10 p-4 border-2 border-amber-200/50 dark:border-amber-800/30 hover:border-amber-300 dark:hover:border-amber-700 transition-all duration-300">
+								<div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-amber-400/20 to-yellow-400/20 rounded-full blur-2xl" />
+								<div className="relative z-10">
+									<div className="flex items-center gap-2 mb-2">
+										<div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-yellow-600 rounded-xl flex items-center justify-center shadow-lg shadow-amber-500/30 flex-shrink-0">
 											<SparklesIcon className="w-5 h-5 text-white" />
 										</div>
-									</div>
-									<div className="flex-1 min-w-0">
-										<p className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-0.5">
+										<p className="text-[10px] font-semibold text-amber-700 dark:text-amber-300 uppercase tracking-wider">
 											Gold
 										</p>
-										<p className="text-base font-bold text-slate-900 dark:text-slate-100">
-											{formatCurrency(nisaabData.goldNisaabValue)}
-										</p>
-										<p className="text-xs text-slate-600/80 dark:text-slate-400/80 font-medium">
-											{formatGrams(GOLD_NISAAB_GRAMS)}g
-										</p>
 									</div>
+									<p className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-1">
+										{formatCurrency(nisaabData.goldNisaabValue)}
+									</p>
+									<p className="text-xs text-amber-700/80 dark:text-amber-300/80 font-medium">
+										{formatGrams(GOLD_NISAAB_GRAMS)}g
+									</p>
 								</div>
 							</div>
 
 							{/* Silver Nisaab */}
-							<div className="relative overflow-hidden p-3 bg-gradient-to-br from-slate-50 dark:from-slate-700/50 via-slate-50/60 dark:via-slate-700/30 to-slate-100/80 dark:to-slate-700/20 rounded-lg border border-slate-200/50 dark:border-slate-600/50">
-								<div className="flex items-center gap-3">
-									<div className="flex-shrink-0">
-										<div className="w-10 h-10 bg-gradient-to-br from-slate-500 to-slate-600 rounded-lg flex items-center justify-center shadow-sm">
+							<div className="relative group/silver overflow-hidden rounded-xl bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100/50 dark:from-slate-700/30 dark:via-gray-800/20 dark:to-slate-700/20 p-4 border-2 border-slate-200/50 dark:border-slate-600/30 hover:border-slate-300 dark:hover:border-slate-500 transition-all duration-300">
+								<div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-slate-400/20 to-gray-400/20 rounded-full blur-2xl" />
+								<div className="relative z-10">
+									<div className="flex items-center gap-2 mb-2">
+										<div className="w-10 h-10 bg-gradient-to-br from-slate-500 to-gray-600 rounded-xl flex items-center justify-center shadow-lg shadow-slate-500/30 flex-shrink-0">
 											<CurrencyDollarIcon className="w-5 h-5 text-white" />
 										</div>
-									</div>
-									<div className="flex-1 min-w-0">
-										<p className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-0.5">
+										<p className="text-[10px] font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
 											Silver
 										</p>
-										<p className="text-base font-bold text-slate-900 dark:text-slate-100">
-											{formatCurrency(nisaabData.silverNisaabValue)}
-										</p>
-										<p className="text-xs text-slate-600/80 dark:text-slate-400/80 font-medium">
-											{formatGrams(SILVER_NISAAB_GRAMS)}g
-										</p>
 									</div>
+									<p className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-1">
+										{formatCurrency(nisaabData.silverNisaabValue)}
+									</p>
+									<p className="text-xs text-slate-700/80 dark:text-slate-300/80 font-medium">
+										{formatGrams(SILVER_NISAAB_GRAMS)}g
+									</p>
 								</div>
 							</div>
 						</div>
 					) : (
-						<div className="text-center py-4">
-							<p className="text-xs text-slate-500 dark:text-slate-400">
+						<div className="text-center py-6 relative z-10">
+							<div className="w-16 h-16 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-3">
+								<CalendarIcon className="w-8 h-8 text-slate-400 dark:text-slate-500" />
+							</div>
+							<p className="text-sm font-medium text-slate-600 dark:text-slate-400">
 								Unable to load nisaab data
 							</p>
 						</div>
@@ -711,57 +733,77 @@ export default function DashboardPage() {
 
 					<button
 						onClick={() => navigate('/nisaab/history')}
-						className="w-full flex items-center justify-center gap-1.5 text-primary-600 text-xs font-semibold py-2 hover:bg-primary-50/50 rounded-lg transition-all active:scale-[0.98] border border-primary-100 hover:border-primary-200"
+						className="w-full relative z-10 flex items-center justify-center gap-2 text-primary-600 dark:text-primary-400 text-sm font-semibold py-3 bg-gradient-to-r from-primary-50 to-primary-100/50 dark:from-primary-900/20 dark:to-primary-800/10 hover:from-primary-100 hover:to-primary-200/50 dark:hover:from-primary-900/30 dark:hover:to-primary-800/20 rounded-xl transition-all duration-200 active:scale-[0.98] border-2 border-primary-200/60 dark:border-primary-800/60 shadow-sm hover:shadow-md group/button"
 					>
-						<span>See History</span>
-						<ArrowRightIcon className="w-3.5 h-3.5" />
+						<span>View Full History</span>
+						<ArrowRightIcon className="w-4 h-4 group-hover/button:translate-x-1 transition-transform" />
 					</button>
 				</motion.div>
 
-				{/* Compact Quick Links */}
+				{/* Modern Quick Links */}
 				<motion.div
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ delay: 0.3 }}
-					className="bg-white dark:bg-slate-800 rounded-xl p-3 shadow-sm border border-slate-200/60 dark:border-slate-700/60"
+					className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl p-4 shadow-lg border-2 border-slate-200/60 dark:border-slate-700/60 overflow-hidden relative"
 				>
-					<div className="flex items-center gap-2">
-						{quickLinks.map((link) => {
+					{/* Decorative overlay */}
+					<div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary-500/5 to-secondary-500/5 rounded-full blur-2xl -z-0" />
+
+					<div className="flex items-center gap-3 relative z-10">
+						{quickLinks.map((link, index) => {
 							const Icon = link.icon;
+							const colors = [
+								'from-slate-500 to-slate-600',
+								'from-primary-500 to-primary-600',
+								'from-blue-500 to-blue-600',
+							];
+							const color = colors[index % colors.length];
 							return (
-								<button
+								<motion.button
 									key={link.label}
 									onClick={link.onClick}
-									className="flex-1 flex flex-col items-center gap-1.5 p-2.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors active:scale-[0.98]"
+									whileHover={{ scale: 1.05, y: -2 }}
+									whileTap={{ scale: 0.95 }}
+									className="flex-1 flex flex-col items-center gap-2 p-3 rounded-xl hover:bg-white/50 dark:hover:bg-slate-700/50 transition-all duration-200"
 								>
-									<div className="w-9 h-9 bg-slate-100 dark:bg-slate-700 rounded-lg flex items-center justify-center">
-										<Icon className="w-5 h-5 text-slate-700 dark:text-slate-300" />
+									<div
+										className={`w-12 h-12 bg-gradient-to-br ${color} rounded-xl flex items-center justify-center shadow-md`}
+									>
+										<Icon className="w-6 h-6 text-white" />
 									</div>
-									<p className="text-xs font-semibold text-slate-900 dark:text-slate-100">
+									<p className="text-xs font-bold text-slate-900 dark:text-slate-100">
 										{link.label}
 									</p>
-								</button>
+								</motion.button>
 							);
 						})}
 					</div>
 				</motion.div>
 
-				{/* Enhanced Community Posts */}
+				{/* Modern Community Section */}
 				<motion.div
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ delay: 0.4 }}
-					className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-slate-200/60 dark:border-slate-700/60"
+					className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl p-5 shadow-lg border-2 border-slate-200/60 dark:border-slate-700/60 overflow-hidden relative"
 				>
-					<div className="flex items-center justify-between mb-3">
-						<h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
-							Community
-						</h3>
+					{/* Decorative overlay */}
+					<div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-primary-500/5 to-secondary-500/5 rounded-full blur-3xl -z-0" />
+
+					<div className="flex items-center justify-between mb-4 relative z-10">
+						<div className="flex items-center gap-2">
+							<div className="w-1 h-6 bg-gradient-to-b from-primary-500 to-primary-600 rounded-full" />
+							<h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+								Community
+							</h3>
+						</div>
 						<button
 							onClick={() => navigate('/community')}
-							className="text-xs font-medium text-primary-600 hover:text-primary-700"
+							className="text-xs font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors px-3 py-1.5 rounded-xl hover:bg-gradient-to-br hover:from-primary-50 hover:to-primary-100 dark:hover:from-primary-900/30 dark:hover:to-primary-800/20 inline-flex items-center gap-1"
 						>
 							See All
+							<ArrowRightIcon className="w-3.5 h-3.5" />
 						</button>
 					</div>
 					{isLoadingCommunity ? (
@@ -769,14 +811,27 @@ export default function DashboardPage() {
 							{Array.from({ length: 2 }).map((_, i) => (
 								<div
 									key={i}
-									className="h-24 bg-slate-200 dark:bg-slate-700 rounded-lg animate-pulse"
+									className="h-24 bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-800 rounded-xl animate-pulse shadow-sm"
 								/>
 							))}
 						</div>
 					) : communityPosts.length === 0 && knowledgeResources.length === 0 ? (
-						<div className="text-center py-8 text-sm text-slate-500 dark:text-slate-400">
-							No community content yet
-						</div>
+						<motion.div
+							initial={{ opacity: 0, scale: 0.95 }}
+							animate={{ opacity: 1, scale: 1 }}
+							className="text-center py-12 relative z-10"
+						>
+							<div className="relative inline-block mb-4">
+								<div className="absolute inset-0 bg-primary-500/20 rounded-full blur-2xl" />
+								<ChatBubbleLeftIcon className="w-16 h-16 text-slate-400 dark:text-slate-500 relative z-10 mx-auto" />
+							</div>
+							<p className="text-base font-bold text-slate-900 dark:text-slate-100 mb-2">
+								No community content yet
+							</p>
+							<p className="text-sm text-slate-500 dark:text-slate-400">
+								Check back later for updates
+							</p>
+						</motion.div>
 					) : (
 						<div className="space-y-4">
 							{/* Community Posts */}
@@ -801,31 +856,53 @@ export default function DashboardPage() {
 										<div
 											key={post.id}
 											onClick={() => navigate(`/community/posts/${post.id}`)}
-											className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-100 dark:border-slate-700 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+											className="p-3 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-700/50 dark:to-slate-800/50 rounded-xl border-2 border-slate-200/60 dark:border-slate-700/60 cursor-pointer hover:from-slate-100 hover:to-slate-200 dark:hover:from-slate-600 dark:hover:to-slate-700 transition-all shadow-sm"
 										>
 											<div className="flex items-start gap-2.5 mb-2">
-												<div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center flex-shrink-0 ring-2 ring-white dark:ring-slate-800">
-													{post.author?.avatarUrl ? (
-														<img
-															src={post.author.avatarUrl}
-															alt={post.author.firstName}
-															className="w-8 h-8 rounded-full object-cover"
-														/>
-													) : (
-														<span className="text-white font-semibold text-xs">
-															{getInitials(
-																post.author?.firstName || '',
-																post.author?.lastName || ''
-															)}
+												{post.author?.isAnonymous ? (
+													<div className="w-8 h-8 rounded-full bg-gradient-to-br from-slate-400 to-slate-600 flex items-center justify-center ring-2 ring-slate-200 dark:ring-slate-700 flex-shrink-0">
+														<span className="text-sm font-bold text-white">
+															A
 														</span>
-													)}
-												</div>
+													</div>
+												) : (
+													<div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center flex-shrink-0 ring-2 ring-white dark:ring-slate-800">
+														{post.author?.avatarUrl ? (
+															<img
+																src={post.author.avatarUrl}
+																alt={post.author.firstName}
+																className="w-8 h-8 rounded-full object-cover"
+															/>
+														) : (
+															<span className="text-white font-semibold text-xs">
+																{getInitials(
+																	post.author?.firstName || '',
+																	post.author?.lastName || ''
+																)}
+															</span>
+														)}
+													</div>
+												)}
 												<div className="flex-1 min-w-0">
 													<div className="flex items-center gap-2 mb-0.5">
 														<p className="text-xs font-semibold text-slate-900 dark:text-slate-100">
 															{post.author?.firstName}{' '}
 															{post.author?.lastName}
 														</p>
+														{/* Badges next to name */}
+														{post.author?.isAdmin && (
+															<ShieldCheckIcon
+																className="w-3 h-3 text-amber-500 flex-shrink-0"
+																title="Admin"
+															/>
+														)}
+														{post.author?.isVerified &&
+															!post.author?.isAdmin && (
+																<CheckBadgeIcon
+																	className="w-3 h-3 text-primary-500 flex-shrink-0"
+																	title="Verified"
+																/>
+															)}
 														<span className="text-slate-400 dark:text-slate-500">
 															•
 														</span>
@@ -843,7 +920,7 @@ export default function DashboardPage() {
 													</div>
 													{post.mediaUrls &&
 														post.mediaUrls.length > 0 && (
-															<div className="rounded-lg overflow-hidden mb-2 border border-slate-200 dark:border-slate-700">
+															<div className="rounded-xl overflow-hidden mb-2 border-2 border-slate-200/60 dark:border-slate-700/60">
 																{post.mediaUrls.length === 1 ? (
 																	<img
 																		src={post.mediaUrls[0]}
@@ -875,7 +952,7 @@ export default function DashboardPage() {
 															</div>
 														)}
 													{/* Interactions */}
-													<div className="flex items-center gap-4 pt-2 border-t border-slate-200 dark:border-slate-700">
+													<div className="flex items-center gap-4 pt-2 border-t-2 border-slate-200/60 dark:border-slate-700/60">
 														<button
 															onClick={(e) => {
 																e.stopPropagation();
@@ -916,7 +993,7 @@ export default function DashboardPage() {
 
 							{/* Knowledge Resources */}
 							{knowledgeResources.length > 0 && (
-								<div className="pt-4 border-t border-slate-200 dark:border-slate-700">
+								<div className="pt-4 border-t-2 border-slate-200/60 dark:border-slate-700/60">
 									<div className="flex items-center justify-between mb-4">
 										<div className="flex items-center gap-2">
 											<div className="w-1 h-5 bg-gradient-to-b from-primary-500 to-primary-600 rounded-full" />
@@ -960,7 +1037,7 @@ export default function DashboardPage() {
 															`/community/knowledge/${resource.id}`
 														)
 													}
-													className="group relative bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden cursor-pointer hover:border-primary-300 dark:hover:border-primary-700 hover:shadow-lg transition-all duration-200"
+													className="group relative bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-xl border-2 border-slate-200/60 dark:border-slate-700/60 overflow-hidden cursor-pointer hover:border-primary-300 dark:hover:border-primary-700 hover:shadow-xl transition-all duration-200 shadow-sm"
 												>
 													<div className="flex gap-0">
 														{/* Thumbnail */}

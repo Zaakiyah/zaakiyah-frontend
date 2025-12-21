@@ -136,11 +136,11 @@ export default function BankDetailsStep({
 						}}
 						placeholder="Enter 10-digit account number"
 						maxLength={10}
-						className="w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+						className="w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:focus:ring-primary-400/20 focus:border-primary-500 dark:focus:border-primary-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/20 dark:focus-visible:ring-primary-400/20 focus-visible:border-primary-500 dark:focus-visible:border-primary-400"
 					/>
 					{isResolving && (
 						<div className="absolute right-4 top-1/2 -translate-y-1/2">
-							<div className="w-5 h-5 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
+							<div className="w-5 h-5 border-2 border-primary-500/30 dark:border-primary-400/30 border-t-primary-500 dark:border-t-primary-400 rounded-full animate-spin shadow-sm" />
 						</div>
 					)}
 				</div>
@@ -161,7 +161,7 @@ export default function BankDetailsStep({
 					onChange={(e) => setAccountName(e.target.value)}
 					placeholder="Account name will be resolved automatically"
 					readOnly={!!(selectedBankCode && accountNumber.length === 10)}
-					className={`w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary-500 focus:border-transparent ${
+					className={`w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:focus:ring-primary-400/20 focus:border-primary-500 dark:focus:border-primary-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/20 dark:focus-visible:ring-primary-400/20 focus-visible:border-primary-500 dark:focus-visible:border-primary-400 ${
 						selectedBankCode && accountNumber.length === 10
 							? 'bg-slate-50 dark:bg-slate-900/50 cursor-not-allowed'
 							: ''
@@ -181,7 +181,7 @@ export default function BankDetailsStep({
 				<button
 					onClick={handleSubmit}
 					disabled={!selectedBankCode || !accountNumber || !accountName || isResolving}
-					className="flex-1 px-4 py-3 bg-primary-500 text-white font-semibold rounded-xl hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+					className="flex-1 px-4 py-3 bg-gradient-to-br from-primary-500 via-primary-600 to-primary-700 text-white font-semibold rounded-xl hover:from-primary-600 hover:via-primary-700 hover:to-primary-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-primary-500/30 hover:shadow-xl hover:shadow-primary-500/40"
 				>
 					Continue
 				</button>

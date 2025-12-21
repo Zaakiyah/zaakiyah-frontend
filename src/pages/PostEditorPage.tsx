@@ -13,8 +13,13 @@ import {
 	ChevronDownIcon,
 	PlayIcon,
 	InformationCircleIcon,
+	ShieldCheckIcon,
 } from '@heroicons/react/24/outline';
+import { CheckBadgeIcon } from '@heroicons/react/24/solid';
 import Avatar from '../components/ui/Avatar';
+import { useUserTagging, UserTaggingSuggestions } from '../hooks/useUserTagging';
+import MentionTextarea from '../components/ui/MentionTextarea';
+import ConfirmDialog from '../components/ui/ConfirmDialog';
 
 interface MediaItem {
 	id: string;
@@ -31,14 +36,33 @@ export default function PostEditorPage() {
 	const isEditMode = !!id;
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const audienceMenuRef = useRef<HTMLDivElement>(null);
+	const textareaRef = useRef<HTMLTextAreaElement>(null);
+	const suggestionsRef = useRef<HTMLDivElement>(null);
 
 	const [content, setContent] = useState('');
+
+	// User tagging hook
+	const {
+		handleChange: handleTaggingChange,
+		handleKeyDown: handleTaggingKeyDown,
+		showSuggestions,
+		suggestions,
+		selectedIndex,
+		insertMention,
+		isSearching,
+	} = useUserTagging({
+		value: content,
+		onChange: setContent,
+		textareaRef,
+		currentUserId: user?.id,
+	});
 	const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
 	const [isPublic, setIsPublic] = useState(true);
 	const [isAnonymous, setIsAnonymous] = useState(false);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [showAudienceMenu, setShowAudienceMenu] = useState(false);
 	const [showResolutionInfo, setShowResolutionInfo] = useState(false);
+	const [showCancelDialog, setShowCancelDialog] = useState(false);
 
 
 	// Close audience menu when clicking outside
@@ -289,13 +313,21 @@ export default function PostEditorPage() {
 	};
 
 	return (
-		<div className="h-screen flex flex-col bg-slate-50 dark:bg-slate-900 overflow-hidden">
+		<div className="h-screen flex flex-col bg-slate-50 dark:bg-slate-900 overflow-hidden pb-20 sm:pb-0">
 			{/* Header */}
 			<header className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 flex-shrink-0 z-40 shadow-sm">
 				<div className="px-4 py-3.5">
 					<div className="flex items-center justify-between">
 						<button
-							onClick={() => navigate(-1)}
+							onClick={() => {
+								// Check if there are changes
+								const hasChanges = content.trim().length > 0 || mediaItems.length > 0;
+								if (hasChanges) {
+									setShowCancelDialog(true);
+								} else {
+									navigate(-1);
+								}
+							}}
 							className="px-3 py-1.5 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-all"
 							type="button"
 						>
@@ -318,12 +350,17 @@ export default function PostEditorPage() {
 
 			{/* Form */}
 			<form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
-				<div className="flex-1 overflow-y-auto">
+				<div className="flex-1 overflow-y-auto pb-24 sm:pb-0">
 					{/* Main Content Area */}
 					<div className="bg-white dark:bg-slate-800 mx-4 mt-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
 						{/* Profile and Settings Bar */}
 						<div className="px-4 pt-4 pb-3 border-b border-slate-100 dark:border-slate-700/50">
 							<div className="flex items-center gap-3 mb-3">
+							{isAnonymous ? (
+								<div className="w-10 h-10 rounded-full bg-gradient-to-br from-slate-400 to-slate-600 flex items-center justify-center ring-2 ring-slate-200 dark:ring-slate-700">
+									<span className="text-lg font-bold text-white">A</span>
+								</div>
+							) : (
 								<Avatar
 									avatarUrl={user?.avatarUrl}
 									firstName={user?.firstName || ''}
@@ -332,10 +369,20 @@ export default function PostEditorPage() {
 									isVerified={user?.isVerified}
 									isAdmin={user?.isAdmin}
 								/>
+							)}
 								<div className="flex-1 min-w-0">
-									<p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-										{isAnonymous ? 'Anonymous' : `${user?.firstName} ${user?.lastName}`}
-									</p>
+									<div className="flex items-center gap-1.5">
+										<p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+											{isAnonymous ? 'Anonymous' : `${user?.firstName} ${user?.lastName}`}
+										</p>
+										{/* Badges next to name - only show when not anonymous */}
+										{!isAnonymous && user?.isAdmin && (
+											<ShieldCheckIcon className="w-4 h-4 text-amber-500 shrink-0" title="Admin" />
+										)}
+										{!isAnonymous && user?.isVerified && !user?.isAdmin && (
+											<CheckBadgeIcon className="w-4 h-4 text-primary-500 shrink-0" title="Verified" />
+										)}
+									</div>
 									<div className="flex items-center gap-2 mt-0.5">
 										<div className="relative" ref={audienceMenuRef}>
 											<button
@@ -432,15 +479,27 @@ export default function PostEditorPage() {
 
 						{/* Content Editor */}
 						<div className="px-4 py-5">
-							<textarea
-								value={content}
-								onChange={(e) => setContent(e.target.value)}
-								placeholder="What's on your mind?"
-								rows={6}
-								maxLength={5000}
-								className="w-full bg-transparent border-0 text-[16px] leading-relaxed text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none resize-none min-h-[120px]"
-								autoFocus
-							/>
+							<div className="relative">
+								<MentionTextarea
+									ref={textareaRef}
+									value={content}
+									onChange={handleTaggingChange}
+									onKeyDown={handleTaggingKeyDown}
+									placeholder="What's on your mind?"
+									rows={6}
+									maxLength={5000}
+									className="w-full bg-transparent border-0 text-[16px] leading-relaxed text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none resize-none min-h-[120px]"
+									autoFocus
+								/>
+								<UserTaggingSuggestions
+									show={showSuggestions}
+									suggestions={suggestions}
+									selectedIndex={selectedIndex}
+									onSelect={insertMention}
+									isSearching={isSearching}
+									ref={suggestionsRef}
+								/>
+							</div>
 							{content.length > 0 && (
 								<div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700/50">
 									<p className="text-xs text-slate-400 dark:text-slate-500 text-right">
@@ -472,7 +531,7 @@ export default function PostEditorPage() {
 				</div>
 
 				{/* Bottom Action Bar - Media Attachment */}
-				<div className="flex-shrink-0 px-4 py-4 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 space-y-3">
+				<div className="flex-shrink-0 px-4 py-4 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 space-y-3 fixed bottom-0 left-0 right-0 sm:relative sm:bottom-auto sm:left-auto sm:right-auto z-10 pb-safe">
 					<div className="flex items-center gap-2">
 						<input
 							ref={fileInputRef}
@@ -541,6 +600,25 @@ export default function PostEditorPage() {
 					</AnimatePresence>
 				</div>
 			</form>
+
+			{/* Cancel Confirmation Dialog */}
+			<ConfirmDialog
+				isOpen={showCancelDialog}
+				onClose={() => setShowCancelDialog(false)}
+				onConfirm={() => {
+					setShowCancelDialog(false);
+					navigate(-1);
+				}}
+				title={isEditMode ? 'Discard Changes?' : 'Discard Post?'}
+				message={
+					isEditMode
+						? 'Are you sure you want to discard your changes? This action cannot be undone.'
+						: 'You have unsaved changes. Are you sure you want to discard this post? This action cannot be undone.'
+				}
+				confirmText="Discard"
+				confirmVariant="danger"
+				cancelText="Cancel"
+			/>
 		</div>
 	);
 }

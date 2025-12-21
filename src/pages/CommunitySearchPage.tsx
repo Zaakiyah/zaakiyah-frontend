@@ -6,6 +6,7 @@ import { logger } from '../utils/logger';
 import BottomNavigation from '../components/layout/BottomNavigation';
 import PostCard from '../components/community/PostCard';
 import CommentCard from '../components/community/CommentCard';
+import CommentBottomSheet from '../components/community/CommentBottomSheet';
 import KnowledgeResourceCard from '../components/community/KnowledgeResourceCard';
 import LoadingSkeleton from '../components/wealth/LoadingSkeleton';
 import EmptyState from '../components/wealth/EmptyState';
@@ -30,6 +31,8 @@ export default function CommunitySearchPage() {
 	const [postsMeta, setPostsMeta] = useState({ total: 0, page: 1, limit: 20, totalPages: 0 });
 	const [commentsMeta, setCommentsMeta] = useState({ total: 0, page: 1, limit: 20, totalPages: 0 });
 	const [resourcesMeta, setResourcesMeta] = useState({ total: 0, page: 1, limit: 20, totalPages: 0 });
+	const [showCommentSheet, setShowCommentSheet] = useState(false);
+	const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
 
 	const fetchSearchResults = useCallback(async () => {
 		if (!query.trim()) {
@@ -101,6 +104,23 @@ export default function CommunitySearchPage() {
 		);
 	};
 
+	const handleCommentClick = (postId: string) => {
+		setSelectedPostId(postId);
+		setShowCommentSheet(true);
+	};
+
+	const handleCommentAdded = () => {
+		if (selectedPostId) {
+			setPosts((prev) =>
+				prev.map((post) =>
+					post.id === selectedPostId
+						? { ...post, commentsCount: post.commentsCount + 1 }
+						: post
+				)
+			);
+		}
+	};
+
 	const handleResourceLike = async (resourceId: string) => {
 		try {
 			const response = await communityService.toggleKnowledgeResourceLike(resourceId);
@@ -165,7 +185,7 @@ export default function CommunitySearchPage() {
 			<div className="space-y-6">
 				{showPosts && posts.length > 0 && (
 					<div>
-						<h2 className="text-lg font-bold text-slate-900 dark:text-slate-50 mb-3">
+						<h2 className="text-xl font-bold text-slate-900 dark:text-slate-50 mb-4">
 							Posts ({postsMeta.total})
 						</h2>
 						<div>
@@ -176,6 +196,7 @@ export default function CommunitySearchPage() {
 									onLike={() => handlePostLike(post.id)}
 									onDeleted={() => handlePostDeleted(post.id)}
 									onUpdated={handlePostUpdated}
+									onCommentClick={() => handleCommentClick(post.id)}
 								/>
 							))}
 						</div>
@@ -184,30 +205,26 @@ export default function CommunitySearchPage() {
 
 				{showComments && comments.length > 0 && (
 					<div>
-						<h2 className="text-lg font-bold text-slate-900 dark:text-slate-50 mb-3">
+						<h2 className="text-xl font-bold text-slate-900 dark:text-slate-50 mb-4">
 							Comments ({commentsMeta.total})
 						</h2>
 						<div className="space-y-4">
 							{comments.map((comment) => (
 								<div
 									key={comment.id}
-									className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4"
+									className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl border-2 border-slate-200/60 dark:border-slate-700/60 p-5 shadow-lg"
 								>
 									<CommentCard
 										comment={comment}
 										onReply={() => {}}
-										replyingTo={false}
-										replyContent=""
-										onReplyChange={() => {}}
-										onReplySubmit={() => {}}
-										isSubmitting={false}
+										replyingTo={null}
 										postId={comment.post?.id || ''}
 									/>
 									{comment.post && (
-										<div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700">
+										<div className="mt-3 pt-3 border-t-2 border-slate-200 dark:border-slate-700">
 											<button
 												onClick={() => navigate(`/community/posts/${comment.post?.id}`)}
-												className="text-xs text-slate-500 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400"
+												className="text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
 											>
 												View post →
 											</button>
@@ -221,7 +238,7 @@ export default function CommunitySearchPage() {
 
 				{showResources && resources.length > 0 && (
 					<div>
-						<h2 className="text-lg font-bold text-slate-900 dark:text-slate-50 mb-3">
+						<h2 className="text-xl font-bold text-slate-900 dark:text-slate-50 mb-4">
 							Knowledge Resources ({resourcesMeta.total})
 						</h2>
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -240,14 +257,14 @@ export default function CommunitySearchPage() {
 	};
 
 	return (
-		<div className="min-h-screen bg-slate-50 dark:bg-slate-900 pb-20">
+		<div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 pb-20">
 			{/* Header */}
-			<header className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-40">
+			<header className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl border-b-2 border-primary-500/20 dark:border-primary-400/20 sticky top-0 z-40 shadow-sm">
 				<div className="px-4 py-3">
 					<div className="flex items-center gap-3 mb-3">
 						<button
 							onClick={() => navigate('/community')}
-							className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+							className="p-2 rounded-xl hover:bg-gradient-to-r hover:from-slate-100 hover:to-slate-50 dark:hover:from-slate-700 dark:hover:to-slate-800 transition-all"
 							aria-label="Go back"
 							type="button"
 						>
@@ -255,13 +272,13 @@ export default function CommunitySearchPage() {
 						</button>
 						<form onSubmit={handleSearch} className="flex-1">
 							<div className="relative">
-								<MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+								<MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500" />
 								<input
 									type="text"
 									value={searchInput}
 									onChange={(e) => setSearchInput(e.target.value)}
 									placeholder="Search posts, comments, resources..."
-									className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+									className="w-full pl-10 pr-4 py-2.5 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 dark:focus:border-primary-400 transition-all shadow-sm"
 								/>
 							</div>
 						</form>
@@ -269,43 +286,43 @@ export default function CommunitySearchPage() {
 
 					{/* Tabs */}
 					{query && (
-						<div className="flex gap-1 overflow-x-auto scrollbar-hide">
+						<div className="flex gap-2 overflow-x-auto scrollbar-hide">
 							<button
 								onClick={() => setActiveTab('all')}
-								className={`px-4 py-2 text-sm font-semibold transition-colors whitespace-nowrap ${
+								className={`px-4 py-2.5 text-sm font-semibold transition-all whitespace-nowrap rounded-xl ${
 									activeTab === 'all'
-										? 'text-primary-600 dark:text-primary-400 border-b-2 border-primary-600 dark:border-primary-400'
-										: 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+										? 'text-primary-600 dark:text-primary-400 bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-900/30 shadow-sm'
+										: 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/50'
 								}`}
 							>
 								All ({getTotalResults()})
 							</button>
 							<button
 								onClick={() => setActiveTab('posts')}
-								className={`px-4 py-2 text-sm font-semibold transition-colors whitespace-nowrap ${
+								className={`px-4 py-2.5 text-sm font-semibold transition-all whitespace-nowrap rounded-xl ${
 									activeTab === 'posts'
-										? 'text-primary-600 dark:text-primary-400 border-b-2 border-primary-600 dark:border-primary-400'
-										: 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+										? 'text-primary-600 dark:text-primary-400 bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-900/30 shadow-sm'
+										: 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/50'
 								}`}
 							>
 								Posts ({postsMeta.total})
 							</button>
 							<button
 								onClick={() => setActiveTab('comments')}
-								className={`px-4 py-2 text-sm font-semibold transition-colors whitespace-nowrap ${
+								className={`px-4 py-2.5 text-sm font-semibold transition-all whitespace-nowrap rounded-xl ${
 									activeTab === 'comments'
-										? 'text-primary-600 dark:text-primary-400 border-b-2 border-primary-600 dark:border-primary-400'
-										: 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+										? 'text-primary-600 dark:text-primary-400 bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-900/30 shadow-sm'
+										: 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/50'
 								}`}
 							>
 								Comments ({commentsMeta.total})
 							</button>
 							<button
 								onClick={() => setActiveTab('resources')}
-								className={`px-4 py-2 text-sm font-semibold transition-colors whitespace-nowrap ${
+								className={`px-4 py-2.5 text-sm font-semibold transition-all whitespace-nowrap rounded-xl ${
 									activeTab === 'resources'
-										? 'text-primary-600 dark:text-primary-400 border-b-2 border-primary-600 dark:border-primary-400'
-										: 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+										? 'text-primary-600 dark:text-primary-400 bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-900/30 shadow-sm'
+										: 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/50'
 								}`}
 							>
 								Resources ({resourcesMeta.total})
@@ -319,6 +336,19 @@ export default function CommunitySearchPage() {
 			<main className="px-4 py-4">
 				{renderResults()}
 			</main>
+
+			{/* Comment Bottom Sheet */}
+			{selectedPostId && (
+				<CommentBottomSheet
+					isOpen={showCommentSheet}
+					onClose={() => {
+						setShowCommentSheet(false);
+						setSelectedPostId(null);
+					}}
+					postId={selectedPostId}
+					onCommentAdded={handleCommentAdded}
+				/>
+			)}
 
 			{/* Bottom Navigation */}
 			<BottomNavigation />

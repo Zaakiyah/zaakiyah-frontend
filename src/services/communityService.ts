@@ -213,13 +213,14 @@ export const communityService = {
 	async getPostComments(
 		postId: string,
 		page: number = 1,
-		limit: number = 20
+		limit: number = 20,
+		sort?: 'recent' | 'relevant'
 	): Promise<ApiResponse<PaginatedResponse<Comment>>> {
 		try {
 			const response = await api.get<ApiResponse<PaginatedResponse<Comment>>>(
 				`/comments/posts/${postId}`,
 				{
-					params: { page, limit },
+					params: { page, limit, ...(sort && { sort }) },
 				}
 			);
 			return response.data;
@@ -521,6 +522,37 @@ export const communityService = {
 			return response.data;
 		} catch (error: any) {
 			logger.error('Error searching community:', error);
+			throw error;
+		}
+	},
+
+	/**
+	 * Search users for tagging/mentioning
+	 */
+	async searchUsers(query: string, limit: number = 10): Promise<ApiResponse<Array<{
+		id: string;
+		firstName: string;
+		lastName: string;
+		fullName: string;
+		avatarUrl: string | null;
+		isVerified: boolean;
+		isAdmin: boolean;
+	}>>> {
+		try {
+			const response = await api.get<ApiResponse<Array<{
+				id: string;
+				firstName: string;
+				lastName: string;
+				fullName: string;
+				avatarUrl: string | null;
+				isVerified: boolean;
+				isAdmin: boolean;
+			}>>>(`/community/users/search`, {
+				params: { q: query, limit },
+			});
+			return response.data;
+		} catch (error: any) {
+			logger.error('Error searching users:', error);
 			throw error;
 		}
 	},

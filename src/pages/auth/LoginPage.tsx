@@ -12,6 +12,7 @@ import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import PasswordInput from '../../components/ui/PasswordInput';
 import OtpInput from '../../components/ui/OtpInput';
+import Checkbox from '../../components/ui/Checkbox';
 import { ArrowLeftIcon, LockClosedIcon } from '@heroicons/react/24/outline';
 import { TwoFactorMethod } from '../../services/twoFactorService';
 
@@ -31,6 +32,8 @@ export default function LoginPage() {
 	const {
 		register,
 		handleSubmit,
+		watch,
+		setValue,
 		formState: { errors },
 	} = useForm<LoginFormData>({
 		resolver: zodResolver(loginSchema),
@@ -43,13 +46,16 @@ export default function LoginPage() {
 	useScrollToError(errors);
 
 	return (
-		<div className="h-screen-vh bg-slate-50 dark:bg-slate-900 flex items-center justify-center px-4 py-2 overflow-y-auto">
+		<div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 flex items-center justify-center px-4 py-8 overflow-y-auto">
 			<motion.div
-				initial={{ opacity: 0, y: 20 }}
-				animate={{ opacity: 1, y: 0 }}
-				transition={{ duration: 0.3 }}
-				className="w-full max-w-md bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200/60 dark:border-slate-700/60 p-4 sm:p-6 my-auto"
+				initial={{ opacity: 0, y: 20, scale: 0.95 }}
+				animate={{ opacity: 1, y: 0, scale: 1 }}
+				transition={{ type: 'spring', stiffness: 100 }}
+				className="relative w-full max-w-md bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl shadow-xl border-2 border-slate-200/60 dark:border-slate-700/60 p-6 sm:p-8 my-auto overflow-hidden"
 			>
+				{/* Decorative gradient overlay */}
+				<div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-primary-500/10 via-secondary-500/10 to-primary-400/5 rounded-full blur-3xl -z-0" />
+				<div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-secondary-500/10 to-transparent rounded-full blur-2xl -z-0" />
 				<AnimatePresence mode="wait">
 					{requires2FA ? (
 						// 2FA Verification UI
@@ -61,14 +67,14 @@ export default function LoginPage() {
 							transition={{ duration: 0.3 }}
 						>
 							{/* Header */}
-							<div className="text-center mb-6">
-								<div className="mx-auto w-16 h-16 bg-primary-100 dark:bg-primary-900/20 rounded-full flex items-center justify-center mb-4">
-									<LockClosedIcon className="w-8 h-8 text-primary-600 dark:text-primary-400" />
+							<div className="text-center mb-6 relative z-10">
+								<div className="mx-auto w-20 h-20 bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/20 rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-primary-500/20 dark:shadow-primary-600/20">
+									<LockClosedIcon className="w-10 h-10 text-primary-600 dark:text-primary-400" />
 								</div>
-								<h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-1.5">
+								<h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">
 									Two-Factor Authentication
 								</h1>
-								<p className="text-sm text-slate-600 dark:text-slate-400">
+								<p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
 									{twoFactorMethod === TwoFactorMethod.EMAIL
 										? emailCodeSent
 											? 'We sent a 6-digit code to your email. Please enter it below.'
@@ -82,14 +88,14 @@ export default function LoginPage() {
 								<motion.div
 									initial={{ opacity: 0, y: -10 }}
 									animate={{ opacity: 1, y: 0 }}
-									className="mb-4 p-3 bg-error-50 dark:bg-error-900/20 border border-error-200 dark:border-error-800/30 rounded-lg"
+									className="mb-4 p-4 bg-gradient-to-r from-red-50 to-red-100 dark:from-red-900/30 dark:to-red-800/20 border-2 border-red-200 dark:border-red-800/30 rounded-xl relative z-10"
 								>
-									<p className="text-sm text-error-600 dark:text-error-400">{error}</p>
+									<p className="text-sm font-medium text-red-600 dark:text-red-400">{error}</p>
 								</motion.div>
 							)}
 
 							{/* 2FA Code Input */}
-							<div className="mb-6">
+							<div className="mb-6 relative z-10">
 								<OtpInput
 									length={6}
 									onComplete={handleVerify2FA}
@@ -106,7 +112,7 @@ export default function LoginPage() {
 								size="lg"
 								onClick={handleCancel2FA}
 								disabled={isLoading}
-								className="w-full flex items-center justify-center gap-2"
+								className="w-full flex items-center justify-center gap-2 relative z-10"
 							>
 								<ArrowLeftIcon className="w-5 h-5" />
 								Back to Login
@@ -122,11 +128,11 @@ export default function LoginPage() {
 							transition={{ duration: 0.3 }}
 						>
 							{/* Header */}
-							<div className="text-center mb-6">
-								<h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-1.5">
+							<div className="text-center mb-6 relative z-10">
+								<h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">
 									Welcome back!
 								</h1>
-								<p className="text-sm text-slate-600 dark:text-slate-400">
+								<p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
 									We are excited to have you back.
 								</p>
 							</div>
@@ -136,14 +142,14 @@ export default function LoginPage() {
 								<motion.div
 									initial={{ opacity: 0, y: -10 }}
 									animate={{ opacity: 1, y: 0 }}
-									className="mb-4 p-3 bg-error-50 border border-error-200 rounded-lg"
+									className="mb-4 p-4 bg-gradient-to-r from-red-50 to-red-100 dark:from-red-900/30 dark:to-red-800/20 border-2 border-red-200 dark:border-red-800/30 rounded-xl relative z-10"
 								>
-									<p className="text-sm text-error-600">{error}</p>
+									<p className="text-sm font-medium text-red-600 dark:text-red-400">{error}</p>
 								</motion.div>
 							)}
 
 							{/* Login Form */}
-							<form onSubmit={handleSubmit(handleLogin)} className="space-y-4">
+							<form onSubmit={handleSubmit(handleLogin)} className="space-y-5 relative z-10">
 								<Input
 									label="Email"
 									type="email"
@@ -161,20 +167,11 @@ export default function LoginPage() {
 								/>
 
 								<div className="flex items-center justify-between">
-									<div className="flex items-center">
-										<input
-											id="remember-me"
-											type="checkbox"
-											className="h-4 w-4 text-primary-600 dark:text-primary-400 focus:ring-primary-500 dark:focus:ring-primary-400 border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800"
-											{...register('rememberMe')}
-										/>
-										<label
-											htmlFor="remember-me"
-											className="ml-2 block text-sm text-slate-700 dark:text-slate-300"
-										>
-											Remember me
-										</label>
-									</div>
+									<Checkbox
+										checked={watch('rememberMe') || false}
+										onChange={(checked) => setValue('rememberMe', checked)}
+										label="Remember me"
+									/>
 
 									<Link
 										to="/forgot-password"
@@ -196,13 +193,13 @@ export default function LoginPage() {
 							</form>
 
 							{/* Divider */}
-							<div className="mt-6">
+							<div className="mt-6 relative z-10">
 								<div className="relative">
 									<div className="absolute inset-0 flex items-center">
-										<div className="w-full border-t border-slate-200 dark:border-slate-700"></div>
+										<div className="w-full border-t-2 border-slate-200 dark:border-slate-700"></div>
 									</div>
 									<div className="relative flex justify-center text-sm">
-										<span className="px-4 bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400">
+										<span className="px-4 bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 text-slate-500 dark:text-slate-400 font-medium">
 											Or continue with
 										</span>
 									</div>
@@ -266,11 +263,11 @@ export default function LoginPage() {
 							</div>
 
 							{/* Sign Up Link */}
-							<p className="mt-6 text-center text-sm text-slate-600 dark:text-slate-400">
+							<p className="mt-6 text-center text-sm text-slate-600 dark:text-slate-400 relative z-10">
 								Don't have an account?{' '}
 								<Link
 									to="/signup"
-									className="font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors"
+									className="font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors"
 								>
 									Sign up
 								</Link>

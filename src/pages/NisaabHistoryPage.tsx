@@ -8,6 +8,9 @@ import {
 	FunnelIcon,
 	XMarkIcon,
 	ShareIcon,
+	ChartBarIcon,
+	ArrowTrendingUpIcon,
+	ArrowTrendingDownIcon,
 } from '@heroicons/react/24/outline';
 import PageHeader from '../components/layout/PageHeader';
 import BottomNavigation from '../components/layout/BottomNavigation';
@@ -353,90 +356,197 @@ export default function NisaabHistoryPage() {
 	const hasActiveFilters =
 		filters.month !== '' || filters.year !== new Date().getFullYear().toString();
 
-	const renderNisaabCard = (item: NisaabData, index?: number) => (
-		<motion.div
-			key={item.id}
-			initial={{ opacity: 0, y: 10 }}
-			animate={{ opacity: 1, y: 0 }}
-			transition={{ delay: index !== undefined ? index * 0.02 : 0 }}
-			className="bg-white dark:bg-slate-800 rounded-lg p-3 shadow-sm border border-slate-200/60 dark:border-slate-700/60 hover:shadow-md transition-all"
-		>
-			{/* Compact Header */}
-			<div className="flex items-center justify-between mb-2">
-				<div className="flex items-center gap-2">
-					<div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-600 rounded-lg flex items-center justify-center shadow-sm overflow-hidden shrink-0 relative">
-						<CalendarIcon className="absolute w-10 h-10 text-white/15 -bottom-1 -right-1" />
-						<span className="relative text-xs font-bold text-white z-10">
-							{new Date(item.gregorianDate).getDate()}
-						</span>
-					</div>
-					<div>
-						<p className="text-xs font-bold text-slate-900 dark:text-slate-100">
-							{formatDate(item.gregorianDate)}
-						</p>
-						{item.hijriDate && (
-							<p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">
-								{formatHijriDate(item.hijriDate)}
+	// Calculate statistics for hero section
+	const calculateStats = () => {
+		if (filteredHistory.length === 0) return null;
+
+		const validGoldValues = filteredHistory
+			.map((item) => {
+				const val = typeof item.goldNisaabValue === 'string' 
+					? parseFloat(item.goldNisaabValue) 
+					: item.goldNisaabValue;
+				return val && !isNaN(val) && val > 0 ? val : null;
+			})
+			.filter((v): v is number => v !== null);
+
+		const validSilverValues = filteredHistory
+			.map((item) => {
+				const val = typeof item.silverNisaabValue === 'string' 
+					? parseFloat(item.silverNisaabValue) 
+					: item.silverNisaabValue;
+				return val && !isNaN(val) && val > 0 ? val : null;
+			})
+			.filter((v): v is number => v !== null);
+
+		if (validGoldValues.length === 0 && validSilverValues.length === 0) return null;
+
+		// Get latest from original history (most recent)
+		const latestItem = history.length > 0 ? history[0] : null;
+		const latestGold = latestItem ? (typeof latestItem.goldNisaabValue === 'string' 
+			? parseFloat(latestItem.goldNisaabValue) 
+			: latestItem.goldNisaabValue) : null;
+		const latestSilver = latestItem ? (typeof latestItem.silverNisaabValue === 'string' 
+			? parseFloat(latestItem.silverNisaabValue) 
+			: latestItem.silverNisaabValue) : null;
+
+		const avgGold = validGoldValues.reduce((a, b) => a + b, 0) / validGoldValues.length;
+		const avgSilver = validSilverValues.reduce((a, b) => a + b, 0) / validSilverValues.length;
+
+		return {
+			latestGold: latestGold && !isNaN(latestGold) && latestGold > 0 ? latestGold : null,
+			latestSilver: latestSilver && !isNaN(latestSilver) && latestSilver > 0 ? latestSilver : null,
+			avgGold,
+			avgSilver,
+			totalRecords: filteredHistory.length,
+		};
+	};
+
+	const stats = calculateStats();
+
+	const renderNisaabCard = (item: NisaabData, index?: number) => {
+		const goldValue = typeof item.goldNisaabValue === 'string' 
+			? parseFloat(item.goldNisaabValue) 
+			: item.goldNisaabValue;
+		const silverValue = typeof item.silverNisaabValue === 'string' 
+			? parseFloat(item.silverNisaabValue) 
+			: item.silverNisaabValue;
+		
+		const prevItem = index !== undefined && index > 0 ? filteredHistory[index - 1] : null;
+		const prevGold = prevItem ? (typeof prevItem.goldNisaabValue === 'string' 
+			? parseFloat(prevItem.goldNisaabValue) 
+			: prevItem.goldNisaabValue) : null;
+		const prevSilver = prevItem ? (typeof prevItem.silverNisaabValue === 'string' 
+			? parseFloat(prevItem.silverNisaabValue) 
+			: prevItem.silverNisaabValue) : null;
+
+		const goldTrend = prevGold && goldValue ? (goldValue > prevGold ? 'up' : goldValue < prevGold ? 'down' : 'same') : null;
+		const silverTrend = prevSilver && silverValue ? (silverValue > prevSilver ? 'up' : silverValue < prevSilver ? 'down' : 'same') : null;
+
+		return (
+			<motion.div
+				key={item.id}
+				initial={{ opacity: 0, y: 20, scale: 0.95 }}
+				animate={{ opacity: 1, y: 0, scale: 1 }}
+				transition={{ 
+					delay: index !== undefined ? index * 0.03 : 0,
+					type: "spring",
+					stiffness: 100
+				}}
+				whileHover={{ scale: 1.02, y: -2 }}
+				className="group relative bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:via-slate-800 dark:to-slate-900 rounded-2xl p-4 shadow-lg border-2 border-slate-200/60 dark:border-slate-700/60 hover:shadow-xl transition-all duration-300 overflow-hidden"
+			>
+				{/* Decorative gradient overlay */}
+				<div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary-500/10 to-secondary-500/10 rounded-full blur-3xl -z-0" />
+				
+				{/* Header */}
+				<div className="flex items-start justify-between mb-4 relative z-10">
+					<div className="flex items-center gap-3">
+						<div className="relative">
+							<div className="w-14 h-14 bg-gradient-to-br from-primary-500 via-primary-600 to-primary-700 dark:from-primary-700 dark:via-primary-800 dark:to-primary-900 rounded-2xl flex items-center justify-center shadow-lg shadow-primary-500/30 dark:shadow-primary-700/30 overflow-hidden">
+								<div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent dark:opacity-0" />
+								<CalendarIcon className="w-7 h-7 text-white relative z-10" />
+							</div>
+							<div className="absolute -bottom-1 -right-1 w-6 h-6 bg-white dark:bg-slate-800 rounded-full flex items-center justify-center shadow-md border-2 border-primary-500">
+								<span className="text-[10px] font-bold text-primary-600 dark:text-primary-400">
+									{new Date(item.gregorianDate).getDate()}
+								</span>
+							</div>
+						</div>
+						<div>
+							<p className="text-sm font-bold text-slate-900 dark:text-slate-100 mb-0.5">
+								{formatDate(item.gregorianDate)}
 							</p>
-						)}
+							{item.hijriDate && (
+								<p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+									{formatHijriDate(item.hijriDate)}
+								</p>
+							)}
+						</div>
 					</div>
-				</div>
-				<button
-					onClick={() => shareNisaab(item)}
-					className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors active:scale-95"
-					title="Share this nisaab"
-				>
-					<ShareIcon className="w-4 h-4 text-slate-600 dark:text-slate-400" />
-				</button>
-			</div>
-
-			{/* Compact Values */}
-			<div className="grid grid-cols-2 gap-2">
-				{/* Gold */}
-				<div className="flex items-center gap-2 p-2 bg-gradient-to-br from-secondary-50 dark:from-secondary-900/20 to-secondary-50/60 dark:to-secondary-900/10 rounded-lg border border-secondary-200/50 dark:border-secondary-800/30">
-					<div className="w-6 h-6 bg-gradient-to-br from-secondary-500 to-secondary-600 rounded flex items-center justify-center flex-shrink-0">
-						<SparklesIcon className="w-3 h-3 text-white" />
-					</div>
-					<div className="min-w-0 flex-1">
-						<p className="text-[9px] font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide">
-							Gold
-						</p>
-						<p
-							className={`text-xs font-bold truncate ${
-								formatCurrencyWithFallback(item.goldNisaabValue) === 'Not Available'
-									? 'text-slate-400 dark:text-slate-500'
-									: 'text-slate-900 dark:text-slate-100'
-							}`}
-						>
-							{formatCurrencyWithFallback(item.goldNisaabValue)}
-						</p>
-					</div>
+					<button
+						onClick={() => shareNisaab(item)}
+						className="p-2 rounded-xl bg-slate-100 dark:bg-slate-700 hover:bg-primary-100 dark:hover:bg-primary-900/30 text-slate-600 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 transition-all duration-200 active:scale-95"
+						title="Share this nisaab"
+					>
+						<ShareIcon className="w-5 h-5" />
+					</button>
 				</div>
 
-				{/* Silver */}
-				<div className="flex items-center gap-2 p-2 bg-gradient-to-br from-slate-50 dark:from-slate-700/50 to-slate-100/80 dark:to-slate-700/30 rounded-lg border border-slate-200/50 dark:border-slate-600/50">
-					<div className="w-6 h-6 bg-gradient-to-br from-slate-500 to-slate-600 rounded flex items-center justify-center flex-shrink-0">
-						<CurrencyDollarIcon className="w-3 h-3 text-white" />
+				{/* Values Grid */}
+				<div className="grid grid-cols-2 gap-3 relative z-10">
+					{/* Gold Card */}
+					<div className="relative group/gold overflow-hidden rounded-xl bg-gradient-to-br from-amber-50 via-yellow-50 to-amber-100/50 dark:from-amber-900/20 dark:via-yellow-900/10 dark:to-amber-800/10 p-3 border border-amber-200/50 dark:border-amber-800/30 hover:border-amber-300 dark:hover:border-amber-700 transition-all duration-300">
+						<div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-amber-400/20 to-yellow-400/20 rounded-full blur-2xl" />
+						<div className="flex items-start gap-3 relative z-10">
+							<div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-yellow-600 rounded-xl flex items-center justify-center shadow-lg shadow-amber-500/30 flex-shrink-0">
+								<SparklesIcon className="w-6 h-6 text-white" />
+							</div>
+							<div className="flex-1 min-w-0">
+								<div className="flex items-center gap-1.5 mb-1">
+									<p className="text-[10px] font-semibold text-amber-700 dark:text-amber-300 uppercase tracking-wider">
+										Gold
+									</p>
+									{goldTrend && goldTrend !== 'same' && (
+										<div className={`flex items-center ${goldTrend === 'up' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+											{goldTrend === 'up' ? (
+												<ArrowTrendingUpIcon className="w-3 h-3" />
+											) : (
+												<ArrowTrendingDownIcon className="w-3 h-3" />
+											)}
+										</div>
+									)}
+								</div>
+								<p
+									className={`text-base font-bold ${
+										formatCurrencyWithFallback(item.goldNisaabValue) === 'Not Available'
+											? 'text-slate-400 dark:text-slate-500'
+											: 'text-slate-900 dark:text-slate-100'
+									}`}
+								>
+									{formatCurrencyWithFallback(item.goldNisaabValue)}
+								</p>
+							</div>
+						</div>
 					</div>
-					<div className="min-w-0 flex-1">
-						<p className="text-[9px] font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide">
-							Silver
-						</p>
-						<p
-							className={`text-xs font-bold truncate ${
-								formatCurrencyWithFallback(item.silverNisaabValue) ===
-								'Not Available'
-									? 'text-slate-400 dark:text-slate-500'
-									: 'text-slate-900 dark:text-slate-100'
-							}`}
-						>
-							{formatCurrencyWithFallback(item.silverNisaabValue)}
-						</p>
+
+					{/* Silver Card */}
+					<div className="relative group/silver overflow-hidden rounded-xl bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100/50 dark:from-slate-700/30 dark:via-gray-800/20 dark:to-slate-700/20 p-3 border-2 border-slate-200/50 dark:border-slate-600/30 hover:border-slate-300 dark:hover:border-slate-500 transition-all duration-300">
+						<div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-slate-400/20 to-gray-400/20 rounded-full blur-2xl" />
+						<div className="flex items-start gap-3 relative z-10">
+							<div className="w-12 h-12 bg-gradient-to-br from-slate-500 to-gray-600 rounded-xl flex items-center justify-center shadow-lg shadow-slate-500/30 flex-shrink-0">
+								<CurrencyDollarIcon className="w-6 h-6 text-white" />
+							</div>
+							<div className="flex-1 min-w-0">
+								<div className="flex items-center gap-1.5 mb-1">
+									<p className="text-[10px] font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+										Silver
+									</p>
+									{silverTrend && silverTrend !== 'same' && (
+										<div className={`flex items-center ${silverTrend === 'up' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+											{silverTrend === 'up' ? (
+												<ArrowTrendingUpIcon className="w-3 h-3" />
+											) : (
+												<ArrowTrendingDownIcon className="w-3 h-3" />
+											)}
+										</div>
+									)}
+								</div>
+								<p
+									className={`text-base font-bold ${
+										formatCurrencyWithFallback(item.silverNisaabValue) === 'Not Available'
+											? 'text-slate-400 dark:text-slate-500'
+											: 'text-slate-900 dark:text-slate-100'
+									}`}
+								>
+									{formatCurrencyWithFallback(item.silverNisaabValue)}
+								</p>
+							</div>
+						</div>
 					</div>
 				</div>
-			</div>
-		</motion.div>
-	);
+			</motion.div>
+		);
+	};
 
 	return (
 		<div className="min-h-screen bg-slate-50 dark:bg-slate-900 pb-20">
@@ -457,12 +567,55 @@ export default function NisaabHistoryPage() {
 				}
 			/>
 
-			<main className="px-4 py-3">
+			<main className="px-4 py-4">
+				{/* Hero Stats Section */}
+				{stats && !searchResult && (
+					<motion.div
+						initial={{ opacity: 0, y: -20 }}
+						animate={{ opacity: 1, y: 0 }}
+						className="mb-4 relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary-500 via-primary-600 to-secondary-600 p-6 shadow-xl"
+					>
+						{/* Decorative elements */}
+						<div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
+						<div className="absolute bottom-0 left-0 w-48 h-48 bg-secondary-500/20 rounded-full blur-2xl" />
+						
+						<div className="relative z-10">
+							<div className="flex items-center gap-2 mb-4">
+								<div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+									<ChartBarIcon className="w-6 h-6 text-white" />
+								</div>
+								<div>
+									<h2 className="text-lg font-bold text-white">Summary</h2>
+									<p className="text-xs text-white/80">{stats.totalRecords} records</p>
+								</div>
+							</div>
+							
+							<div className="grid grid-cols-2 gap-3">
+								<div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20">
+									<p className="text-xs text-white/80 mb-1">Avg Gold</p>
+									<p className="text-lg font-bold text-white">
+										{formatCurrency(stats.avgGold)}
+									</p>
+								</div>
+								<div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20">
+									<p className="text-xs text-white/80 mb-1">Avg Silver</p>
+									<p className="text-lg font-bold text-white">
+										{formatCurrency(stats.avgSilver)}
+									</p>
+								</div>
+							</div>
+						</div>
+					</motion.div>
+				)}
+
 				{/* Date Range Filter */}
-				<div className="mb-3 bg-white dark:bg-slate-800 rounded-xl p-3 shadow-sm border border-slate-200/60 dark:border-slate-700/60">
-					<label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-2">
-						Date Range
-					</label>
+				<div className="mb-4 bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl p-4 shadow-lg border-2 border-slate-200/60 dark:border-slate-700/60">
+					<div className="flex items-center gap-2 mb-3">
+						<CalendarIcon className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+						<label className="block text-sm font-semibold text-slate-900 dark:text-slate-100">
+							Date Range
+						</label>
+					</div>
 					<DateRangePicker
 						startDate={startDate || undefined}
 						endDate={endDate || undefined}
@@ -511,31 +664,34 @@ export default function NisaabHistoryPage() {
 						initial={{ opacity: 0, height: 0 }}
 						animate={{ opacity: 1, height: 'auto' }}
 						exit={{ opacity: 0, height: 0 }}
-						className="mb-3 bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-slate-200/60 dark:border-slate-700/60 space-y-3"
+						className="mb-4 bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl p-5 shadow-lg border-2 border-slate-200/60 dark:border-slate-700/60 space-y-4"
 					>
-						<div className="flex items-center justify-between mb-2">
-							<h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-								Filter by
-							</h3>
+						<div className="flex items-center justify-between mb-3">
+							<div className="flex items-center gap-2">
+								<FunnelIcon className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+								<h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
+									Filter by
+								</h3>
+							</div>
 							{hasActiveFilters && (
 								<button
 									onClick={clearFilters}
-									className="text-xs text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-500 font-medium"
+									className="px-3 py-1.5 text-xs font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors"
 								>
-									Clear
+									Clear All
 								</button>
 							)}
 						</div>
 
-						<div className="grid grid-cols-2 gap-3">
+						<div className="grid grid-cols-2 gap-4">
 							<div>
-								<label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+								<label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
 									Month
 								</label>
 								<select
 									value={filters.month}
 									onChange={(e) => handleFilterChange('month', e.target.value)}
-									className="w-full px-3 py-2 text-sm rounded-lg border-2 border-slate-200 dark:border-slate-700 focus:border-primary-500 dark:focus:border-primary-400 focus:ring-2 focus:ring-primary-500/20 dark:focus:ring-primary-400/20 focus:outline-none bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+									className="w-full px-4 py-2.5 text-sm rounded-xl border-2 border-slate-200 dark:border-slate-700 focus:border-primary-500 dark:focus:border-primary-400 focus:ring-2 focus:ring-primary-500/20 dark:focus:ring-primary-400/20 focus:outline-none bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 transition-all font-medium"
 								>
 									<option value="">All months</option>
 									{months.map((month) => (
@@ -547,13 +703,13 @@ export default function NisaabHistoryPage() {
 							</div>
 
 							<div>
-								<label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+								<label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
 									Year
 								</label>
 								<select
 									value={filters.year}
 									onChange={(e) => handleFilterChange('year', e.target.value)}
-									className="w-full px-3 py-2 text-sm rounded-lg border-2 border-slate-200 dark:border-slate-700 focus:border-primary-500 dark:focus:border-primary-400 focus:ring-2 focus:ring-primary-500/20 dark:focus:ring-primary-400/20 focus:outline-none bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+									className="w-full px-4 py-2.5 text-sm rounded-xl border-2 border-slate-200 dark:border-slate-700 focus:border-primary-500 dark:focus:border-primary-400 focus:ring-2 focus:ring-primary-500/20 dark:focus:ring-primary-400/20 focus:outline-none bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 transition-all font-medium"
 								>
 									{years.map((year) => (
 										<option key={year} value={year.toString()}>
@@ -568,9 +724,9 @@ export default function NisaabHistoryPage() {
 
 				{/* Active Filters Display */}
 				{hasActiveFilters && !searchResult && (
-					<div className="mb-3 flex flex-wrap gap-2">
+					<div className="mb-4 flex flex-wrap gap-2">
 						{startDate && (
-							<span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 rounded-lg text-xs font-medium">
+							<span className="inline-flex items-center gap-1.5 px-3 py-2 bg-gradient-to-r from-primary-50 to-primary-100 dark:from-primary-900/30 dark:to-primary-800/20 text-primary-700 dark:text-primary-300 rounded-xl text-xs font-semibold border-2 border-primary-200/60 dark:border-primary-800/60 shadow-sm">
 								From:{' '}
 								{new Date(startDate).toLocaleDateString('en-US', {
 									month: 'short',
@@ -589,7 +745,7 @@ export default function NisaabHistoryPage() {
 							</span>
 						)}
 						{endDate && (
-							<span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 rounded-lg text-xs font-medium">
+							<span className="inline-flex items-center gap-1.5 px-3 py-2 bg-gradient-to-r from-primary-50 to-primary-100 dark:from-primary-900/30 dark:to-primary-800/20 text-primary-700 dark:text-primary-300 rounded-xl text-xs font-semibold border-2 border-primary-200/60 dark:border-primary-800/60 shadow-sm">
 								To:{' '}
 								{new Date(endDate).toLocaleDateString('en-US', {
 									month: 'short',
@@ -608,7 +764,7 @@ export default function NisaabHistoryPage() {
 							</span>
 						)}
 						{filters.month && (
-							<span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 rounded-lg text-xs font-medium">
+							<span className="inline-flex items-center gap-1.5 px-3 py-2 bg-gradient-to-r from-primary-50 to-primary-100 dark:from-primary-900/30 dark:to-primary-800/20 text-primary-700 dark:text-primary-300 rounded-xl text-xs font-semibold border-2 border-primary-200/60 dark:border-primary-800/60 shadow-sm">
 								{months.find((m) => m.value === filters.month)?.label}
 								<button
 									onClick={() => handleFilterChange('month', '')}
@@ -619,7 +775,7 @@ export default function NisaabHistoryPage() {
 							</span>
 						)}
 						{filters.year && filters.year !== new Date().getFullYear().toString() && (
-							<span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 rounded-lg text-xs font-medium">
+							<span className="inline-flex items-center gap-1.5 px-3 py-2 bg-gradient-to-r from-primary-50 to-primary-100 dark:from-primary-900/30 dark:to-primary-800/20 text-primary-700 dark:text-primary-300 rounded-xl text-xs font-semibold border-2 border-primary-200/60 dark:border-primary-800/60 shadow-sm">
 								{filters.year}
 								<button
 									onClick={() =>
@@ -639,32 +795,49 @@ export default function NisaabHistoryPage() {
 
 				{/* History List */}
 				{isLoading ? (
-					<div className="grid grid-cols-1 gap-2">
+					<div className="grid grid-cols-1 gap-4">
 						{Array.from({ length: 5 }).map((_, index) => (
 							<div
 								key={index}
-								className="bg-white dark:bg-slate-800 rounded-lg p-3 shadow-sm border border-slate-200/60 dark:border-slate-700/60"
+								className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl p-4 shadow-lg border-2 border-slate-200/60 dark:border-slate-700/60 animate-pulse"
 							>
-								<div className="h-16 bg-slate-100 dark:bg-slate-700 rounded-lg animate-pulse" />
+								<div className="flex items-center gap-3 mb-4">
+									<div className="w-14 h-14 bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-800 rounded-2xl" />
+									<div className="flex-1">
+										<div className="h-4 bg-gradient-to-r from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-800 rounded w-24 mb-2" />
+										<div className="h-3 bg-gradient-to-r from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-800 rounded w-32" />
+									</div>
+								</div>
+								<div className="grid grid-cols-2 gap-3">
+									<div className="h-20 bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-800 rounded-xl" />
+									<div className="h-20 bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-800 rounded-xl" />
+								</div>
 							</div>
 						))}
 					</div>
 				) : filteredHistory.length === 0 && !searchResult ? (
-					<div className="bg-white dark:bg-slate-800 rounded-xl p-8 shadow-sm border border-slate-200/60 dark:border-slate-700/60 text-center">
-						<CalendarIcon className="w-12 h-12 text-slate-400 dark:text-slate-500 mx-auto mb-3" />
-						<p className="text-sm font-medium text-slate-900 dark:text-slate-100 mb-1">
+					<motion.div
+						initial={{ opacity: 0, scale: 0.95 }}
+						animate={{ opacity: 1, scale: 1 }}
+						className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl p-12 shadow-lg border-2 border-slate-200/60 dark:border-slate-700/60 text-center"
+					>
+						<div className="relative inline-block mb-4">
+							<div className="absolute inset-0 bg-primary-500/20 rounded-full blur-2xl" />
+							<CalendarIcon className="w-16 h-16 text-slate-400 dark:text-slate-500 relative z-10 mx-auto" />
+						</div>
+						<p className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-2">
 							No history found
 						</p>
-						<p className="text-xs text-slate-500 dark:text-slate-400">
+						<p className="text-sm text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
 							{hasActiveFilters
 								? 'Try adjusting your filters to see more results.'
 								: 'Nisaab history will appear here once records are available.'}
 						</p>
-					</div>
+					</motion.div>
 				) : (
 					!searchResult && (
 						<>
-							<div className="grid grid-cols-1 gap-2">
+							<div className="grid grid-cols-1 gap-4">
 								{filteredHistory.map((item, index) =>
 									renderNisaabCard(item, index)
 								)}

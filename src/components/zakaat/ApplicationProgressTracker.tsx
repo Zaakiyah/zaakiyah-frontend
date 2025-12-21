@@ -24,10 +24,10 @@ export default function ApplicationProgressTracker({
 							<div
 								className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold transition-all ${
 									isCompleted
-										? 'bg-primary-500 text-white'
+										? 'bg-gradient-to-br from-primary-500 to-primary-600 text-white shadow-lg shadow-primary-500/30'
 										: isCurrent
-										? 'bg-primary-500 text-white ring-4 ring-primary-200 dark:ring-primary-900/30'
-										: 'bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400'
+										? 'bg-gradient-to-br from-primary-500 to-primary-600 text-white ring-4 ring-primary-200 dark:ring-primary-900/30 shadow-lg shadow-primary-500/30'
+										: 'bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-800 text-slate-500 dark:text-slate-400'
 								}`}
 							>
 								{isCompleted ? (
@@ -41,10 +41,10 @@ export default function ApplicationProgressTracker({
 						{/* Connector Line */}
 						{index < steps.length - 1 && (
 							<div
-								className={`h-1 flex-1 mx-1 transition-all ${
+								className={`h-1 flex-1 mx-1 transition-all rounded-full ${
 									isCompleted
-										? 'bg-primary-500'
-										: 'bg-slate-200 dark:bg-slate-700'
+										? 'bg-gradient-to-r from-primary-500 to-primary-600'
+										: 'bg-gradient-to-r from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-800'
 								}`}
 							/>
 						)}

@@ -74,32 +74,34 @@ export default function ThemeSelector({
 						type="button"
 						onClick={() => handleThemeChange(option.value)}
 						disabled={disabled}
+						whileHover={!disabled ? { scale: 1.02, y: -1 } : {}}
 						whileTap={!disabled ? { scale: 0.98 } : {}}
+						transition={{ type: 'spring', stiffness: 300, damping: 20 }}
 						className={`
-							w-full px-4 py-3 rounded-lg border-2 transition-all
-							flex items-center gap-3
+							w-full px-4 py-3 rounded-xl border-2 transition-all
+							flex items-center gap-3 shadow-sm hover:shadow-md
 							${
 								isSelected
-									? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
-									: 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800'
+									? 'border-primary-500 dark:border-primary-400 bg-gradient-to-r from-primary-50 to-primary-100 dark:from-primary-900/30 dark:to-primary-800/20 shadow-md shadow-primary-500/20 dark:shadow-primary-600/20'
+									: 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-600'
 							}
 							${
 								disabled
 									? 'opacity-60 cursor-not-allowed'
-									: 'hover:border-primary-300 dark:hover:border-primary-600 cursor-pointer'
+									: 'cursor-pointer'
 							}
 						`}
 					>
 						<div
 							className={`
-								w-10 h-10 rounded-lg flex items-center justify-center shrink-0
-								${isSelected ? 'bg-primary-100 dark:bg-primary-900/40' : 'bg-slate-100 dark:bg-slate-700'}
+								w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-md
+								${isSelected ? 'bg-gradient-to-br from-primary-500 via-primary-600 to-primary-700 dark:from-primary-600 dark:via-primary-700 dark:to-primary-800 shadow-primary-500/30 dark:shadow-primary-600/30' : 'bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800'}
 							`}
 						>
 							<Icon
 								className={`
-									w-5 h-5
-									${isSelected ? 'text-primary-600 dark:text-primary-400' : 'text-slate-600 dark:text-slate-400'}
+									w-6 h-6
+									${isSelected ? 'text-white' : 'text-slate-600 dark:text-slate-400'}
 								`}
 							/>
 						</div>

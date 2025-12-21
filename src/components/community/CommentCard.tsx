@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
@@ -9,44 +9,37 @@ import { renderContentWithHashtagsAndLinks, shortenUrlsInText } from '../../util
 import {
 	HeartIcon,
 	ChatBubbleOvalLeftIcon,
-	PaperAirplaneIcon,
 	EllipsisHorizontalIcon,
 	PencilIcon,
 	TrashIcon,
 	CheckIcon,
 	XMarkIcon,
+	ShieldCheckIcon,
 } from '@heroicons/react/24/outline';
-import { HeartIcon as HeartIconSolid } from '@heroicons/react/24/solid';
-import type { Comment, CreateCommentData } from '../../types/community.types';
+import { HeartIcon as HeartIconSolid, CheckBadgeIcon } from '@heroicons/react/24/solid';
+import type { Comment } from '../../types/community.types';
 import ConfirmDialog from '../ui/ConfirmDialog';
+import BottomSheet from '../ui/BottomSheet';
 import Avatar from '../ui/Avatar';
+import MentionTextarea from '../ui/MentionTextarea';
+import { useUserTagging, UserTaggingSuggestions } from '../../hooks/useUserTagging';
 
 interface CommentCardProps {
 	comment: Comment;
-	onReply: (commentId: string) => void;
-	replyingTo: boolean | string | null;
-	replyContent: string;
-	onReplyChange: (content: string) => void;
-	onReplySubmit: () => void;
-	isSubmitting: boolean;
+	onReply: (commentId: string, authorName: string) => void;
+	replyingTo: string | null;
 	postId: string;
 	onUpdated?: (updatedComment: Comment) => void;
 	onDeleted?: (commentId: string) => void;
-	onReplyAdded?: (reply: Comment, parentId: string) => void;
 }
 
 export default function CommentCard({
 	comment,
 	onReply,
 	replyingTo,
-	replyContent,
-	onReplyChange,
-	onReplySubmit,
-	isSubmitting,
 	postId,
 	onUpdated,
 	onDeleted,
-	onReplyAdded,
 }: CommentCardProps) {
 	const navigate = useNavigate();
 	const { user } = useAuthStore();
@@ -61,8 +54,25 @@ export default function CommentCard({
 	const [editContent, setEditContent] = useState(comment.content);
 	const [isUpdating, setIsUpdating] = useState(false);
 	const [showMenu, setShowMenu] = useState(false);
-	const menuRef = useRef<HTMLDivElement>(null);
-	const buttonRef = useRef<HTMLButtonElement>(null);
+	const [isLiking, setIsLiking] = useState(false);
+	const editTextareaRef = useRef<HTMLTextAreaElement>(null);
+	const editSuggestionsRef = useRef<HTMLDivElement>(null);
+
+	// User tagging hook for edit mode
+	const {
+		handleChange: handleEditTaggingChange,
+		handleKeyDown: handleEditTaggingKeyDown,
+		showSuggestions: showEditSuggestions,
+		suggestions: editSuggestions,
+		selectedIndex: editSelectedIndex,
+		insertMention: insertEditMention,
+		isSearching: isEditSearching,
+	} = useUserTagging({
+		value: editContent,
+		onChange: setEditContent,
+		textareaRef: editTextareaRef,
+		currentUserId: user?.id,
+	});
 
 	const isOwner = user?.id === comment.author.id;
 
@@ -94,7 +104,9 @@ export default function CommentCard({
 
 
 	const handleLike = async () => {
+		if (isLiking) return; // Prevent multiple clicks
 		try {
+			setIsLiking(true);
 			const response = await communityService.toggleCommentLike(comment.id);
 			if (response.data) {
 				setIsLiked(response.data.liked);
@@ -102,6 +114,8 @@ export default function CommentCard({
 			}
 		} catch (error: any) {
 			logger.error('Error toggling comment like:', error);
+		} finally {
+			setIsLiking(false);
 		}
 	};
 
@@ -155,27 +169,6 @@ export default function CommentCard({
 		}
 	};
 
-	// Close menu when clicking outside
-	useEffect(() => {
-		const handleClickOutside = (event: MouseEvent) => {
-			if (
-				menuRef.current &&
-				!menuRef.current.contains(event.target as Node) &&
-				buttonRef.current &&
-				!buttonRef.current.contains(event.target as Node)
-			) {
-				setShowMenu(false);
-			}
-		};
-
-		if (showMenu) {
-			document.addEventListener('mousedown', handleClickOutside);
-		}
-
-		return () => {
-			document.removeEventListener('mousedown', handleClickOutside);
-		};
-	}, [showMenu]);
 
 	const loadReplies = async (force: boolean = false) => {
 		if (!force && (showReplies || replies.length > 0)) return;
@@ -200,42 +193,7 @@ export default function CommentCard({
 		setShowReplies(!showReplies);
 	};
 
-	const handleReplySubmit = async (e: React.FormEvent) => {
-		e.preventDefault();
-		if (!replyContent.trim() || !isReplyingToThis) return;
-
-		// For nested replies (replies to replies), handle locally
-		// Check if this comment has a parentId (meaning it's a nested comment)
-		if (comment.parentId) {
-			// This is a nested comment, handle reply creation locally
-			try {
-				// Shorten URLs in the content before saving
-				const shortenedContent = await shortenUrlsInText(replyContent.trim());
-				const data: CreateCommentData = {
-					content: shortenedContent,
-					parentId: comment.id, // Use this nested comment's ID as parent
-				};
-				const response = await communityService.createComment(postId, data);
-				if (response.data) {
-					// Add the new reply to the replies list and reload to get proper structure
-					setReplies([]); // Clear to force reload
-					await loadReplies(true); // Force reload
-					// Update replies count
-					onReplyAdded?.(response.data, comment.id);
-					// Close reply form and clear content
-					onReplyChange('');
-					onReply(comment.id); // Toggle off reply form
-				}
-			} catch (error: any) {
-				logger.error('Error creating nested reply:', error);
-			}
-		} else {
-			// For top-level comments, use the parent's onReplySubmit
-			onReplySubmit();
-		}
-	};
-
-	const isReplyingToThis = replyingTo === comment.id;
+	const authorName = `${comment.author.firstName} ${comment.author.lastName}`;
 
 	return (
 		<>
@@ -255,9 +213,18 @@ export default function CommentCard({
 							onClick={() => navigate(`/community/members/${comment.author.id}`)}
 							className="text-left w-full"
 						>
-							<p className="text-sm font-semibold text-slate-900 dark:text-slate-50 hover:underline">
-								{comment.author.firstName} {comment.author.lastName}
-							</p>
+							<div className="flex items-center gap-1.5">
+								<p className="text-sm font-semibold text-slate-900 dark:text-slate-50 hover:underline">
+									{comment.author.firstName} {comment.author.lastName}
+								</p>
+								{/* Badges next to name */}
+								{comment.author.isAdmin && (
+									<ShieldCheckIcon className="w-4 h-4 text-amber-500 flex-shrink-0" title="Admin" />
+								)}
+								{comment.author.isVerified && !comment.author.isAdmin && (
+									<CheckBadgeIcon className="w-4 h-4 text-primary-500 flex-shrink-0" title="Verified" />
+								)}
+							</div>
 							<div className="flex items-center gap-1.5 mt-0.5">
 								<p className="text-xs text-slate-500 dark:text-slate-400">
 									{formatTime(comment.createdAt)}
@@ -271,65 +238,40 @@ export default function CommentCard({
 						</button>
 					</div>
 					{isOwner && (
-						<div className="relative">
-							<button
-								ref={buttonRef}
-								type="button"
-								onClick={() => setShowMenu(!showMenu)}
-								className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors"
-								aria-label="Comment options"
-							>
-								<EllipsisHorizontalIcon className="w-4 h-4 text-slate-400 dark:text-slate-500" />
-							</button>
-
-							{/* Dropdown Menu */}
-							<AnimatePresence>
-								{showMenu && (
-									<motion.div
-										ref={menuRef}
-										initial={{ opacity: 0, scale: 0.95, y: -5 }}
-										animate={{ opacity: 1, scale: 1, y: 0 }}
-										exit={{ opacity: 0, scale: 0.95, y: -5 }}
-										transition={{ duration: 0.15 }}
-										className="absolute right-0 top-full mt-1.5 w-40 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-100 dark:border-slate-700/50 py-1.5 z-50 overflow-hidden"
-									>
-										<button
-											type="button"
-											onClick={handleEdit}
-											className="w-full px-4 py-2.5 text-left text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center gap-2.5 transition-colors"
-										>
-											<PencilIcon className="w-4 h-4" />
-											Edit
-										</button>
-										<button
-											type="button"
-											onClick={() => {
-												setShowMenu(false);
-												setShowDeleteDialog(true);
-											}}
-											className="w-full px-4 py-2.5 text-left text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2.5 transition-colors"
-										>
-											<TrashIcon className="w-4 h-4" />
-											Delete
-										</button>
-									</motion.div>
-								)}
-							</AnimatePresence>
-						</div>
+						<button
+							type="button"
+							onClick={() => setShowMenu(true)}
+							className="p-1.5 rounded-xl hover:bg-gradient-to-br hover:from-slate-100 hover:to-slate-50 dark:hover:from-slate-700 dark:hover:to-slate-800 transition-all active:scale-95"
+							aria-label="Comment options"
+						>
+							<EllipsisHorizontalIcon className="w-5 h-5 text-slate-400 dark:text-slate-500 stroke-[2.5]" />
+						</button>
 					)}
 				</div>
 
 				{/* Comment Content */}
 				{isEditing ? (
 					<div className="mb-2">
-						<textarea
-							value={editContent}
-							onChange={(e) => setEditContent(e.target.value)}
-							className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
-							rows={3}
-							maxLength={2000}
-							autoFocus
-						/>
+						<div className="relative">
+							<MentionTextarea
+								ref={editTextareaRef}
+								value={editContent}
+								onChange={handleEditTaggingChange}
+								onKeyDown={handleEditTaggingKeyDown}
+								className="w-full px-3 py-2 text-sm bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:focus:ring-primary-400/20 focus:border-primary-500 dark:focus:border-primary-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/20 dark:focus-visible:ring-primary-400/20 focus-visible:border-primary-500 dark:focus-visible:border-primary-400 resize-none shadow-sm"
+								rows={3}
+								maxLength={2000}
+								autoFocus
+							/>
+							<UserTaggingSuggestions
+								show={showEditSuggestions}
+								suggestions={editSuggestions}
+								selectedIndex={editSelectedIndex}
+								onSelect={insertEditMention}
+								isSearching={isEditSearching}
+								ref={editSuggestionsRef}
+							/>
+						</div>
 						<div className="flex items-center gap-2 mt-2">
 							<button
 								type="button"
@@ -365,9 +307,12 @@ export default function CommentCard({
 							whileHover={{ scale: 1.05 }}
 							whileTap={{ scale: 0.95 }}
 							onClick={handleLike}
-							className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-all cursor-pointer"
+							disabled={isLiking}
+							className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
 						>
-							{isLiked ? (
+							{isLiking ? (
+								<div className="w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full animate-spin" />
+							) : isLiked ? (
 								<HeartIconSolid className="w-4 h-4 text-red-500" />
 							) : (
 								<HeartIcon className="w-4 h-4" />
@@ -390,7 +335,7 @@ export default function CommentCard({
 								onClick={(e) => {
 									e.preventDefault();
 									e.stopPropagation();
-									onReply(comment.id);
+									onReply(comment.id, authorName);
 								}}
 								className="text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 transition-all active:scale-95 cursor-pointer"
 							>
@@ -400,37 +345,6 @@ export default function CommentCard({
 					</div>
 				)}
 
-				{/* Reply Form */}
-				<AnimatePresence>
-					{isReplyingToThis && user && (
-						<motion.form
-							initial={{ opacity: 0, height: 0 }}
-							animate={{ opacity: 1, height: 'auto' }}
-							exit={{ opacity: 0, height: 0 }}
-							onSubmit={handleReplySubmit}
-							className="mt-4 pt-4 border-t border-slate-200/50 dark:border-slate-700/50"
-						>
-							<div className="relative">
-								<input
-									type="text"
-									value={replyContent}
-									onChange={(e) => onReplyChange(e.target.value)}
-									placeholder="Write a reply..."
-									maxLength={500}
-									className="w-full px-4 py-2.5 pr-14 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-lg text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-primary-500/50 focus:border-primary-300 dark:focus:border-primary-600 transition-all"
-									autoFocus
-								/>
-								<button
-									type="submit"
-									disabled={isSubmitting || !replyContent.trim()}
-									className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-95"
-								>
-									<PaperAirplaneIcon className="w-3.5 h-3.5" />
-								</button>
-							</div>
-						</motion.form>
-					)}
-				</AnimatePresence>
 
 				{/* Replies - Recursively render nested replies */}
 				<AnimatePresence>
@@ -439,7 +353,7 @@ export default function CommentCard({
 							initial={{ opacity: 0, height: 0 }}
 							animate={{ opacity: 1, height: 'auto' }}
 							exit={{ opacity: 0, height: 0 }}
-							className="mt-3 ml-9 space-y-0 border-l-2 border-slate-200 dark:border-slate-700 pl-3"
+							className="mt-3 ml-9 space-y-0 border-l-2 border-slate-200/60 dark:border-slate-700/60 pl-3"
 						>
 							{isLoadingReplies ? (
 								<div className="text-sm text-slate-500 dark:text-slate-400 font-medium text-center py-2">
@@ -456,10 +370,6 @@ export default function CommentCard({
 											comment={reply}
 											onReply={onReply}
 											replyingTo={replyingTo}
-											replyContent={replyContent}
-											onReplyChange={onReplyChange}
-											onReplySubmit={onReplySubmit}
-											isSubmitting={isSubmitting}
 											postId={postId}
 											onUpdated={(updated) => {
 												setReplies((prev) =>
@@ -479,6 +389,38 @@ export default function CommentCard({
 					)}
 				</AnimatePresence>
 			</div>
+
+			{/* Comment Options Bottom Sheet */}
+			<BottomSheet isOpen={showMenu} onClose={() => setShowMenu(false)} title="Comment Options">
+				<div className="space-y-2">
+					<button
+						type="button"
+						onClick={() => {
+							setShowMenu(false);
+							handleEdit();
+						}}
+						className="w-full px-4 py-3.5 text-left text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-gradient-to-br hover:from-primary-50 hover:to-primary-100 dark:hover:from-primary-900/30 dark:hover:to-primary-800/20 rounded-xl flex items-center gap-3 transition-all active:scale-95 group"
+					>
+						<div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/40 dark:to-primary-800/30 group-hover:scale-110 transition-transform">
+							<PencilIcon className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+						</div>
+						<span>Edit Comment</span>
+					</button>
+					<button
+						type="button"
+						onClick={() => {
+							setShowMenu(false);
+							setShowDeleteDialog(true);
+						}}
+						className="w-full px-4 py-3.5 text-left text-sm font-semibold text-red-600 dark:text-red-400 hover:bg-gradient-to-br hover:from-red-50 hover:to-red-100 dark:hover:from-red-900/30 dark:hover:to-red-800/20 rounded-xl flex items-center gap-3 transition-all active:scale-95 group"
+					>
+						<div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-red-100 to-red-200 dark:from-red-900/40 dark:to-red-800/30 group-hover:scale-110 transition-transform">
+							<TrashIcon className="w-5 h-5 text-red-600 dark:text-red-400" />
+						</div>
+						<span>Delete Comment</span>
+					</button>
+				</div>
+			</BottomSheet>
 
 			{/* Delete Confirmation */}
 			<ConfirmDialog

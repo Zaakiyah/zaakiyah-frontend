@@ -109,23 +109,23 @@ export default function ChangePasswordSheet({
 			onClose={onClose}
 			title={hasPassword ? 'Change Password' : 'Set Password'}
 		>
-			<form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pb-4">
+			<form onSubmit={handleSubmit(onSubmit)} className="space-y-5 pb-4">
 				{error && (
-					<div className="p-3 bg-error-50 border border-error-200 rounded-lg flex items-start justify-between gap-2">
-						<p className="text-sm text-error-600 flex-1">{error}</p>
+					<div className="p-4 bg-gradient-to-r from-red-50 to-red-100 dark:from-red-900/30 dark:to-red-800/20 border-2 border-red-200 dark:border-red-800/30 rounded-xl flex items-start justify-between gap-2 shadow-sm">
+						<p className="text-sm font-medium text-red-600 dark:text-red-400 flex-1">{error}</p>
 						<button
 							type="button"
 							onClick={() => setError(null)}
-							className="p-1 rounded-lg hover:bg-error-100 transition-colors"
+							className="p-1.5 rounded-xl hover:bg-red-100 dark:hover:bg-red-900/30 transition-all"
 						>
-							<XMarkIcon className="w-4 h-4 text-error-600" />
+							<XMarkIcon className="w-4 h-4 text-red-600 dark:text-red-400" />
 						</button>
 					</div>
 				)}
 
 				{!hasPassword && (
-					<div className="p-3 bg-primary-50 border border-primary-200 rounded-lg">
-						<p className="text-sm text-primary-700">
+					<div className="p-4 bg-gradient-to-r from-primary-50 to-primary-100 dark:from-primary-900/30 dark:to-primary-800/20 border-2 border-primary-200 dark:border-primary-800/30 rounded-xl shadow-sm">
+						<p className="text-sm font-medium text-primary-700 dark:text-primary-300">
 							You don't have a password set. Create one to enable password login in addition to your OAuth login.
 						</p>
 					</div>

@@ -75,14 +75,14 @@ export default function WealthCalculationPage() {
 	};
 
 	return (
-		<div className="min-h-screen bg-slate-50 dark:bg-slate-900 pb-20">
+		<div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 pb-20">
 			{/* Header */}
-			<header className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border-b border-slate-200/60 dark:border-slate-700/60 sticky top-0 z-40 shadow-sm">
+			<header className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl border-b-2 border-primary-500/20 dark:border-primary-400/20 sticky top-0 z-40 shadow-sm">
 				<div className="px-4 py-3">
 					<div className="flex items-center gap-3">
 						<button
 							onClick={handleBack}
-							className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-all active:scale-95"
+							className="p-2 rounded-xl hover:bg-gradient-to-r hover:from-slate-100 hover:to-slate-50 dark:hover:from-slate-700 dark:hover:to-slate-800 transition-all active:scale-95"
 							aria-label="Go back"
 							type="button"
 						>
@@ -115,12 +115,14 @@ export default function WealthCalculationPage() {
 					<AnimatePresence mode="wait">
 						<motion.div
 							key={currentStep}
-							initial={{ opacity: 0, x: 20 }}
-							animate={{ opacity: 1, x: 0 }}
-							exit={{ opacity: 0, x: -20 }}
-							transition={{ duration: 0.2, ease: 'easeInOut' }}
-							className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-200/60 dark:border-slate-700/60 overflow-visible"
+							initial={{ opacity: 0, x: 20, scale: 0.95 }}
+							animate={{ opacity: 1, x: 0, scale: 1 }}
+							exit={{ opacity: 0, x: -20, scale: 0.95 }}
+							transition={{ duration: 0.2, ease: 'easeInOut', type: 'spring', stiffness: 100 }}
+							className="relative bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl p-6 shadow-lg border-2 border-slate-200/60 dark:border-slate-700/60 overflow-visible"
 						>
+							{/* Decorative gradient overlay */}
+							<div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-primary-500/5 via-secondary-500/5 to-primary-400/5 rounded-full blur-2xl -z-0" />
 							{renderStep()}
 						</motion.div>
 					</AnimatePresence>

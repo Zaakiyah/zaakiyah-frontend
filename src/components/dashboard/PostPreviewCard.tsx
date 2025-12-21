@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { HeartIcon, ChatBubbleLeftIcon, PlayIcon } from '@heroicons/react/24/outline';
-import { HeartIcon as HeartIconSolid } from '@heroicons/react/24/solid';
+import { HeartIcon, ChatBubbleLeftIcon, PlayIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
+import { HeartIcon as HeartIconSolid, CheckBadgeIcon } from '@heroicons/react/24/solid';
 import Avatar from '../ui/Avatar';
 
 interface PostPreviewCardProps {
@@ -49,19 +49,32 @@ export default function PostPreviewCard({
 			className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-100 dark:border-slate-700 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
 		>
 			<div className="flex items-start gap-2.5 mb-2">
-				<Avatar
-					avatarUrl={post.author?.avatarUrl}
-					firstName={post.author?.firstName || ''}
-					lastName={post.author?.lastName || ''}
-					size="sm"
-					isVerified={post.author?.isVerified}
-					isAdmin={post.author?.isAdmin}
-				/>
+				{post.author && 'isAnonymous' in post.author && post.author.isAnonymous ? (
+					<div className="w-8 h-8 rounded-full bg-gradient-to-br from-slate-400 to-slate-600 flex items-center justify-center ring-2 ring-slate-200 dark:ring-slate-700 flex-shrink-0">
+						<span className="text-sm font-bold text-white">A</span>
+					</div>
+				) : (
+					<Avatar
+						avatarUrl={post.author?.avatarUrl}
+						firstName={post.author?.firstName || ''}
+						lastName={post.author?.lastName || ''}
+						size="sm"
+						isVerified={post.author?.isVerified}
+						isAdmin={post.author?.isAdmin}
+					/>
+				)}
 				<div className="flex-1 min-w-0">
 					<div className="flex items-center gap-2 mb-0.5">
 						<p className="text-xs font-semibold text-slate-900 dark:text-slate-100">
 							{post.author?.firstName} {post.author?.lastName}
 						</p>
+						{/* Badges next to name */}
+						{post.author?.isAdmin && (
+							<ShieldCheckIcon className="w-3 h-3 text-amber-500 flex-shrink-0" title="Admin" />
+						)}
+						{post.author?.isVerified && !post.author?.isAdmin && (
+							<CheckBadgeIcon className="w-3 h-3 text-primary-500 flex-shrink-0" title="Verified" />
+						)}
 						<span className="text-slate-400 dark:text-slate-500">•</span>
 						<p className="text-xs text-slate-500 dark:text-slate-400">
 							{formatDistanceToNow(new Date(post.createdAt), {

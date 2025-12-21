@@ -8,6 +8,8 @@ import CommentCard from './CommentCard';
 import LoadingSkeleton from '../wealth/LoadingSkeleton';
 import { PaperAirplaneIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
 import type { Comment, CreateCommentData } from '../../types/community.types';
+import { useUserTagging, UserTaggingSuggestions } from '../../hooks/useUserTagging';
+import MentionTextarea from '../ui/MentionTextarea';
 
 interface CommentBottomSheetProps {
 	isOpen: boolean;
@@ -27,14 +29,31 @@ export default function CommentBottomSheet({
 	const [isLoading, setIsLoading] = useState(false);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [commentContent, setCommentContent] = useState('');
-	const [replyingTo, setReplyingTo] = useState<string | null>(null);
-	const [replyContent, setReplyContent] = useState('');
+	const [replyingTo, setReplyingTo] = useState<{ id: string; authorName: string } | null>(null);
 	const [page, setPage] = useState(1);
 	const [hasMore, setHasMore] = useState(true);
 	const [loadingMore, setLoadingMore] = useState(false);
 	const [commentFilter, setCommentFilter] = useState<'all' | 'relevant' | 'recent'>('all');
 	const [showFilterMenu, setShowFilterMenu] = useState(false);
 	const filterMenuRef = useRef<HTMLDivElement>(null);
+	const textareaRef = useRef<HTMLTextAreaElement>(null);
+	const suggestionsRef = useRef<HTMLDivElement>(null);
+
+	// User tagging hook
+	const {
+		handleChange: handleTaggingChange,
+		handleKeyDown: handleTaggingKeyDown,
+		showSuggestions,
+		suggestions,
+		selectedIndex,
+		insertMention,
+		isSearching,
+	} = useUserTagging({
+		value: commentContent,
+		onChange: setCommentContent,
+		textareaRef,
+		currentUserId: user?.id,
+	});
 
 	// Close filter menu when clicking outside
 	useEffect(() => {
@@ -56,9 +75,34 @@ export default function CommentBottomSheet({
 	useEffect(() => {
 		if (isOpen) {
 			fetchComments(1, false);
+			setReplyingTo(null);
+			setCommentContent('');
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [isOpen, postId, commentFilter]);
+
+	// Auto-focus and add mention when replying
+	useEffect(() => {
+		if (replyingTo && textareaRef.current) {
+			const mention = `@${replyingTo.authorName} `;
+			if (!commentContent.startsWith(mention)) {
+				setCommentContent(mention);
+			}
+			setTimeout(() => {
+				textareaRef.current?.focus();
+				// Move cursor to end
+				const length = textareaRef.current?.value.length || 0;
+				textareaRef.current?.setSelectionRange(length, length);
+			}, 100);
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [replyingTo]);
+
+	// Combined keydown handler
+	const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+		// Let tagging hook handle its keys first
+		handleTaggingKeyDown(e);
+	};
 
 	const fetchComments = async (pageNum: number = 1, append: boolean = false) => {
 		try {
@@ -68,25 +112,10 @@ export default function CommentBottomSheet({
 				setLoadingMore(true);
 			}
 
-			const response = await communityService.getPostComments(postId, pageNum, 100); // Get more comments to allow filtering
+			const sortParam = commentFilter === 'all' ? undefined : commentFilter;
+			const response = await communityService.getPostComments(postId, pageNum, 100, sortParam);
 			if (response.data) {
-				let fetchedComments = response.data.data || [];
-				
-				// Apply filters
-				if (commentFilter === 'recent') {
-					// Sort by most recent (newest first)
-					fetchedComments = [...fetchedComments].sort((a, b) => 
-						new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-					);
-				} else if (commentFilter === 'relevant') {
-					// Sort by most liked first, then by most replies
-					fetchedComments = [...fetchedComments].sort((a, b) => {
-						const scoreA = a.likesCount + (a.repliesCount || 0) * 2; // Replies weighted more
-						const scoreB = b.likesCount + (b.repliesCount || 0) * 2;
-						return scoreB - scoreA;
-					});
-				}
-				// 'all' filter shows comments in their default order (thread order)
+				const fetchedComments = response.data.data || [];
 				
 				if (append) {
 					setComments((prev) => [...prev, ...fetchedComments]);
@@ -105,7 +134,7 @@ export default function CommentBottomSheet({
 
 	const handleCommentSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		if (!commentContent.trim()) return;
+		if (!commentContent.trim() || isSubmitting) return;
 
 		try {
 			setIsSubmitting(true);
@@ -113,10 +142,33 @@ export default function CommentBottomSheet({
 			const shortenedContent = await shortenUrlsInText(commentContent.trim());
 			const data: CreateCommentData = {
 				content: shortenedContent,
+				parentId: replyingTo?.id,
 			};
 			const response = await communityService.createComment(postId, data);
 			if (response.data) {
-				setComments((prev) => [response.data, ...prev]);
+				const newComment = response.data;
+				// If it's a reply, we need to update the parent comment's replies
+				if (replyingTo?.id) {
+					// Update the parent comment's replies count and add the reply
+					setComments((prev) => {
+						const updateCommentWithReply = (comments: Comment[]): Comment[] => {
+							return comments.map((c) => {
+								if (c.id === replyingTo.id) {
+									return {
+										...c,
+										repliesCount: (c.repliesCount || 0) + 1,
+									};
+								}
+								return c;
+							});
+						};
+						return updateCommentWithReply(prev);
+					});
+				} else {
+					// It's a top-level comment, add it to the beginning of the list
+					setComments((prev) => [newComment, ...prev]);
+				}
+				setReplyingTo(null);
 				setCommentContent('');
 				onCommentAdded?.();
 			}
@@ -127,41 +179,19 @@ export default function CommentBottomSheet({
 		}
 	};
 
-	const handleReplySubmit = async (parentId: string) => {
-		if (!replyContent.trim()) return;
-
-		try {
-			setIsSubmitting(true);
-			// Shorten URLs in the content before saving
-			const shortenedContent = await shortenUrlsInText(replyContent.trim());
-			const data: CreateCommentData = {
-				content: shortenedContent,
-				parentId,
-			};
-			const response = await communityService.createComment(postId, data);
-			if (response.data) {
-				// Reload comments to get the updated structure with new reply in correct position
-				await fetchComments(1, false);
-				setReplyingTo(null);
-				setReplyContent('');
-			}
-		} catch (error: any) {
-			logger.error('Error creating reply:', error);
-		} finally {
-			setIsSubmitting(false);
-		}
-	};
-
 	const handleCommentUpdated = (updatedComment: Comment) => {
-		const updateCommentInTree = (comments: Comment[]): Comment[] => {
-			return comments.map((c) => {
-				if (c.id === updatedComment.id) {
-					return updatedComment;
-				}
-				return c;
-			});
-		};
-		setComments((prev) => updateCommentInTree(prev));
+		// Only update the specific comment, not reload everything
+		setComments((prev) => {
+			const updateCommentInTree = (comments: Comment[]): Comment[] => {
+				return comments.map((c) => {
+					if (c.id === updatedComment.id) {
+						return updatedComment;
+					}
+					return c;
+				});
+			};
+			return updateCommentInTree(prev);
+		});
 	};
 
 	const handleCommentDeleted = (commentId: string) => {
@@ -257,15 +287,14 @@ export default function CommentBottomSheet({
 								<div key={comment.id} className={index > 0 ? 'border-t border-slate-100 dark:border-slate-800 pt-3' : ''}>
 									<CommentCard
 										comment={comment}
-										onReply={(commentId) => {
-											setReplyingTo(replyingTo === commentId ? null : commentId);
-											setReplyContent('');
+										onReply={(commentId, authorName) => {
+											if (replyingTo?.id === commentId) {
+												setReplyingTo(null);
+											} else {
+												setReplyingTo({ id: commentId, authorName });
+											}
 										}}
-										replyingTo={replyingTo}
-										replyContent={replyContent}
-										onReplyChange={setReplyContent}
-										onReplySubmit={() => handleReplySubmit(comment.id)}
-										isSubmitting={isSubmitting}
+										replyingTo={replyingTo?.id || null}
 										postId={postId}
 										onUpdated={handleCommentUpdated}
 										onDeleted={handleCommentDeleted}
@@ -292,22 +321,52 @@ export default function CommentBottomSheet({
 				{/* Comment Form - Fixed at bottom */}
 				{user && (
 					<div className="pt-4 border-t border-slate-200 dark:border-slate-700 -mx-4 px-4 bg-white dark:bg-slate-800 pb-safe">
+						{replyingTo && (
+							<div className="mb-2 flex items-center justify-between px-3 py-2 bg-primary-50 dark:bg-primary-900/20 rounded-lg">
+								<span className="text-xs text-primary-700 dark:text-primary-300">
+									Replying to <span className="font-semibold">{replyingTo.authorName}</span>
+								</span>
+								<button
+									type="button"
+									onClick={() => setReplyingTo(null)}
+									className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 text-xs font-medium"
+								>
+									Cancel
+								</button>
+							</div>
+						)}
 						<form onSubmit={handleCommentSubmit}>
-							<div className="relative">
-								<textarea
-									value={commentContent}
-									onChange={(e) => setCommentContent(e.target.value)}
-									placeholder="Add a comment..."
-									rows={2}
-									maxLength={1000}
-									className="w-full px-4 py-2.5 pr-12 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
-								/>
+							<div className="relative flex items-end gap-2">
+								<div className="flex-1 relative">
+									<MentionTextarea
+										ref={textareaRef}
+										value={commentContent}
+										onChange={handleTaggingChange}
+										onKeyDown={handleKeyDown}
+										placeholder={replyingTo ? `Reply to ${replyingTo.authorName}...` : "Add a comment..."}
+										rows={2}
+										maxLength={1000}
+										className="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:focus:ring-primary-400/20 focus:border-primary-500 dark:focus:border-primary-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/20 dark:focus-visible:ring-primary-400/20 focus-visible:border-primary-500 dark:focus-visible:border-primary-400 resize-none"
+									/>
+									<UserTaggingSuggestions
+										show={showSuggestions}
+										suggestions={suggestions}
+										selectedIndex={selectedIndex}
+										onSelect={insertMention}
+										isSearching={isSearching}
+										ref={suggestionsRef}
+									/>
+								</div>
 								<button
 									type="submit"
 									disabled={isSubmitting || !commentContent.trim()}
-									className="absolute bottom-2.5 right-2.5 p-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-95"
+									className="p-3 sm:p-2.5 bg-primary-500 text-white rounded-lg hover:bg-primary-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-95 flex items-center justify-center shrink-0 min-h-[44px] sm:min-h-0"
 								>
-									<PaperAirplaneIcon className="w-4 h-4" />
+									{isSubmitting ? (
+										<div className="w-5 h-5 sm:w-4 sm:h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+									) : (
+										<PaperAirplaneIcon className="w-5 h-5 sm:w-4 sm:h-4" />
+									)}
 								</button>
 							</div>
 						</form>

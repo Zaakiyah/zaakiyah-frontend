@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 /**
  * Shortens a URL for display purposes
@@ -10,15 +11,15 @@ export function shortenUrl(url: string, maxLength: number = 50): string {
 	try {
 		// Remove protocol
 		let shortened = url.replace(/^https?:\/\//i, '');
-		
+
 		// Remove www.
 		shortened = shortened.replace(/^www\./i, '');
-		
+
 		// Truncate if too long
 		if (shortened.length > maxLength) {
 			shortened = shortened.substring(0, maxLength - 3) + '...';
 		}
-		
+
 		return shortened;
 	} catch {
 		return url;
@@ -42,8 +43,10 @@ export async function shortenUrlWithService(url: string): Promise<string> {
 		}
 
 		// Use TinyURL API (free, no API key required)
-		const response = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(fullUrl)}`);
-		
+		const response = await fetch(
+			`https://tinyurl.com/api-create.php?url=${encodeURIComponent(fullUrl)}`
+		);
+
 		if (response.ok) {
 			const shortUrl = await response.text();
 			// TinyURL returns the shortened URL or error message
@@ -51,7 +54,7 @@ export async function shortenUrlWithService(url: string): Promise<string> {
 				return shortUrl.trim();
 			}
 		}
-		
+
 		// If shortening fails, return original URL
 		return url;
 	} catch (error) {
@@ -73,17 +76,18 @@ export async function shortenUrlsInText(text: string): Promise<string> {
 	if (!text || typeof text !== 'string') {
 		return text || '';
 	}
-	
+
 	// Trim and ensure non-empty
 	const trimmedText = text.trim();
 	if (!trimmedText) {
 		return text; // Return original if empty after trim
 	}
-	
+
 	try {
 		// URL regex pattern - matches http://, https://, www., and common domain patterns
-		const urlPattern = /(https?:\/\/[^\s<>"']+|www\.[^\s<>"']+|[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]?\.[a-zA-Z]{2,}(?:\/[^\s<>"']*)?)/gi;
-		
+		const urlPattern =
+			/(https?:\/\/[^\s<>"']+|www\.[^\s<>"']+|[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]?\.[a-zA-Z]{2,}(?:\/[^\s<>"']*)?)/gi;
+
 		// Find all URLs
 		const urls = trimmedText.match(urlPattern);
 		if (!urls || urls.length === 0) {
@@ -125,27 +129,35 @@ export async function shortenUrlsInText(text: string): Promise<string> {
 }
 
 /**
- * Renders text content with clickable hashtags and links
- * Supports both hashtags (#tag) and URLs (http://, https://, www.)
+ * Renders text content with clickable hashtags, mentions, and links
+ * Supports hashtags (#tag), mentions (@FirstName LastName), and URLs (http://, https://, www.)
  */
-export function renderContentWithHashtagsAndLinks(text: string): React.ReactNode {
+function ContentRenderer({ text }: { text: string }) {
+	const navigate = useNavigate();
+
 	if (!text || typeof text !== 'string') return <>{text}</>;
-	
+
 	try {
-		// Combined pattern: URLs or hashtags (URLs first to avoid matching # in URLs)
-		const combinedPattern = /(https?:\/\/[^\s<>"']+|www\.[^\s<>"']+|[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]?\.[a-zA-Z]{2,}(?:\/[^\s<>"']*)?|#[\w]+)/gi;
-		
-		const parts: Array<{ type: 'text' | 'url' | 'hashtag'; content: string; match: string }> = [];
+		// Combined pattern: URLs, mentions, or hashtags (URLs first to avoid matching # in URLs)
+		// Mentions: @FirstName LastName\u200C[userId] (with zero-width char) or @[userId]FirstName LastName (legacy) or @FirstName LastName (legacy)
+		const combinedPattern =
+			/(https?:\/\/[^\s<>"']+|www\.[^\s<>"']+|[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]?\.[a-zA-Z]{2,}(?:\/[^\s<>"']*)?|@[\w]+(?:\s+[\w]+)?\u200C\[[^\]]+\]|@\[[^\]]+\][\w]+(?:\s+[\w]+)?|@[\w]+(?:\s+[\w]+)?|#[\w]+)/gi;
+
+		const parts: Array<{
+			type: 'text' | 'url' | 'hashtag' | 'mention';
+			content: string;
+			match: string;
+		}> = [];
 		let lastIndex = 0;
 		let match;
-		
-		// Find all matches (URLs and hashtags)
+
+		// Find all matches (URLs, mentions, and hashtags)
 		while ((match = combinedPattern.exec(text)) !== null) {
 			// Add text before match
 			if (match.index > lastIndex) {
 				let textBefore = text.substring(lastIndex, match.index);
 				const matchText = match[0];
-				
+
 				// If this is a hashtag match, check if "hashtag" appears immediately before it
 				if (matchText.startsWith('#')) {
 					// Remove "hashtag" (case-insensitive) if it appears at the end of textBefore
@@ -154,7 +166,7 @@ export function renderContentWithHashtagsAndLinks(text: string): React.ReactNode
 						textBefore = textBefore.replace(hashtagPrefix, '').trimEnd();
 					}
 				}
-				
+
 				// Only add text part if there's content after removing "hashtag"
 				if (textBefore) {
 					parts.push({
@@ -164,10 +176,16 @@ export function renderContentWithHashtagsAndLinks(text: string): React.ReactNode
 					});
 				}
 			}
-			
+
 			// Add the match
 			const matchText = match[0];
-			if (matchText.startsWith('#')) {
+			if (matchText.startsWith('@')) {
+				parts.push({
+					type: 'mention',
+					content: matchText,
+					match: matchText,
+				});
+			} else if (matchText.startsWith('#')) {
 				parts.push({
 					type: 'hashtag',
 					content: matchText,
@@ -180,10 +198,10 @@ export function renderContentWithHashtagsAndLinks(text: string): React.ReactNode
 					match: matchText,
 				});
 			}
-			
+
 			lastIndex = combinedPattern.lastIndex;
 		}
-		
+
 		// Add remaining text
 		if (lastIndex < text.length) {
 			parts.push({
@@ -192,60 +210,116 @@ export function renderContentWithHashtagsAndLinks(text: string): React.ReactNode
 				match: '',
 			});
 		}
-		
+
 		// If no matches, return text as-is
 		if (parts.length === 0) {
 			return <>{text}</>;
 		}
-		
+
 		// Render parts
-		return parts.map((part, index) => {
-			if (part.type === 'hashtag') {
-				return React.createElement(
-					'span',
-					{
-						key: index,
-						className: 'text-primary-600 dark:text-primary-400 font-medium hover:underline cursor-pointer',
-						onClick: (e: React.MouseEvent) => {
-							e.stopPropagation();
-							// Future: Navigate to hashtag feed
-							// navigate(`/community?hashtag=${part.content.slice(1)}`);
-						},
-					},
-					part.content
-				);
-			} else if (part.type === 'url') {
-				let url = part.content;
-				// Ensure URL has protocol
-				if (!url.match(/^https?:\/\//i)) {
-					if (url.startsWith('www.')) {
-						url = 'https://' + url;
+		return (
+			<>
+				{parts.map((part, index) => {
+					if (part.type === 'mention') {
+						// Extract user ID and name from mention
+						// Format: @FirstName LastName\u200C[userId] (new) or @[userId]FirstName LastName (legacy) or @FirstName LastName (legacy)
+						let userId: string | null = null;
+						let displayText = part.content;
+
+						// Check for new format with zero-width char
+						const newFormatMatch = part.content.match(
+							/@([\w]+(?:\s+[\w]+)?)\u200C\[([^\]]+)\]/
+						);
+						if (newFormatMatch) {
+							userId = newFormatMatch[2];
+							displayText = `@${newFormatMatch[1]}`;
+						} else {
+							// Check for legacy format: @[userId]FirstName LastName
+							const legacyFormatMatch = part.content.match(/@\[([^\]]+)\](.+)/);
+							if (legacyFormatMatch) {
+								userId = legacyFormatMatch[1];
+								displayText = `@${legacyFormatMatch[2]}`;
+							} else {
+								// Legacy format: @FirstName LastName - extract name only
+								displayText = part.content;
+							}
+						}
+
+						return (
+							<span
+								key={index}
+								className="text-primary-600 dark:text-primary-400 font-semibold hover:underline cursor-pointer inline-flex items-center gap-1"
+								onClick={(e: React.MouseEvent) => {
+									e.stopPropagation();
+									// Navigate to community member profile using user ID
+									if (userId) {
+										navigate(`/community/members/${userId}`);
+									} else {
+										// Fallback: if no ID, try to navigate with name (legacy support)
+										const userName = part.content
+											.slice(1)
+											.replace(/\u200C\[[^\]]+\]/, '');
+										navigate(
+											`/community/members/${encodeURIComponent(userName)}`
+										);
+									}
+								}}
+							>
+								{displayText}
+							</span>
+						);
+					} else if (part.type === 'hashtag') {
+						return (
+							<span
+								key={index}
+								className="text-primary-600 dark:text-primary-400 font-medium hover:underline cursor-pointer"
+								onClick={(e: React.MouseEvent) => {
+									e.stopPropagation();
+									// Future: Navigate to hashtag feed
+									// navigate(`/community?hashtag=${part.content.slice(1)}`);
+								}}
+							>
+								{part.content}
+							</span>
+						);
+					} else if (part.type === 'url') {
+						let url = part.content;
+						// Ensure URL has protocol
+						if (!url.match(/^https?:\/\//i)) {
+							if (url.startsWith('www.')) {
+								url = 'https://' + url;
+							} else {
+								url = 'https://' + url;
+							}
+						}
+
+						const displayUrl = shortenUrl(part.content);
+
+						return (
+							<a
+								key={index}
+								href={url}
+								target="_blank"
+								rel="noopener noreferrer"
+								onClick={(e: React.MouseEvent) => e.stopPropagation()}
+								className="text-primary-600 dark:text-primary-400 hover:underline cursor-pointer break-all"
+								title={part.content}
+							>
+								{displayUrl}
+							</a>
+						);
 					} else {
-						url = 'https://' + url;
+						return <span key={index}>{part.content}</span>;
 					}
-				}
-				
-				const displayUrl = shortenUrl(part.content);
-				
-				return React.createElement(
-					'a',
-					{
-						key: index,
-						href: url,
-						target: '_blank',
-						rel: 'noopener noreferrer',
-						onClick: (e: React.MouseEvent) => e.stopPropagation(),
-						className: 'text-primary-600 dark:text-primary-400 hover:underline cursor-pointer break-all',
-						title: part.content,
-					},
-					displayUrl
-				);
-			} else {
-				return React.createElement('span', { key: index }, part.content);
-			}
-		});
+				})}
+			</>
+		);
 	} catch (error) {
 		console.error('Error rendering content with hashtags and links:', error);
 		return <>{text}</>;
 	}
+}
+
+export function renderContentWithHashtagsAndLinks(text: string): React.ReactNode {
+	return <ContentRenderer text={text} />;
 }

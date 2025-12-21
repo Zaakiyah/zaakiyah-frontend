@@ -52,19 +52,23 @@ export default function SettingsPage() {
 	};
 
 	return (
-		<div className="min-h-screen bg-slate-50 dark:bg-slate-900 pb-20">
+		<div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 pb-20">
 			<PageHeader title="Settings" showBack />
 
 			<main className="px-4 py-4 space-y-4">
 				{/* Currency Preference Section */}
 				<motion.div
-					initial={{ opacity: 0, y: 20 }}
-					animate={{ opacity: 1, y: 0 }}
-					className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-slate-200/60 dark:border-slate-700/60"
+					initial={{ opacity: 0, y: 20, scale: 0.95 }}
+					animate={{ opacity: 1, y: 0, scale: 1 }}
+					transition={{ type: 'spring', stiffness: 100 }}
+					className="relative bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl p-5 shadow-lg border-2 border-slate-200/60 dark:border-slate-700/60 overflow-visible"
 				>
-					<div className="flex items-start gap-3 mb-4">
-						<div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center shrink-0">
-							<CurrencyDollarIcon className="w-5 h-5 text-primary-600" />
+					{/* Decorative gradient overlay */}
+					<div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary-500/5 via-secondary-500/5 to-primary-400/5 rounded-full blur-2xl -z-0" />
+					
+					<div className="flex items-start gap-3 mb-4 relative z-10">
+						<div className="w-12 h-12 bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/20 rounded-xl flex items-center justify-center shrink-0 shadow-sm">
+							<CurrencyDollarIcon className="w-6 h-6 text-primary-600 dark:text-primary-400" />
 						</div>
 						<div className="flex-1">
 							<h2 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-1">
@@ -77,11 +81,13 @@ export default function SettingsPage() {
 							</p>
 						</div>
 					</div>
-					<CurrencySelector
-						value={preferredCurrency || user?.preferredCurrency || 'USD'}
-						onChange={handleCurrencyChange}
-						disabled={isUpdatingCurrency}
-					/>
+					<div className="relative z-10">
+						<CurrencySelector
+							value={preferredCurrency || user?.preferredCurrency || 'USD'}
+							onChange={handleCurrencyChange}
+							disabled={isUpdatingCurrency}
+						/>
+					</div>
 					{isUpdatingCurrency && (
 						<p className="mt-2 text-xs text-slate-500 dark:text-slate-400 text-center">
 							Updating currency preference...
@@ -91,14 +97,17 @@ export default function SettingsPage() {
 
 				{/* Notification Preferences Section */}
 				<motion.div
-					initial={{ opacity: 0, y: 20 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ delay: 0.1 }}
-					className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-slate-200/60 dark:border-slate-700/60"
+					initial={{ opacity: 0, y: 20, scale: 0.95 }}
+					animate={{ opacity: 1, y: 0, scale: 1 }}
+					transition={{ delay: 0.1, type: 'spring', stiffness: 100 }}
+					className="relative bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl p-5 shadow-lg border-2 border-slate-200/60 dark:border-slate-700/60 overflow-visible"
 				>
-					<div className="flex items-start gap-3 mb-4">
-						<div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center shrink-0">
-							<BellIcon className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+					{/* Decorative gradient overlay */}
+					<div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary-500/5 via-secondary-500/5 to-primary-400/5 rounded-full blur-2xl -z-0" />
+					
+					<div className="flex items-start gap-3 mb-4 relative z-10">
+						<div className="w-12 h-12 bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/20 rounded-xl flex items-center justify-center shrink-0 shadow-sm">
+							<BellIcon className="w-6 h-6 text-primary-600 dark:text-primary-400" />
 						</div>
 						<div className="flex-1">
 							<h2 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-1">
@@ -113,14 +122,17 @@ export default function SettingsPage() {
 				</motion.div>
 
 				<motion.div
-					initial={{ opacity: 0, y: 20 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ delay: 0.2 }}
-					className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-slate-200/60 dark:border-slate-700/60"
+					initial={{ opacity: 0, y: 20, scale: 0.95 }}
+					animate={{ opacity: 1, y: 0, scale: 1 }}
+					transition={{ delay: 0.2, type: 'spring', stiffness: 100 }}
+					className="relative bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl p-5 shadow-lg border-2 border-slate-200/60 dark:border-slate-700/60 overflow-hidden"
 				>
-					<div className="flex items-start gap-3 mb-4">
-						<div className="w-10 h-10 bg-slate-100 dark:bg-slate-700 rounded-lg flex items-center justify-center shrink-0">
-							<LanguageIcon className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+					{/* Decorative gradient overlay */}
+					<div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-slate-500/5 via-slate-400/5 to-slate-300/5 rounded-full blur-2xl -z-0" />
+					
+					<div className="flex items-start gap-3 mb-4 relative z-10">
+						<div className="w-12 h-12 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 rounded-xl flex items-center justify-center shrink-0 shadow-sm">
+							<LanguageIcon className="w-6 h-6 text-slate-600 dark:text-slate-400" />
 						</div>
 						<div className="flex-1">
 							<h2 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-1">
@@ -135,14 +147,17 @@ export default function SettingsPage() {
 				</motion.div>
 
 				<motion.div
-					initial={{ opacity: 0, y: 20 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ delay: 0.3 }}
-					className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-slate-200/60 dark:border-slate-700/60"
+					initial={{ opacity: 0, y: 20, scale: 0.95 }}
+					animate={{ opacity: 1, y: 0, scale: 1 }}
+					transition={{ delay: 0.3, type: 'spring', stiffness: 100 }}
+					className="relative bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl p-5 shadow-lg border-2 border-slate-200/60 dark:border-slate-700/60 overflow-hidden"
 				>
-					<div className="flex items-start gap-3 mb-4">
-						<div className="w-10 h-10 bg-slate-100 dark:bg-slate-700 rounded-lg flex items-center justify-center shrink-0">
-							<MoonIcon className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+					{/* Decorative gradient overlay */}
+					<div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-slate-500/5 via-slate-400/5 to-slate-300/5 rounded-full blur-2xl -z-0" />
+					
+					<div className="flex items-start gap-3 mb-4 relative z-10">
+						<div className="w-12 h-12 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 rounded-xl flex items-center justify-center shrink-0 shadow-sm">
+							<MoonIcon className="w-6 h-6 text-slate-600 dark:text-slate-400" />
 						</div>
 						<div className="flex-1">
 							<h2 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-1">

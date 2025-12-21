@@ -13,6 +13,7 @@ import Input from '../../components/ui/Input';
 import PasswordInput from '../../components/ui/PasswordInput';
 import PhoneInput from '../../components/ui/PhoneInput';
 import OtpInput from '../../components/ui/OtpInput';
+import Checkbox from '../../components/ui/Checkbox';
 import PreferenceSelector from '../../components/auth/PreferenceSelector';
 import AvatarSelector from '../../components/auth/AvatarSelector';
 import SignupProgressSteps from '../../components/auth/SignupProgressSteps';
@@ -122,30 +123,36 @@ export default function SignupPage() {
 	};
 
 	return (
-		<div className="h-screen-vh bg-slate-50 dark:bg-slate-900 flex items-center justify-center px-4 py-2 overflow-y-auto">
+		<div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 flex items-center justify-center px-4 py-8 overflow-y-auto">
 			<motion.div
-				initial={{ opacity: 0, y: 20 }}
-				animate={{ opacity: 1, y: 0 }}
-				transition={{ duration: 0.3 }}
-				className="w-full max-w-2xl bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200/60 dark:border-slate-700/60 p-4 sm:p-6 my-auto max-h-full overflow-y-auto"
+				initial={{ opacity: 0, y: 20, scale: 0.95 }}
+				animate={{ opacity: 1, y: 0, scale: 1 }}
+				transition={{ type: 'spring', stiffness: 100 }}
+				className="relative w-full max-w-2xl bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl shadow-xl border-2 border-slate-200/60 dark:border-slate-700/60 p-6 sm:p-8 my-auto max-h-full overflow-y-auto overflow-x-hidden"
 			>
-				<div className="text-center mb-6">
-					<h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-1.5">
+				{/* Decorative gradient overlay */}
+				<div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-primary-500/10 via-secondary-500/10 to-primary-400/5 rounded-full blur-3xl -z-0" />
+				<div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-secondary-500/10 to-transparent rounded-full blur-2xl -z-0" />
+				
+				<div className="text-center mb-6 relative z-10">
+					<h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">
 						Create Your Account
 					</h1>
-					<p className="text-sm text-slate-600 dark:text-slate-400">Join Zaakiyah and start your journey</p>
+					<p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">Join Zaakiyah and start your journey</p>
 				</div>
 
-				<SignupProgressSteps currentStep={step} />
+				<div className="relative z-10 mb-6">
+					<SignupProgressSteps currentStep={step} />
+				</div>
 				<AnimatePresence>
 					{error && (
 						<motion.div
 							initial={{ opacity: 0, y: -10 }}
 							animate={{ opacity: 1, y: 0 }}
 							exit={{ opacity: 0 }}
-							className="mb-4 p-3 bg-error-50 dark:bg-error-900/20 border border-error-200 dark:border-error-800/30 rounded-lg"
+							className="mb-4 p-4 bg-gradient-to-r from-red-50 to-red-100 dark:from-red-900/30 dark:to-red-800/20 border-2 border-red-200 dark:border-red-800/30 rounded-xl relative z-10"
 						>
-							<p className="text-sm text-error-600 dark:text-error-400">{error}</p>
+							<p className="text-sm font-medium text-red-600 dark:text-red-400">{error}</p>
 						</motion.div>
 					)}
 				</AnimatePresence>
@@ -157,7 +164,8 @@ export default function SignupPage() {
 							initial={{ opacity: 0, x: -20 }}
 							animate={{ opacity: 1, x: 0 }}
 							exit={{ opacity: 0, x: 20 }}
-							className="space-y-4"
+							transition={{ type: 'spring', stiffness: 200 }}
+							className="space-y-5 relative z-10"
 						>
 							<Input
 								label="Email Address"
@@ -185,7 +193,8 @@ export default function SignupPage() {
 							initial={{ opacity: 0, x: -20 }}
 							animate={{ opacity: 1, x: 0 }}
 							exit={{ opacity: 0, x: 20 }}
-							className="space-y-4"
+							transition={{ type: 'spring', stiffness: 200 }}
+							className="space-y-5 relative z-10"
 						>
 							<div>
 								<p className="text-base sm:text-sm text-slate-600 dark:text-slate-400 mb-8 sm:mb-6 text-center">
@@ -250,7 +259,8 @@ export default function SignupPage() {
 							initial={{ opacity: 0, x: -20 }}
 							animate={{ opacity: 1, x: 0 }}
 							exit={{ opacity: 0, x: 20 }}
-							className="space-y-4"
+							transition={{ type: 'spring', stiffness: 200 }}
+							className="space-y-5 relative z-10"
 						>
 							<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 								<Input
@@ -434,28 +444,23 @@ export default function SignupPage() {
 								error={errors.preferences?.message}
 							/>
 
-							<div className="flex items-start">
-								<input
-									id="acceptTerms"
-									type="checkbox"
-									className="mt-1 h-4 w-4 text-primary-600 dark:text-primary-400 focus:ring-primary-500 dark:focus:ring-primary-400 border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800"
-									{...register('acceptTerms')}
-								/>
-								<label
-									htmlFor="acceptTerms"
-									className="ml-3 text-sm text-slate-700 dark:text-slate-300"
-								>
-									I accept the{' '}
-									<a
-										href={WEBSITE_PAGES.TERMS}
-										target="_blank"
-										rel="noopener noreferrer"
-										className="text-primary-600 dark:text-primary-400 hover:text-primary-500 dark:hover:text-primary-300 underline"
-									>
-										Terms and Conditions
-									</a>
-								</label>
-							</div>
+							<Checkbox
+								checked={watch('acceptTerms') || false}
+								onChange={(checked) => setValue('acceptTerms', checked)}
+								label={
+									<>
+										I accept the{' '}
+										<a
+											href={WEBSITE_PAGES.TERMS}
+											target="_blank"
+											rel="noopener noreferrer"
+											className="text-primary-600 dark:text-primary-400 hover:text-primary-500 dark:hover:text-primary-300 underline"
+										>
+											Terms and Conditions
+										</a>
+									</>
+								}
+							/>
 							{errors.acceptTerms && (
 								<p className="text-sm text-error-600 dark:text-error-400">{errors.acceptTerms.message}</p>
 							)}

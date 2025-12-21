@@ -3,10 +3,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { communityService } from '../../services/communityService';
 import { alert } from '../../store/alertStore';
 import { logger } from '../../utils/logger';
+import { useAuthStore } from '../../store/authStore';
 import { XMarkIcon, PhotoIcon, TrashIcon } from '@heroicons/react/24/outline';
 import Checkbox from '../ui/Checkbox';
 import type { CreatePostData } from '../../types/community.types';
 import { PostType } from '../../types/community.types';
+import { useUserTagging, UserTaggingSuggestions } from '../../hooks/useUserTagging';
+import MentionTextarea from '../ui/MentionTextarea';
 
 interface CreatePostModalProps {
 	isOpen: boolean;
@@ -25,6 +28,7 @@ interface MediaItem {
 }
 
 export default function CreatePostModal({ isOpen, onClose, onSuccess }: CreatePostModalProps) {
+	const { user } = useAuthStore();
 	const [content, setContent] = useState('');
 	const [type, setType] = useState<PostType>(PostType.GENERAL);
 	const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
@@ -32,6 +36,24 @@ export default function CreatePostModal({ isOpen, onClose, onSuccess }: CreatePo
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const uploadedUrlsRef = useRef<string[]>([]); // Track uploaded URLs for cleanup
+	const textareaRef = useRef<HTMLTextAreaElement>(null);
+	const suggestionsRef = useRef<HTMLDivElement>(null);
+
+	// User tagging hook
+	const {
+		handleChange: handleTaggingChange,
+		handleKeyDown: handleTaggingKeyDown,
+		showSuggestions,
+		suggestions,
+		selectedIndex,
+		insertMention,
+		isSearching,
+	} = useUserTagging({
+		value: content,
+		onChange: setContent,
+		textareaRef,
+		currentUserId: user?.id,
+	});
 
 	// Cleanup uploaded media when modal closes without posting
 	useEffect(() => {
@@ -340,14 +362,26 @@ export default function CreatePostModal({ isOpen, onClose, onSuccess }: CreatePo
 									<label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
 										What's on your mind?
 									</label>
-									<textarea
-										value={content}
-										onChange={(e) => setContent(e.target.value)}
-										placeholder="Share your thoughts, questions, or experiences..."
-										rows={10}
-										maxLength={5000}
-										className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-xl text-[15px] text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
-									/>
+									<div className="relative">
+										<MentionTextarea
+											ref={textareaRef}
+											value={content}
+											onChange={handleTaggingChange}
+											onKeyDown={handleTaggingKeyDown}
+											placeholder="Share your thoughts, questions, or experiences..."
+											rows={10}
+											maxLength={5000}
+											className="w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl text-[15px] text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:focus:ring-primary-400/20 focus:border-primary-500 dark:focus:border-primary-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/20 dark:focus-visible:ring-primary-400/20 focus-visible:border-primary-500 dark:focus-visible:border-primary-400 resize-none"
+										/>
+										<UserTaggingSuggestions
+											show={showSuggestions}
+											suggestions={suggestions}
+											selectedIndex={selectedIndex}
+											onSelect={insertMention}
+											isSearching={isSearching}
+											ref={suggestionsRef}
+										/>
+									</div>
 									<p className="text-xs text-slate-500 dark:text-slate-400 mt-2 text-right">
 										{content.length}/5000
 									</p>

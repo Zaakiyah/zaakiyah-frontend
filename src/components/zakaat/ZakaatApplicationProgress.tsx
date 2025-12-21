@@ -142,14 +142,14 @@ export default function ZakaatApplicationProgress({
 						{visibleSteps[currentStepIndex]?.label}
 					</span>
 				</div>
-				<div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
+				<div className="w-full bg-gradient-to-r from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-800 rounded-full h-2.5 overflow-hidden shadow-inner">
 					<motion.div
 						initial={{ width: 0 }}
 						animate={{
 							width: `${((currentStepIndex + 1) / visibleSteps.length) * 100}%`,
 						}}
 						transition={{ duration: 0.3, ease: 'easeOut' }}
-						className="h-full bg-primary-500 rounded-full"
+						className="h-full bg-gradient-to-r from-primary-500 via-primary-600 to-primary-700 rounded-full shadow-sm"
 					/>
 				</div>
 			</div>
@@ -187,10 +187,10 @@ export default function ZakaatApplicationProgress({
 											transition-all duration-300
 											${
 												isCompleted
-													? 'bg-primary-500 text-white shadow-lg shadow-primary-500/30'
+													? 'bg-gradient-to-br from-primary-500 to-primary-600 text-white shadow-lg shadow-primary-500/30'
 													: isCurrent
-													? 'bg-primary-500 text-white shadow-lg shadow-primary-500/30 ring-4 ring-primary-200 dark:ring-primary-800'
-													: 'bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400'
+													? 'bg-gradient-to-br from-primary-500 to-primary-600 text-white shadow-lg shadow-primary-500/30 ring-4 ring-primary-200 dark:ring-primary-800'
+													: 'bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-800 text-slate-500 dark:text-slate-400'
 											}
 										`}
 									>
@@ -226,10 +226,10 @@ export default function ZakaatApplicationProgress({
 											w-6 md:w-12 lg:w-16 h-1 mx-1 md:mx-2 rounded-full transition-all duration-500
 											${
 												isCompleted
-													? 'bg-primary-500'
+													? 'bg-gradient-to-r from-primary-500 to-primary-600'
 													: isCurrent
-													? 'bg-primary-300 dark:bg-primary-700'
-													: 'bg-slate-200 dark:bg-slate-700'
+													? 'bg-gradient-to-r from-primary-300 to-primary-400 dark:from-primary-700 dark:to-primary-800'
+													: 'bg-gradient-to-r from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-800'
 											}
 										`}
 									/>

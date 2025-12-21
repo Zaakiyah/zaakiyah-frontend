@@ -105,14 +105,17 @@ export default function Alert({
 							initial={{ opacity: 0, scale: 0.95, y: 20 }}
 							animate={{ opacity: 1, scale: 1, y: 0 }}
 							exit={{ opacity: 0, scale: 0.95, y: 20 }}
-							transition={{ duration: 0.2 }}
-							className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200/60 dark:border-slate-700/60 w-full max-w-sm pointer-events-auto"
+							transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+							className="relative bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl shadow-xl border-2 border-slate-200/60 dark:border-slate-700/60 w-full max-w-sm pointer-events-auto overflow-hidden"
 						>
-							<div className="p-6">
+							{/* Decorative gradient overlay */}
+							<div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary-500/5 to-secondary-500/5 rounded-full blur-2xl -z-0" />
+							
+							<div className="p-6 relative z-10">
 								{showIcon && (
 									<div className="flex justify-center mb-4">
 										<div
-											className={`w-12 h-12 rounded-full ${variantStyle.iconBg} flex items-center justify-center`}
+											className={`w-14 h-14 rounded-2xl ${variantStyle.iconBg} flex items-center justify-center shadow-lg`}
 										>
 											<DefaultIcon
 												className={`w-6 h-6 ${variantStyle.iconColor}`}
@@ -127,7 +130,7 @@ export default function Alert({
 									</h3>
 								)}
 
-								<p className="text-sm text-slate-600 dark:text-slate-400 text-center mb-6">
+								<p className="text-sm text-slate-600 dark:text-slate-400 text-center mb-6 leading-relaxed">
 									{message}
 								</p>
 

@@ -132,20 +132,21 @@ export default function OtpInput({
 							text-center text-lg min-[375px]:text-xl sm:text-2xl md:text-2xl lg:text-xl xl:text-xl 2xl:text-lg font-bold
 							border-2 rounded-xl
 							transition-all duration-200
-							focus:outline-none focus:ring-2 focus:ring-offset-1 sm:focus:ring-offset-2
-							flex-shrink-0
+							focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:focus:ring-primary-400/20 focus:border-primary-500 dark:focus:border-primary-400
+							focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/20 dark:focus-visible:ring-primary-400/20 focus-visible:border-primary-500 dark:focus-visible:border-primary-400
+							shrink-0 shadow-sm hover:shadow-md focus:shadow-lg
 							${
 								error
-									? 'border-red-300 dark:border-red-600 focus:border-red-500 dark:focus:border-red-500 focus:ring-red-200 dark:focus:ring-red-800/30 bg-red-50 dark:bg-red-900/20 text-slate-900 dark:text-slate-100'
+									? 'border-red-500 dark:border-red-500 focus:border-red-500 dark:focus:border-red-500 focus:ring-red-500/20 focus-visible:border-red-500 dark:focus-visible:border-red-500 focus-visible:ring-red-500/20 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100'
 									: activeIndex === index
-									? 'border-primary-500 dark:border-primary-400 focus:border-primary-600 dark:focus:border-primary-500 focus:ring-primary-200 dark:focus:ring-primary-800/30 bg-primary-50 dark:bg-primary-900/20 text-slate-900 dark:text-slate-100'
-									: 'border-slate-200 dark:border-slate-700 focus:border-primary-500 dark:focus:border-primary-400 focus:ring-primary-200 dark:focus:ring-primary-800/30 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100'
+									? 'border-primary-500 dark:border-primary-400 focus:border-primary-500 dark:focus:border-primary-400 focus:ring-primary-500/20 focus-visible:border-primary-500 dark:focus-visible:border-primary-400 focus-visible:ring-primary-500/20 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 shadow-md shadow-primary-500/20 dark:shadow-primary-400/20'
+									: 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100'
 							}
 							${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-text'}
 						`}
 						initial={{ scale: 1 }}
 						whileFocus={{ scale: 1.05 }}
-						transition={{ duration: 0.2 }}
+						transition={{ type: 'spring', stiffness: 300, damping: 20 }}
 					/>
 				))}
 			</div>

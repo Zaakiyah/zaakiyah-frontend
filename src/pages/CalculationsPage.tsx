@@ -139,14 +139,14 @@ export default function CalculationsPage() {
 	};
 
 	return (
-		<div className="min-h-screen bg-slate-50 dark:bg-slate-900 pb-20">
+		<div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 pb-20">
 			{/* Header */}
-			<header className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border-b border-slate-200/60 dark:border-slate-700/60 sticky top-0 z-40 shadow-sm">
+			<header className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl border-b-2 border-primary-500/20 dark:border-primary-400/20 sticky top-0 z-40 shadow-sm">
 				<div className="px-4 py-3">
 					<div className="flex items-center gap-3">
 						<button
 							onClick={() => navigate('/dashboard')}
-							className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-all active:scale-95"
+							className="p-2 rounded-xl hover:bg-gradient-to-r hover:from-slate-100 hover:to-slate-50 dark:hover:from-slate-700 dark:hover:to-slate-800 transition-all active:scale-95"
 							aria-label="Go back"
 							type="button"
 						>
@@ -165,7 +165,7 @@ export default function CalculationsPage() {
 			</header>
 
 			{/* Filters */}
-			<div className="px-4 py-3 bg-white dark:bg-slate-800 border-b border-slate-200/60 dark:border-slate-700/60">
+			<div className="px-4 py-3 bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 border-b-2 border-slate-200/60 dark:border-slate-700/60">
 				<div className="flex gap-2 overflow-x-auto scrollbar-hide">
 					{(['all', 'active', 'archived', 'completed'] as FilterStatus[]).map(
 						(status) => (
@@ -175,10 +175,10 @@ export default function CalculationsPage() {
 									setFilterStatus(status);
 									setPage(1);
 								}}
-								className={`px-4 py-2 text-sm font-semibold rounded-lg whitespace-nowrap transition-all ${
+								className={`px-4 py-2.5 text-sm font-semibold rounded-xl whitespace-nowrap transition-all ${
 									filterStatus === status
-										? 'bg-primary-500 text-white shadow-sm'
-										: 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'
+										? 'bg-gradient-to-br from-primary-500 to-primary-600 text-white shadow-sm shadow-primary-500/20'
+										: 'bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 text-slate-700 dark:text-slate-300 hover:from-slate-200 hover:to-slate-300 dark:hover:from-slate-600 dark:hover:to-slate-700 shadow-sm'
 								}`}
 							>
 								{status.charAt(0).toUpperCase() + status.slice(1)}
@@ -221,12 +221,15 @@ export default function CalculationsPage() {
 						{calculations.map((calculation) => (
 							<motion.div
 								key={calculation.id}
-								initial={{ opacity: 0, y: 10 }}
-								animate={{ opacity: 1, y: 0 }}
-								className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-slate-200/60 dark:border-slate-700/60"
+								initial={{ opacity: 0, y: 10, scale: 0.95 }}
+								animate={{ opacity: 1, y: 0, scale: 1 }}
+								transition={{ type: 'spring', stiffness: 100 }}
+								className="relative bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl p-5 shadow-lg border-2 border-slate-200/60 dark:border-slate-700/60 overflow-hidden"
 							>
+								{/* Decorative gradient overlay */}
+								<div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary-500/5 via-secondary-500/5 to-primary-400/5 rounded-full blur-2xl -z-0" />
 								{/* Header */}
-								<div className="flex items-start justify-between mb-3">
+								<div className="flex items-start justify-between mb-3 relative z-10">
 									<div className="flex-1">
 										<div className="flex items-center gap-2 mb-1">
 											{calculation.name ? (
@@ -247,7 +250,7 @@ export default function CalculationsPage() {
 									</div>
 									<button
 										onClick={() => navigate(`/calculations/${calculation.id}`)}
-										className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-all"
+										className="p-2 rounded-xl hover:bg-gradient-to-r hover:from-slate-100 hover:to-slate-50 dark:hover:from-slate-700 dark:hover:to-slate-800 transition-all"
 										aria-label="View calculation details"
 										type="button"
 									>
@@ -256,8 +259,8 @@ export default function CalculationsPage() {
 								</div>
 
 								{/* Summary */}
-								<div className="grid grid-cols-2 gap-3 mb-3">
-									<div className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+								<div className="grid grid-cols-2 gap-3 mb-3 relative z-10">
+									<div className="p-3 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-700/50 dark:to-slate-800/50 rounded-xl shadow-sm">
 										<CurrencyDisplay
 											amount={calculation.netWorth || 0}
 											originalCurrency={
@@ -269,7 +272,7 @@ export default function CalculationsPage() {
 											size="sm"
 										/>
 									</div>
-									<div className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+									<div className="p-3 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-700/50 dark:to-slate-800/50 rounded-xl shadow-sm">
 										{calculation.zakatDue !== null &&
 										calculation.zakatDue !== undefined ? (
 											<CurrencyDisplay
@@ -326,7 +329,7 @@ export default function CalculationsPage() {
 								</div>
 
 								{/* Actions */}
-								<div className="flex items-center gap-2 pt-3 border-t border-slate-200 dark:border-slate-700">
+								<div className="flex items-center gap-2 pt-3 border-t-2 border-slate-200/60 dark:border-slate-700/60 relative z-10">
 									{calculation.status !== 'completed' && (
 										<button
 											onClick={() => handleMarkCompleted(calculation.id)}
@@ -377,7 +380,7 @@ export default function CalculationsPage() {
 						<button
 							onClick={() => setPage((p) => Math.max(1, p - 1))}
 							disabled={page === 1}
-							className="px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+							className="px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300 bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-xl border-2 border-slate-200/60 dark:border-slate-700/60 hover:from-slate-50 hover:to-slate-100 dark:hover:from-slate-700 dark:hover:to-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
 							type="button"
 						>
 							Previous
@@ -388,7 +391,7 @@ export default function CalculationsPage() {
 						<button
 							onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
 							disabled={page === totalPages}
-							className="px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+							className="px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300 bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-xl border-2 border-slate-200/60 dark:border-slate-700/60 hover:from-slate-50 hover:to-slate-100 dark:hover:from-slate-700 dark:hover:to-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
 							type="button"
 						>
 							Next

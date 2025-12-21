@@ -54,7 +54,7 @@ export default function BottomNavigation() {
 	const openChat = useAiChatStore((state) => state.openChat);
 
 	return (
-		<nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 z-50 safe-area-inset-bottom">
+		<nav className="fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl border-t-2 border-slate-200/60 dark:border-slate-700/60 z-50 safe-area-inset-bottom shadow-lg">
 			<div className="flex items-center justify-around h-16 px-2 relative">
 				{/* Left navigation items */}
 				<div className="flex items-center justify-around flex-1">
@@ -66,17 +66,35 @@ export default function BottomNavigation() {
 							<Link
 								key={item.path}
 								to={item.path}
-								className="flex flex-col items-center justify-center flex-1 h-full transition-colors"
+								className="flex flex-col items-center justify-center flex-1 h-full transition-all relative group"
 							>
-								<Icon
-									className={`w-6 h-6 mb-1 ${
+								{isActive && (
+									<motion.div
+										layoutId="activeNavIndicator"
+										className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary-500 via-primary-600 to-primary-700 rounded-b-full"
+										transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+									/>
+								)}
+								<motion.div
+									whileHover={{ scale: 1.1, y: -2 }}
+									whileTap={{ scale: 0.95 }}
+									transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+									className={`p-2 rounded-xl transition-all ${
 										isActive
-											? 'text-primary-600 dark:text-primary-400'
-											: 'text-slate-400 dark:text-slate-500'
+											? 'bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/30 dark:to-primary-800/20'
+											: 'group-hover:bg-slate-100 dark:group-hover:bg-slate-700/50'
 									}`}
-								/>
+								>
+									<Icon
+										className={`w-6 h-6 ${
+											isActive
+												? 'text-primary-600 dark:text-primary-400'
+												: 'text-slate-400 dark:text-slate-500'
+										}`}
+									/>
+								</motion.div>
 								<span
-									className={`text-xs font-medium ${
+									className={`text-xs font-semibold mt-1 ${
 										isActive
 											? 'text-primary-600 dark:text-primary-400'
 											: 'text-slate-500 dark:text-slate-400'
@@ -176,17 +194,35 @@ export default function BottomNavigation() {
 							<Link
 								key={item.path}
 								to={item.path}
-								className="flex flex-col items-center justify-center flex-1 h-full transition-colors"
+								className="flex flex-col items-center justify-center flex-1 h-full transition-all relative group"
 							>
-								<Icon
-									className={`w-6 h-6 mb-1 ${
+								{isActive && (
+									<motion.div
+										layoutId="activeNavIndicatorRight"
+										className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary-500 via-primary-600 to-primary-700 rounded-b-full"
+										transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+									/>
+								)}
+								<motion.div
+									whileHover={{ scale: 1.1, y: -2 }}
+									whileTap={{ scale: 0.95 }}
+									transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+									className={`p-2 rounded-xl transition-all ${
 										isActive
-											? 'text-primary-600 dark:text-primary-400'
-											: 'text-slate-400 dark:text-slate-500'
+											? 'bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/30 dark:to-primary-800/20'
+											: 'group-hover:bg-slate-100 dark:group-hover:bg-slate-700/50'
 									}`}
-								/>
+								>
+									<Icon
+										className={`w-6 h-6 ${
+											isActive
+												? 'text-primary-600 dark:text-primary-400'
+												: 'text-slate-400 dark:text-slate-500'
+										}`}
+									/>
+								</motion.div>
 								<span
-									className={`text-xs font-medium ${
+									className={`text-xs font-semibold mt-1 ${
 										isActive
 											? 'text-primary-600 dark:text-primary-400'
 											: 'text-slate-500 dark:text-slate-400'

@@ -22,18 +22,18 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 		ref
 	) => {
 		const baseStyles =
-			'inline-flex items-center justify-center font-semibold rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]';
+			'inline-flex items-center justify-center font-semibold rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
 
 		const variants = {
 			primary:
-				'bg-primary-500 dark:bg-primary-600 text-white hover:bg-primary-600 dark:hover:bg-primary-700 focus:ring-primary-500 dark:focus:ring-primary-400 shadow-md shadow-primary-500/20 dark:shadow-primary-600/20 hover:shadow-lg hover:shadow-primary-500/30 dark:hover:shadow-primary-600/30',
+				'bg-gradient-to-r from-primary-500 via-primary-600 to-primary-700 dark:from-primary-600 dark:via-primary-700 dark:to-primary-800 text-white hover:from-primary-600 hover:via-primary-700 hover:to-primary-800 dark:hover:from-primary-700 dark:hover:via-primary-800 dark:hover:to-primary-900 focus:ring-primary-500/20 dark:focus:ring-primary-400/20 shadow-lg shadow-primary-500/30 dark:shadow-primary-600/30 hover:shadow-xl hover:shadow-primary-500/40 dark:hover:shadow-primary-600/40',
 			secondary:
-				'bg-secondary-500 dark:bg-secondary-600 text-primary-900 dark:text-primary-100 hover:bg-secondary-600 dark:hover:bg-secondary-700 focus:ring-secondary-500 dark:focus:ring-secondary-400 shadow-md shadow-secondary-500/20 dark:shadow-secondary-600/20 hover:shadow-lg hover:shadow-secondary-500/30 dark:hover:shadow-secondary-600/30',
+				'bg-gradient-to-r from-secondary-500 via-secondary-600 to-secondary-700 dark:from-secondary-600 dark:via-secondary-700 dark:to-secondary-800 text-primary-900 dark:text-primary-100 hover:from-secondary-600 hover:via-secondary-700 hover:to-secondary-800 dark:hover:from-secondary-700 dark:hover:via-secondary-800 dark:hover:to-secondary-900 focus:ring-secondary-500/20 dark:focus:ring-secondary-400/20 shadow-lg shadow-secondary-500/30 dark:shadow-secondary-600/30 hover:shadow-xl hover:shadow-secondary-500/40 dark:hover:shadow-secondary-600/40',
 			outline:
-				'border-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 focus:ring-slate-500 dark:focus:ring-slate-400 hover:border-slate-400 dark:hover:border-slate-500 bg-white dark:bg-slate-800',
-			ghost: 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 focus:ring-slate-500 dark:focus:ring-slate-400',
+				'border-2 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-gradient-to-r hover:from-slate-50 hover:to-slate-100 dark:hover:from-slate-700 dark:hover:to-slate-800 focus:ring-slate-500/20 dark:focus:ring-slate-400/20 hover:border-slate-300 dark:hover:border-slate-600 bg-white dark:bg-slate-800 shadow-sm hover:shadow-md',
+			ghost: 'text-slate-700 dark:text-slate-300 hover:bg-gradient-to-r hover:from-slate-100 hover:to-slate-50 dark:hover:from-slate-700 dark:hover:to-slate-800 focus:ring-slate-500/20 dark:focus:ring-slate-400/20',
 			danger:
-				'bg-error-500 dark:bg-error-600 text-white hover:bg-error-600 dark:hover:bg-error-700 focus:ring-error-500 dark:focus:ring-error-400 shadow-md shadow-error-500/20 dark:shadow-error-600/20 hover:shadow-lg hover:shadow-error-500/30 dark:hover:shadow-error-600/30',
+				'bg-gradient-to-r from-red-500 via-red-600 to-red-700 dark:from-red-600 dark:via-red-700 dark:to-red-800 text-white hover:from-red-600 hover:via-red-700 hover:to-red-800 dark:hover:from-red-700 dark:hover:via-red-800 dark:hover:to-red-900 focus:ring-red-500/20 dark:focus:ring-red-400/20 shadow-lg shadow-red-500/30 dark:shadow-red-600/30 hover:shadow-xl hover:shadow-red-500/40 dark:hover:shadow-red-600/40',
 		};
 
 		const sizes = {
@@ -45,8 +45,9 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 		return (
 			<motion.button
 				ref={ref}
-				whileHover={{ scale: disabled || isLoading ? 1 : 1.02 }}
-				whileTap={{ scale: disabled || isLoading ? 1 : 0.98 }}
+				whileHover={disabled || isLoading ? {} : { scale: 1.02, y: -1 }}
+				whileTap={disabled || isLoading ? {} : { scale: 0.98 }}
+				transition={{ type: 'spring', stiffness: 300, damping: 20 }}
 				className={`${baseStyles} ${variants[variant]} ${sizes[size]} ${className}`}
 				disabled={disabled || isLoading}
 				{...(props as any)}

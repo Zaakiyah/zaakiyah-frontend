@@ -164,8 +164,8 @@ export default function KnowledgeBase({ searchQuery: propSearchQuery = '' }: Kno
 							onClick={() => setFilter({ ...filter, type: undefined })}
 							className={`px-4 py-2.5 text-sm font-semibold rounded-xl whitespace-nowrap transition-all ${
 								!filter.type
-									? 'text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/20 shadow-sm'
-									: 'text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/50 border border-slate-200 dark:border-slate-700'
+									? 'text-primary-600 dark:text-primary-400 bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-900/30 shadow-sm'
+									: 'text-slate-600 dark:text-slate-400 bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 hover:from-slate-50 hover:to-slate-100 dark:hover:from-slate-700 dark:hover:to-slate-800 border-2 border-slate-200/60 dark:border-slate-700/60 shadow-sm'
 							}`}
 						>
 							All
@@ -179,8 +179,8 @@ export default function KnowledgeBase({ searchQuery: propSearchQuery = '' }: Kno
 										onClick={() => setFilter({ ...filter, type })}
 										className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold rounded-xl whitespace-nowrap transition-all ${
 											filter.type === type
-												? 'text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/20 shadow-sm'
-												: 'text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/50 border border-slate-200 dark:border-slate-700'
+												? 'text-primary-600 dark:text-primary-400 bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-900/30 shadow-sm'
+												: 'text-slate-600 dark:text-slate-400 bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 hover:from-slate-50 hover:to-slate-100 dark:hover:from-slate-700 dark:hover:to-slate-800 border-2 border-slate-200/60 dark:border-slate-700/60 shadow-sm'
 										}`}
 									>
 										<Icon className="w-4 h-4" />
@@ -222,8 +222,8 @@ export default function KnowledgeBase({ searchQuery: propSearchQuery = '' }: Kno
 								onClick={() => setFilter({ ...filter, category })}
 								className={`px-4 py-2.5 text-sm font-semibold rounded-xl whitespace-nowrap transition-all ${
 									filter.category === category
-										? 'text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/20 shadow-sm'
-										: 'text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/50 border border-slate-200 dark:border-slate-700'
+										? 'text-primary-600 dark:text-primary-400 bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-900/30 shadow-sm'
+										: 'text-slate-600 dark:text-slate-400 bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 hover:from-slate-50 hover:to-slate-100 dark:hover:from-slate-700 dark:hover:to-slate-800 border-2 border-slate-200/60 dark:border-slate-700/60 shadow-sm'
 								}`}
 							>
 								{getCategoryLabel(category)}
@@ -239,8 +239,8 @@ export default function KnowledgeBase({ searchQuery: propSearchQuery = '' }: Kno
 					}
 					className={`w-full px-4 py-2.5 text-sm font-semibold rounded-xl transition-all ${
 						filter.featured
-							? 'text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/20 shadow-sm'
-							: 'text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/50 border border-slate-200 dark:border-slate-700'
+							? 'text-primary-600 dark:text-primary-400 bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-900/30 shadow-sm'
+							: 'text-slate-600 dark:text-slate-400 bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 hover:from-slate-50 hover:to-slate-100 dark:hover:from-slate-700 dark:hover:to-slate-800 border-2 border-slate-200/60 dark:border-slate-700/60 shadow-sm'
 					}`}
 				>
 					{filter.featured ? 'Showing Featured' : 'Show Featured Only'}

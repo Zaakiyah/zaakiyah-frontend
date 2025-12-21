@@ -138,7 +138,7 @@ export default function EditProfilePage() {
 						{Array.from({ length: 5 }).map((_, index) => (
 							<div
 								key={index}
-								className="bg-white dark:bg-slate-800 rounded-lg p-3 shadow-sm border border-slate-200/60 dark:border-slate-700/60"
+								className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-xl p-4 shadow-lg border-2 border-slate-200/60 dark:border-slate-700/60"
 							>
 								<div className="h-16 bg-slate-100 dark:bg-slate-700 rounded-lg animate-pulse" />
 							</div>
@@ -158,13 +158,13 @@ export default function EditProfilePage() {
 				<motion.div
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
-					className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200/60 dark:border-slate-700/60 p-4"
+					className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl shadow-lg border-2 border-slate-200/60 dark:border-slate-700/60 p-6"
 				>
 					{error && (
 						<motion.div
 							initial={{ opacity: 0, y: -10 }}
 							animate={{ opacity: 1, y: 0 }}
-							className="mb-4 p-3 bg-error-50 border border-error-200 rounded-lg flex items-start justify-between gap-2"
+							className="mb-4 p-4 bg-gradient-to-r from-red-50 to-red-100 dark:from-red-900/30 dark:to-red-800/20 border-2 border-red-200 dark:border-red-800/30 rounded-xl flex items-start justify-between gap-2"
 						>
 							<p className="text-sm text-error-600 flex-1">{error}</p>
 							<button

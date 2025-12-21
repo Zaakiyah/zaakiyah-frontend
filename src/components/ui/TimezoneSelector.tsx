@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { ChevronDownIcon } from '@heroicons/react/24/outline';
 import { AnimatePresence, motion } from 'framer-motion';
 
@@ -84,7 +85,9 @@ export default function TimezoneSelector({
 }: TimezoneSelectorProps) {
 	const [isOpen, setIsOpen] = useState(false);
 	const [searchQuery, setSearchQuery] = useState('');
+	const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
 	const dropdownRef = useRef<HTMLDivElement>(null);
+	const buttonRef = useRef<HTMLButtonElement>(null);
 	const searchInputRef = useRef<HTMLInputElement>(null);
 
 	const selectedTimezone = TIMEZONES.find((tz) => tz.value === value) || TIMEZONES[0];
@@ -123,10 +126,27 @@ export default function TimezoneSelector({
 		return filtered;
 	}, [searchQuery, groupedTimezones]);
 
+	// Calculate dropdown position when opening
+	useEffect(() => {
+		if (isOpen && buttonRef.current) {
+			const rect = buttonRef.current.getBoundingClientRect();
+			setDropdownPosition({
+				top: rect.bottom + window.scrollY + 8,
+				left: rect.left + window.scrollX,
+				width: rect.width,
+			});
+		}
+	}, [isOpen]);
+
 	// Close dropdown when clicking outside
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
-			if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+			if (
+				dropdownRef.current &&
+				!dropdownRef.current.contains(event.target as Node) &&
+				buttonRef.current &&
+				!buttonRef.current.contains(event.target as Node)
+			) {
 				setIsOpen(false);
 				setSearchQuery('');
 			}
@@ -157,24 +177,26 @@ export default function TimezoneSelector({
 	};
 
 	return (
-		<div className={`relative ${className}`} ref={dropdownRef}>
+		<div className={`relative z-10 ${className}`} ref={dropdownRef}>
 			{label && (
-				<label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+				<label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
 					{label}
 				</label>
 			)}
 
 			<button
+				ref={buttonRef}
 				type="button"
 				onClick={() => !disabled && setIsOpen(!isOpen)}
 				disabled={disabled}
 				className={`
-					w-full px-4 py-2.5 text-left bg-white dark:bg-slate-800 border-2 rounded-lg
-					flex items-center justify-between gap-2
-					transition-colors
-					border-slate-300 dark:border-slate-600
-					focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:focus:border-primary-400
-					${disabled ? 'bg-slate-50 dark:bg-slate-700 cursor-not-allowed opacity-60' : 'hover:border-slate-400 dark:hover:border-slate-600 cursor-pointer'}
+					w-full px-4 py-3 text-left bg-white dark:bg-slate-800 border-2 rounded-xl
+					flex items-center justify-between gap-2 font-medium
+					transition-all shadow-sm hover:shadow-md focus:shadow-lg
+					border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600
+					focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:focus:ring-primary-400/20 focus:border-primary-500 dark:focus:border-primary-400
+					${isOpen ? 'ring-2 ring-primary-500/20 dark:ring-primary-400/20 border-primary-500 dark:border-primary-400 shadow-lg' : ''}
+					${disabled ? 'bg-slate-50 dark:bg-slate-700 cursor-not-allowed opacity-60' : 'cursor-pointer'}
 				`}
 			>
 				<span className="block truncate text-slate-900 dark:text-slate-100 text-sm">
@@ -191,15 +213,23 @@ export default function TimezoneSelector({
 				<p className="mt-1.5 text-xs text-slate-500 dark:text-slate-400">{helperText}</p>
 			)}
 
-			<AnimatePresence>
-				{isOpen && (
-					<motion.div
-						initial={{ opacity: 0, y: -10 }}
-						animate={{ opacity: 1, y: 0 }}
-						exit={{ opacity: 0, y: -10 }}
-						transition={{ duration: 0.2 }}
-						className="absolute z-50 mt-2 w-full bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700 max-h-80 overflow-hidden"
-					>
+			{typeof window !== 'undefined' &&
+				createPortal(
+					<AnimatePresence>
+						{isOpen && (
+							<motion.div
+								ref={dropdownRef}
+								initial={{ opacity: 0, y: -10, scale: 0.95 }}
+								animate={{ opacity: 1, y: 0, scale: 1 }}
+								exit={{ opacity: 0, y: -10, scale: 0.95 }}
+								transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+								className="fixed z-[9998] bg-white dark:bg-slate-800 rounded-xl shadow-2xl border-2 border-slate-200 dark:border-slate-700 max-h-80 overflow-hidden"
+								style={{
+									top: `${dropdownPosition.top}px`,
+									left: `${dropdownPosition.left}px`,
+									width: `${dropdownPosition.width}px`,
+								}}
+							>
 						{/* Search Input */}
 						<div className="p-3 border-b border-slate-200 dark:border-slate-700">
 							<input
@@ -208,7 +238,7 @@ export default function TimezoneSelector({
 								placeholder="Search timezone..."
 								value={searchQuery}
 								onChange={(e) => setSearchQuery(e.target.value)}
-								className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:focus:border-primary-400 text-slate-900 dark:text-slate-100"
+								className="w-full px-3 py-2 text-sm font-medium bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:focus:ring-primary-400/20 focus:border-primary-500 dark:focus:border-primary-400 text-slate-900 dark:text-slate-100 shadow-sm"
 							/>
 						</div>
 
@@ -216,7 +246,7 @@ export default function TimezoneSelector({
 						<div className="overflow-y-auto max-h-64">
 							{Object.entries(filteredGroupedTimezones).map(([group, timezones]) => (
 								<div key={group}>
-									<div className="px-3 py-2 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider bg-slate-50 dark:bg-slate-700/50 sticky top-0">
+									<div className="px-3 py-2 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-700 dark:to-slate-800 sticky top-0">
 										{group}
 									</div>
 									{timezones.map((timezone) => {
@@ -227,10 +257,10 @@ export default function TimezoneSelector({
 												type="button"
 												onClick={() => handleSelect(timezone.value)}
 												className={`
-													w-full px-4 py-2.5 text-left text-sm transition-colors
+													w-full px-4 py-3 text-left text-sm font-medium transition-all duration-200
 													${isSelected
-														? 'bg-primary-50 dark:bg-primary-900/30 text-primary-900 dark:text-primary-100 font-medium'
-														: 'text-slate-900 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-700/50'
+														? 'bg-gradient-to-r from-primary-50 to-primary-100 dark:from-primary-900/30 dark:to-primary-800/20 text-primary-900 dark:text-primary-100'
+														: 'text-slate-900 dark:text-slate-100 hover:bg-gradient-to-r hover:from-slate-50 hover:to-slate-100 dark:hover:from-slate-700 dark:hover:to-slate-800'
 													}
 												`}
 											>
@@ -252,9 +282,11 @@ export default function TimezoneSelector({
 								No timezones found
 							</div>
 						)}
-					</motion.div>
+							</motion.div>
+						)}
+					</AnimatePresence>,
+					document.body
 				)}
-			</AnimatePresence>
 		</div>
 	);
 }

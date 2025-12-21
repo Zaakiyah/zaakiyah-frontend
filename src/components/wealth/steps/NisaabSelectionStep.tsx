@@ -141,7 +141,7 @@ export default function NisaabSelectionStep({ onNext, onBack }: NisaabSelectionS
 			</div>
 
 			{/* Net Worth Summary */}
-			<div className="p-4 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-200 dark:border-slate-600">
+			<div className="p-4 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-700/50 dark:to-slate-800/50 rounded-xl border-2 border-slate-200/60 dark:border-slate-600/60 shadow-sm">
 				<div className="flex items-center justify-between mb-2">
 					<span className="text-sm font-medium text-slate-700 dark:text-slate-300">
 						Your Net Worth:
@@ -165,10 +165,10 @@ export default function NisaabSelectionStep({ onNext, onBack }: NisaabSelectionS
 					{/* Gold Option */}
 					<button
 						onClick={() => handleBaseSelect('gold')}
-						className={`w-full p-5 rounded-xl border-2 transition-all text-left ${
+						className={`relative w-full p-5 rounded-2xl border-2 transition-all text-left overflow-hidden ${
 							goldSelected
-								? 'border-primary-500 dark:border-primary-400 bg-primary-50 dark:bg-primary-900/20'
-								: 'border-slate-200 dark:border-slate-700 hover:border-primary-300 dark:hover:border-primary-700 bg-white dark:bg-slate-800'
+								? 'border-primary-500 dark:border-primary-400 bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/30 dark:to-primary-800/20 shadow-lg shadow-primary-500/20'
+								: 'border-slate-200/60 dark:border-slate-700/60 hover:border-primary-300 dark:hover:border-primary-700 bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 shadow-sm hover:shadow-md'
 						}`}
 					>
 						<div className="flex items-start justify-between">
@@ -191,7 +191,7 @@ export default function NisaabSelectionStep({ onNext, onBack }: NisaabSelectionS
 								<p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
 									Gold Nisaab (87.48g of gold) - Recommended standard
 								</p>
-								<div className="mt-3 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-slate-600">
+								<div className="mt-3 p-3 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-700/50 dark:to-slate-800/50 rounded-xl border-2 border-slate-200/60 dark:border-slate-600/60 shadow-sm">
 									<div className="flex items-start gap-2 mb-2">
 										<BookOpenIcon className="w-4 h-4 text-slate-600 dark:text-slate-400 mt-0.5 shrink-0" />
 										<div className="flex-1">
@@ -244,10 +244,10 @@ export default function NisaabSelectionStep({ onNext, onBack }: NisaabSelectionS
 					{/* Silver Option */}
 					<button
 						onClick={() => handleBaseSelect('silver')}
-						className={`w-full p-5 rounded-xl border-2 transition-all text-left ${
+						className={`relative w-full p-5 rounded-2xl border-2 transition-all text-left overflow-hidden ${
 							silverSelected
-								? 'border-primary-500 dark:border-primary-400 bg-primary-50 dark:bg-primary-900/20'
-								: 'border-slate-200 dark:border-slate-700 hover:border-primary-300 dark:hover:border-primary-700 bg-white dark:bg-slate-800'
+								? 'border-primary-500 dark:border-primary-400 bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/30 dark:to-primary-800/20 shadow-lg shadow-primary-500/20'
+								: 'border-slate-200/60 dark:border-slate-700/60 hover:border-primary-300 dark:hover:border-primary-700 bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 shadow-sm hover:shadow-md'
 						}`}
 					>
 						<div className="flex items-start justify-between">
@@ -277,7 +277,7 @@ export default function NisaabSelectionStep({ onNext, onBack }: NisaabSelectionS
 										</span>
 									)}
 								</div>
-								<div className="mt-3 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-slate-600">
+								<div className="mt-3 p-3 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-700/50 dark:to-slate-800/50 rounded-xl border-2 border-slate-200/60 dark:border-slate-600/60 shadow-sm">
 									<div className="flex items-start gap-2">
 										<BookOpenIcon className="w-4 h-4 text-slate-600 dark:text-slate-400 mt-0.5 shrink-0" />
 										<div className="flex-1">
@@ -331,7 +331,7 @@ export default function NisaabSelectionStep({ onNext, onBack }: NisaabSelectionS
 						<motion.div
 							initial={{ opacity: 0, y: 10 }}
 							animate={{ opacity: 1, y: 0 }}
-							className={`p-4 rounded-xl border ${
+							className={`p-4 rounded-xl border-2 ${
 								recommendation.recommended === 'gold'
 									? 'bg-primary-50 dark:bg-primary-900/20 border-primary-200 dark:border-primary-800'
 									: 'bg-info-50 dark:bg-info-900/20 border-info-200 dark:border-info-800'
@@ -360,7 +360,7 @@ export default function NisaabSelectionStep({ onNext, onBack }: NisaabSelectionS
 					)}
 				</>
 			) : (
-				<div className="p-4 bg-error-50 dark:bg-error-900/20 rounded-xl border border-error-200 dark:border-error-800">
+				<div className="p-4 bg-gradient-to-r from-red-50 to-red-100 dark:from-red-900/30 dark:to-red-800/20 rounded-xl border-2 border-red-200 dark:border-red-800 shadow-sm">
 					<p className="text-sm text-error-600 dark:text-error-400">
 						Failed to load Nisaab values. Please try again.
 					</p>

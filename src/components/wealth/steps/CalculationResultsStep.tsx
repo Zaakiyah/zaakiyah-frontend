@@ -33,7 +33,7 @@ export default function CalculationResultsStep({ onNext, onBack }: CalculationRe
 				aria-busy="true"
 			>
 				<div className="relative">
-					<div className="animate-spin rounded-full h-12 w-12 border-4 border-primary-200 dark:border-primary-800 border-t-primary-500 dark:border-t-primary-400"></div>
+					<div className="animate-spin rounded-full h-12 w-12 border-4 border-primary-200/50 dark:border-primary-800/50 border-t-primary-500 dark:border-t-primary-400 shadow-lg shadow-primary-500/20"></div>
 					<div className="absolute inset-0 animate-ping rounded-full h-12 w-12 border-2 border-primary-400 dark:border-primary-500 opacity-20"></div>
 				</div>
 				<p className="text-sm text-slate-600 dark:text-slate-400 mt-4" role="status">
@@ -74,13 +74,17 @@ export default function CalculationResultsStep({ onNext, onBack }: CalculationRe
 
 			{/* Main Result Card */}
 			<div
-				className={`p-6 rounded-xl border-2 ${
+				className={`relative p-6 rounded-2xl border-2 overflow-hidden ${
 					meetsNisaab
-						? 'bg-success-50 dark:bg-success-900/20 border-success-300 dark:border-success-700'
-						: 'bg-slate-50 dark:bg-slate-700/50 border-slate-200 dark:border-slate-600'
+						? 'bg-gradient-to-br from-success-50 to-success-100 dark:from-success-900/30 dark:to-success-800/20 border-success-300 dark:border-success-700'
+						: 'bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-700/50 dark:to-slate-800/50 border-slate-200 dark:border-slate-600'
 				}`}
 			>
-				<div className="flex items-center gap-3 mb-4">
+				{/* Decorative gradient overlay */}
+				{meetsNisaab && (
+					<div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-success-500/10 via-success-400/10 to-success-300/5 rounded-full blur-2xl -z-0" />
+				)}
+				<div className="flex items-center gap-3 mb-4 relative z-10">
 					{meetsNisaab ? (
 						<CheckCircleIcon className="w-8 h-8 text-success-600 dark:text-success-400" />
 					) : (
@@ -99,7 +103,7 @@ export default function CalculationResultsStep({ onNext, onBack }: CalculationRe
 				</div>
 
 				{meetsNisaab && zakatDue !== null && (
-					<div className="mt-4 pt-4 border-t border-success-200 dark:border-success-800">
+					<div className="mt-4 pt-4 border-t-2 border-success-200 dark:border-success-800 relative z-10">
 						<div className="flex items-baseline gap-2">
 							<span className="text-sm font-medium text-slate-700 dark:text-slate-300">
 								Zakaat Due ({zakatRate}%):
@@ -119,7 +123,7 @@ export default function CalculationResultsStep({ onNext, onBack }: CalculationRe
 				</h3>
 
 				{/* Assets */}
-				<div className="p-4 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+				<div className="p-4 bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-xl border-2 border-slate-200/60 dark:border-slate-700/60 shadow-sm">
 					<div className="flex items-center gap-3 mb-3">
 						<BanknotesIcon className="w-5 h-5 text-success-600 dark:text-success-400" />
 						<h4 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
@@ -138,7 +142,7 @@ export default function CalculationResultsStep({ onNext, onBack }: CalculationRe
 				</div>
 
 				{/* Liabilities */}
-				<div className="p-4 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+				<div className="p-4 bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-xl border-2 border-slate-200/60 dark:border-slate-700/60 shadow-sm">
 					<div className="flex items-center gap-3 mb-3">
 						<CreditCardIcon className="w-5 h-5 text-error-600 dark:text-error-400" />
 						<h4 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
@@ -157,7 +161,7 @@ export default function CalculationResultsStep({ onNext, onBack }: CalculationRe
 				</div>
 
 				{/* Net Worth */}
-				<div className="p-4 bg-primary-50 dark:bg-primary-900/20 rounded-xl border border-primary-200 dark:border-primary-800">
+				<div className="p-4 bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/30 dark:to-primary-800/20 rounded-xl border-2 border-primary-200 dark:border-primary-800 shadow-sm">
 					<div className="flex items-center gap-3 mb-3">
 						<ChartBarIcon className="w-5 h-5 text-primary-600 dark:text-primary-400" />
 						<h4 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
@@ -175,7 +179,7 @@ export default function CalculationResultsStep({ onNext, onBack }: CalculationRe
 				</div>
 
 				{/* Nisaab Threshold */}
-				<div className="p-4 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-200 dark:border-slate-600">
+				<div className="p-4 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-700/50 dark:to-slate-800/50 rounded-xl border-2 border-slate-200/60 dark:border-slate-600/60 shadow-sm">
 					<div className="flex items-center justify-between mb-1">
 						<span className="text-sm font-medium text-slate-700 dark:text-slate-300">
 							{nisaabBase === 'gold' ? 'Gold' : 'Silver'} Nisaab Threshold:
@@ -218,7 +222,7 @@ export default function CalculationResultsStep({ onNext, onBack }: CalculationRe
 						initial={{ opacity: 0, y: 10 }}
 						animate={{ opacity: 1, y: 0 }}
 						transition={{ delay: 0.2 }}
-						className="relative overflow-hidden p-5 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-2xl border border-blue-200/50 dark:border-blue-800/50 shadow-sm"
+						className="relative overflow-hidden p-5 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-2xl border-2 border-blue-200/50 dark:border-blue-800/50 shadow-sm"
 					>
 						<div className="absolute top-0 right-0 w-24 h-24 bg-blue-200/20 dark:bg-blue-800/20 rounded-full blur-2xl -mr-12 -mt-12" />
 						<div className="relative flex items-start gap-3">
@@ -296,7 +300,7 @@ export default function CalculationResultsStep({ onNext, onBack }: CalculationRe
 			)}
 
 			{!meetsNisaab && (
-				<div className="p-4 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-200 dark:border-slate-600">
+				<div className="p-4 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-700/50 dark:to-slate-800/50 rounded-xl border-2 border-slate-200/60 dark:border-slate-600/60 shadow-sm">
 					<div className="flex items-start gap-3">
 						<InformationCircleIcon className="w-5 h-5 text-slate-600 dark:text-slate-400 flex-shrink-0 mt-0.5" />
 						<div className="flex-1">

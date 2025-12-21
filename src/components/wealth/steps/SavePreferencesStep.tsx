@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { BellIcon, EnvelopeIcon, DevicePhoneMobileIcon, BellAlertIcon } from '@heroicons/react/24/outline';
 import Button from '../../ui/Button';
 import Input from '../../ui/Input';
+import Checkbox from '../../ui/Checkbox';
 import { useWealthCalculationStore } from '../../../store/wealthCalculationStore';
 import type { NotificationFrequency } from '../../../types/wealth.types';
 import { alert } from '../../../store/alertStore';
@@ -157,7 +158,9 @@ export default function SavePreferencesStep({ onComplete, onBack }: SavePreferen
 			</div>
 
 			{/* Save Calculation Toggle */}
-			<div className="p-4 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-visible">
+			<div className="relative p-5 bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl border-2 border-slate-200/60 dark:border-slate-700/60 overflow-visible shadow-lg">
+				{/* Decorative gradient overlay */}
+				<div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary-500/5 via-secondary-500/5 to-primary-400/5 rounded-full blur-2xl -z-0" />
 				<label className="flex items-start justify-between cursor-pointer gap-4">
 					<div className="flex-1 min-w-0">
 						<h3 className="text-base font-semibold text-slate-900 dark:text-slate-100 mb-1">
@@ -204,7 +207,9 @@ export default function SavePreferencesStep({ onComplete, onBack }: SavePreferen
 			</div>
 
 			{/* Notification Preferences */}
-			<div className="p-4 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-visible">
+			<div className="relative p-5 bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl border-2 border-slate-200/60 dark:border-slate-700/60 overflow-visible shadow-lg">
+				{/* Decorative gradient overlay */}
+				<div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary-500/5 via-secondary-500/5 to-primary-400/5 rounded-full blur-2xl -z-0" />
 				<label className="flex items-start justify-between cursor-pointer gap-4 mb-4">
 					<div className="flex items-center gap-2 flex-1 min-w-0">
 						<BellIcon className="w-5 h-5 text-slate-600 dark:text-slate-400 flex-shrink-0" />
@@ -243,18 +248,12 @@ export default function SavePreferencesStep({ onComplete, onBack }: SavePreferen
 						className="space-y-4 overflow-visible"
 					>
 						{/* Use Defaults Toggle */}
-						<div className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-slate-600">
-							<label className="flex items-center gap-3 cursor-pointer">
-								<input
-									type="checkbox"
-									checked={useDefaults}
-									onChange={(e) => setUseDefaults(e.target.checked)}
-									className="w-5 h-5 text-primary-600 bg-white dark:bg-slate-700 border-2 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-primary-500 focus:ring-offset-0 cursor-pointer transition-all"
-								/>
-								<span className="text-sm font-medium text-slate-900 dark:text-slate-100">
-									Use my notification defaults
-								</span>
-							</label>
+						<div className="p-4 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-700/50 dark:to-slate-800/50 rounded-xl border-2 border-slate-200/60 dark:border-slate-600/60 shadow-sm">
+							<Checkbox
+								checked={useDefaults}
+								onChange={setUseDefaults}
+								label="Use my notification defaults"
+							/>
 							{useDefaults && user?.notificationPreferences && (
 								<p className="text-xs text-slate-600 dark:text-slate-400 mt-2 ml-8">
 									Using your saved preferences from Settings
@@ -267,14 +266,14 @@ export default function SavePreferencesStep({ onComplete, onBack }: SavePreferen
 							<motion.div
 								initial={{ opacity: 0, y: -10 }}
 								animate={{ opacity: 1, y: 0 }}
-								className="space-y-4 pt-3 border-t border-slate-200 dark:border-slate-700"
+								className="space-y-4 pt-3 border-t-2 border-slate-200/60 dark:border-slate-700/60"
 							>
 								<h4 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
 									Customize Notification Channels
 								</h4>
 
 								{/* Email Channel */}
-								<label className="flex items-center gap-3 cursor-pointer p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+								<label className="flex items-center gap-3 cursor-pointer p-4 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-700/50 dark:to-slate-800/50 rounded-xl hover:from-slate-100 hover:to-slate-200 dark:hover:from-slate-600 dark:hover:to-slate-700 transition-all shadow-sm">
 									<EnvelopeIcon className="w-5 h-5 text-slate-600 dark:text-slate-400 flex-shrink-0" />
 									<div className="flex-1">
 										<div className="flex items-center justify-between">
@@ -301,7 +300,7 @@ export default function SavePreferencesStep({ onComplete, onBack }: SavePreferen
 								</label>
 
 								{/* In-App Channel */}
-								<label className="flex items-center gap-3 cursor-pointer p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+								<label className="flex items-center gap-3 cursor-pointer p-4 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-700/50 dark:to-slate-800/50 rounded-xl hover:from-slate-100 hover:to-slate-200 dark:hover:from-slate-600 dark:hover:to-slate-700 transition-all shadow-sm">
 									<BellAlertIcon className="w-5 h-5 text-slate-600 dark:text-slate-400 flex-shrink-0" />
 									<div className="flex-1">
 										<div className="flex items-center justify-between">
@@ -328,7 +327,7 @@ export default function SavePreferencesStep({ onComplete, onBack }: SavePreferen
 								</label>
 
 								{/* Push Channel */}
-								<label className="flex items-center gap-3 cursor-pointer p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+								<label className="flex items-center gap-3 cursor-pointer p-4 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-700/50 dark:to-slate-800/50 rounded-xl hover:from-slate-100 hover:to-slate-200 dark:hover:from-slate-600 dark:hover:to-slate-700 transition-all shadow-sm">
 									<DevicePhoneMobileIcon className="w-5 h-5 text-slate-600 dark:text-slate-400 flex-shrink-0" />
 									<div className="flex-1">
 										<div className="flex items-center justify-between">
@@ -359,7 +358,7 @@ export default function SavePreferencesStep({ onComplete, onBack }: SavePreferen
 									<motion.div
 										initial={{ opacity: 0, y: -10 }}
 										animate={{ opacity: 1, y: 0 }}
-										className="p-3 bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-800 rounded-lg"
+										className="p-4 bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/30 dark:to-primary-800/20 border-2 border-primary-200 dark:border-primary-800 rounded-xl shadow-sm"
 									>
 										<p className="text-xs text-primary-800 dark:text-primary-200 mb-2">
 											💡 <strong>Tip:</strong> Enable push notifications to receive real-time alerts even when the app is closed.
@@ -380,7 +379,7 @@ export default function SavePreferencesStep({ onComplete, onBack }: SavePreferen
 						)}
 
 						{/* Frequency Selection */}
-						<div className="overflow-visible pt-3 border-t border-slate-200 dark:border-slate-700">
+						<div className="overflow-visible pt-3 border-t-2 border-slate-200/60 dark:border-slate-700/60">
 							<label className="block text-sm font-medium text-slate-900 dark:text-slate-100 mb-2">
 								Notification Frequency
 							</label>
@@ -392,7 +391,7 @@ export default function SavePreferencesStep({ onComplete, onBack }: SavePreferen
 										onClick={() => setFrequency(freq.value)}
 										className={`p-3 rounded-lg border-2 transition-all text-sm font-medium whitespace-nowrap ${
 											frequency === freq.value
-												? 'border-primary-500 dark:border-primary-400 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300'
+												? 'border-primary-500 dark:border-primary-400 bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/30 dark:to-primary-800/20 text-primary-700 dark:text-primary-300 shadow-sm'
 												: 'border-slate-200 dark:border-slate-700 hover:border-primary-300 dark:hover:border-primary-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300'
 										}`}
 									>
@@ -432,58 +431,34 @@ export default function SavePreferencesStep({ onComplete, onBack }: SavePreferen
 						</div>
 
 						{/* Notification Types */}
-						<div className="space-y-3 pt-3 border-t border-slate-200 dark:border-slate-700">
+						<div className="space-y-3 pt-3 border-t-2 border-slate-200/60 dark:border-slate-700/60">
 							<label className="block text-sm font-medium text-slate-900 dark:text-slate-100 mb-2">
 								Notification Types
 							</label>
 
-							<label className="flex items-start gap-3 cursor-pointer group">
-								<input
-									type="checkbox"
-									checked={notifyRecalculate}
-									onChange={(e) => setNotifyRecalculate(e.target.checked)}
-									className="w-5 h-5 mt-0.5 text-primary-600 bg-white dark:bg-slate-700 border-2 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-primary-500 focus:ring-offset-0 cursor-pointer transition-all flex-shrink-0"
-								/>
-								<span className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-									Remind me to recalculate my wealth
-								</span>
-							</label>
+							<Checkbox
+								checked={notifyRecalculate}
+								onChange={setNotifyRecalculate}
+								label="Remind me to recalculate my wealth"
+							/>
 
-							<label className="flex items-start gap-3 cursor-pointer group">
-								<input
-									type="checkbox"
-									checked={notifyZakatDue}
-									onChange={(e) => setNotifyZakatDue(e.target.checked)}
-									className="w-5 h-5 mt-0.5 text-primary-600 bg-white dark:bg-slate-700 border-2 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-primary-500 focus:ring-offset-0 cursor-pointer transition-all flex-shrink-0"
-								/>
-								<span className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-									Notify when Zakaat is due
-								</span>
-							</label>
+							<Checkbox
+								checked={notifyZakatDue}
+								onChange={setNotifyZakatDue}
+								label="Notify when Zakaat is due"
+							/>
 
-							<label className="flex items-start gap-3 cursor-pointer group">
-								<input
-									type="checkbox"
-									checked={notifyNisaabChange}
-									onChange={(e) => setNotifyNisaabChange(e.target.checked)}
-									className="w-5 h-5 mt-0.5 text-primary-600 bg-white dark:bg-slate-700 border-2 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-primary-500 focus:ring-offset-0 cursor-pointer transition-all flex-shrink-0"
-								/>
-								<span className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-									Notify when Nisaab values change significantly
-								</span>
-							</label>
+							<Checkbox
+								checked={notifyNisaabChange}
+								onChange={setNotifyNisaabChange}
+								label="Notify when Nisaab values change significantly"
+							/>
 
-							<label className="flex items-start gap-3 cursor-pointer group">
-								<input
-									type="checkbox"
-									checked={notifySummary}
-									onChange={(e) => setNotifySummary(e.target.checked)}
-									className="w-5 h-5 mt-0.5 text-primary-600 bg-white dark:bg-slate-700 border-2 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-primary-500 focus:ring-offset-0 cursor-pointer transition-all flex-shrink-0"
-								/>
-								<span className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-									Send monthly summary
-								</span>
-							</label>
+							<Checkbox
+								checked={notifySummary}
+								onChange={setNotifySummary}
+								label="Send monthly summary"
+							/>
 						</div>
 					</motion.div>
 				)}

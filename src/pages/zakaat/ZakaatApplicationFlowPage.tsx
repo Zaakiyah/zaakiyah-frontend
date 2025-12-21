@@ -120,7 +120,12 @@ export default function ZakaatApplicationFlowPage() {
 						idType: app.idType,
 					},
 					financialInfo: app.financialInfo as FinancialInfo | null,
-					intendedUse: app.intendedUse as IntendedUse | null,
+					intendedUse: app.intendedUse
+						? {
+								...(app.intendedUse as IntendedUse),
+								supportingDocuments: app.supportingDocuments || (app.intendedUse as any).supportingDocuments || [],
+						  }
+						: null,
 					bankDetails: app.bankName
 						? {
 								bankName: app.bankName,
@@ -423,9 +428,22 @@ export default function ZakaatApplicationFlowPage() {
 			case 6:
 				return (
 					<IntendedUseStep
-						initialValue={formData.intendedUse}
+						initialValue={
+							formData.intendedUse
+								? {
+										...formData.intendedUse,
+										supportingDocuments:
+											formData.intendedUse.supportingDocuments ||
+											formData.supportingDocuments ||
+											[],
+								  }
+								: null
+						}
 						onComplete={(data) => {
-							handleStepComplete({ intendedUse: data.intendedUse });
+							handleStepComplete({
+								intendedUse: data.intendedUse,
+								supportingDocuments: data.intendedUse.supportingDocuments || [],
+							});
 							handleNext();
 						}}
 						onBack={handlePrevious}
@@ -458,9 +476,9 @@ export default function ZakaatApplicationFlowPage() {
 
 	if (isLoading && !formData.applicationType) {
 		return (
-			<div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center">
+			<div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 flex items-center justify-center">
 				<div className="text-center">
-					<div className="w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+					<div className="w-8 h-8 border-4 border-primary-500/30 dark:border-primary-400/30 border-t-primary-500 dark:border-t-primary-400 rounded-full animate-spin mx-auto mb-4 shadow-lg shadow-primary-500/20" />
 					<p className="text-slate-600 dark:text-slate-400">Loading application...</p>
 				</div>
 			</div>
@@ -468,15 +486,15 @@ export default function ZakaatApplicationFlowPage() {
 	}
 
 	return (
-		<div className="min-h-screen bg-slate-50 dark:bg-slate-900 pb-20">
+		<div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 pb-20">
 			{/* Header */}
-			<header className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border-b border-slate-200/60 dark:border-slate-700/60 sticky top-0 z-40 shadow-sm">
+			<header className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl border-b-2 border-primary-500/20 dark:border-primary-400/20 sticky top-0 z-40 shadow-sm">
 				<div className="px-4 py-3">
 					<div className="flex items-center justify-between gap-3">
 						<div className="flex items-center gap-3">
 							<button
-								onClick={handlePrevious}
-								className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-all active:scale-95"
+							onClick={handlePrevious}
+							className="p-2 rounded-xl hover:bg-gradient-to-r hover:from-slate-100 hover:to-slate-50 dark:hover:from-slate-700 dark:hover:to-slate-800 transition-all active:scale-95"
 								aria-label="Go back"
 								type="button"
 							>
@@ -499,7 +517,7 @@ export default function ZakaatApplicationFlowPage() {
 						</div>
 						<button
 							onClick={handleCancel}
-							className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-all active:scale-95"
+							className="p-2 rounded-xl hover:bg-gradient-to-r hover:from-slate-100 hover:to-slate-50 dark:hover:from-slate-700 dark:hover:to-slate-800 transition-all active:scale-95"
 							aria-label="Cancel"
 							type="button"
 						>
@@ -529,12 +547,14 @@ export default function ZakaatApplicationFlowPage() {
 					<AnimatePresence mode="wait">
 						<motion.div
 							key={currentStep}
-							initial={{ opacity: 0, x: 20 }}
-							animate={{ opacity: 1, x: 0 }}
-							exit={{ opacity: 0, x: -20 }}
-							transition={{ duration: 0.2, ease: 'easeInOut' }}
-							className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-200/60 dark:border-slate-700/60 overflow-visible"
+						initial={{ opacity: 0, x: 20, scale: 0.95 }}
+						animate={{ opacity: 1, x: 0, scale: 1 }}
+						exit={{ opacity: 0, x: -20, scale: 0.95 }}
+						transition={{ duration: 0.2, ease: 'easeInOut', type: 'spring', stiffness: 100 }}
+							className="relative bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl p-6 shadow-lg border-2 border-slate-200/60 dark:border-slate-700/60 overflow-visible"
 						>
+							{/* Decorative gradient overlay */}
+							<div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-primary-500/5 via-secondary-500/5 to-primary-400/5 rounded-full blur-2xl -z-0" />
 							{renderStep()}
 						</motion.div>
 					</AnimatePresence>
@@ -543,14 +563,14 @@ export default function ZakaatApplicationFlowPage() {
 
 			{/* Saving Indicator */}
 			{isSaving && (
-				<div className="fixed bottom-20 left-0 right-0 px-4 z-50">
+				<div className="fixed bottom-20 sm:bottom-24 left-0 right-0 px-4 z-50">
 					<motion.div
 						initial={{ opacity: 0, y: 20 }}
 						animate={{ opacity: 1, y: 0 }}
-						className="max-w-md mx-auto bg-primary-500 text-white px-4 py-3 rounded-xl shadow-lg flex items-center gap-3"
+						className="max-w-md mx-auto bg-gradient-to-br from-primary-500 via-primary-600 to-primary-700 text-white px-4 py-3 sm:py-2.5 rounded-xl shadow-lg shadow-primary-500/30 flex items-center gap-2 sm:gap-3"
 					>
-						<div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-						<span className="text-sm font-medium">Saving your progress...</span>
+						<div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white/30 border-t-white rounded-full animate-spin shrink-0" />
+						<span className="text-xs sm:text-sm font-medium">Saving your progress...</span>
 					</motion.div>
 				</div>
 			)}

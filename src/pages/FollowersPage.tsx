@@ -94,9 +94,9 @@ export default function FollowersPage() {
 	};
 
 	return (
-		<div className="min-h-screen bg-slate-50 dark:bg-slate-900 pb-20">
+		<div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 pb-20">
 			{/* Header */}
-			<header className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-40">
+			<header className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl border-b-2 border-slate-200/60 dark:border-slate-700/60 sticky top-0 z-40 shadow-lg">
 				<div className="px-4 py-3">
 					<div className="flex items-center gap-3">
 						<button
@@ -132,7 +132,7 @@ export default function FollowersPage() {
 						{followers.map((follower) => (
 							<div
 								key={follower.id}
-								className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4 flex items-center gap-3"
+								className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl border-2 border-slate-200/60 dark:border-slate-700/60 p-4 flex items-center gap-3 shadow-lg"
 							>
 								<button
 									onClick={() => navigate(`/community/members/${follower.id}`)}

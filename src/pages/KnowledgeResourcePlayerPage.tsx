@@ -11,6 +11,13 @@ import { ArrowLeftIcon, HeartIcon, EyeIcon, ClockIcon } from '@heroicons/react/2
 import { HeartIcon as HeartIconSolid } from '@heroicons/react/24/solid';
 import type { KnowledgeResource } from '../types/community.types';
 
+// Wake Lock API type definition
+interface WakeLockSentinel extends EventTarget {
+	release(): Promise<void>;
+	released: boolean;
+	type: 'screen';
+}
+
 /**
  * Extract YouTube video ID from various YouTube URL formats
  */
@@ -19,14 +26,14 @@ function getYouTubeVideoId(url: string): string | null {
 		/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
 		/youtube\.com\/watch\?.*&v=([^&\n?#]+)/,
 	];
-	
+
 	for (const pattern of patterns) {
 		const match = url.match(pattern);
 		if (match && match[1]) {
 			return match[1];
 		}
 	}
-	
+
 	return null;
 }
 
@@ -34,18 +41,15 @@ function getYouTubeVideoId(url: string): string | null {
  * Extract Vimeo video ID from Vimeo URL
  */
 function getVimeoVideoId(url: string): string | null {
-	const patterns = [
-		/(?:vimeo\.com\/)(\d+)/,
-		/(?:vimeo\.com\/video\/)(\d+)/,
-	];
-	
+	const patterns = [/(?:vimeo\.com\/)(\d+)/, /(?:vimeo\.com\/video\/)(\d+)/];
+
 	for (const pattern of patterns) {
 		const match = url.match(pattern);
 		if (match && match[1]) {
 			return match[1];
 		}
 	}
-	
+
 	return null;
 }
 
@@ -79,6 +83,9 @@ export default function KnowledgeResourcePlayerPage() {
 	const [isLiked, setIsLiked] = useState(false);
 	const [likeCount, setLikeCount] = useState(0);
 	const hasFetchedRef = useRef<string | null>(null); // Track which resource ID we've already fetched
+	const wakeLockRef = useRef<WakeLockSentinel | null>(null);
+	const videoRef = useRef<HTMLVideoElement>(null);
+	const audioRef = useRef<HTMLAudioElement>(null);
 
 	useEffect(() => {
 		// Reset fetch tracking when resource ID changes
@@ -115,6 +122,74 @@ export default function KnowledgeResourcePlayerPage() {
 
 		fetchResource();
 	}, [id, navigate]);
+
+	// Wake Lock API to prevent screen from turning off during playback
+	useEffect(() => {
+		const requestWakeLock = async () => {
+			if ('wakeLock' in navigator) {
+				try {
+					const wakeLock = await (navigator as any).wakeLock.request('screen');
+					wakeLockRef.current = wakeLock;
+
+					// Handle wake lock release
+					wakeLock.addEventListener('release', () => {
+						logger.log('Wake Lock was released');
+					});
+				} catch (err: any) {
+					logger.log('Wake Lock request failed:', err.message);
+				}
+			}
+		};
+
+		// Request wake lock when video/audio starts playing
+		const handlePlay = () => {
+			requestWakeLock();
+		};
+
+		// Release wake lock when video/audio pauses or ends
+		const handlePause = async () => {
+			if (wakeLockRef.current) {
+				try {
+					await wakeLockRef.current.release();
+					wakeLockRef.current = null;
+				} catch (err: any) {
+					logger.log('Wake Lock release failed:', err.message);
+				}
+			}
+		};
+
+		const video = videoRef.current;
+		const audio = audioRef.current;
+
+		if (video) {
+			video.addEventListener('play', handlePlay);
+			video.addEventListener('pause', handlePause);
+			video.addEventListener('ended', handlePause);
+		}
+
+		if (audio) {
+			audio.addEventListener('play', handlePlay);
+			audio.addEventListener('pause', handlePause);
+			audio.addEventListener('ended', handlePause);
+		}
+
+		return () => {
+			if (video) {
+				video.removeEventListener('play', handlePlay);
+				video.removeEventListener('pause', handlePause);
+				video.removeEventListener('ended', handlePause);
+			}
+			if (audio) {
+				audio.removeEventListener('play', handlePlay);
+				audio.removeEventListener('pause', handlePause);
+				audio.removeEventListener('ended', handlePause);
+			}
+			// Release wake lock on unmount
+			if (wakeLockRef.current) {
+				wakeLockRef.current.release().catch(() => {});
+			}
+		};
+	}, [resource]);
 
 	const handleLike = async () => {
 		if (!id) return;
@@ -194,11 +269,7 @@ export default function KnowledgeResourcePlayerPage() {
 								<path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.37 4.37 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z" />
 							</svg>
 						</div>
-						<audio
-							controls
-							className="w-full"
-							src={url}
-						>
+						<audio ref={audioRef} controls className="w-full" src={url}>
 							Your browser does not support the audio element.
 						</audio>
 					</div>
@@ -210,11 +281,7 @@ export default function KnowledgeResourcePlayerPage() {
 		if (resource.type === 'video') {
 			return (
 				<div className="w-full aspect-video rounded-xl overflow-hidden bg-black">
-					<video
-						controls
-						className="w-full h-full"
-						src={url}
-					>
+					<video ref={videoRef} controls className="w-full h-full" src={url}>
 						Your browser does not support the video tag.
 					</video>
 				</div>
@@ -369,10 +436,3 @@ export default function KnowledgeResourcePlayerPage() {
 		</div>
 	);
 }
-
-
-
-
-
-
-

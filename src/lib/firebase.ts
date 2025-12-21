@@ -64,7 +64,7 @@ export async function getFirebaseMessaging(): Promise<Messaging | null> {
 	}
 
 	if (!('serviceWorker' in navigator)) {
-		console.warn('Service workers are not supported. Push notifications will be disabled.');
+		logger.warn('Service workers are not supported. Push notifications will be disabled.');
 		return null;
 	}
 
@@ -139,7 +139,7 @@ export async function getFCMToken(): Promise<string | null> {
 			return null;
 		}
 	} catch (error) {
-		console.error('Error getting FCM token:', error);
+		logger.error('Error getting FCM token:', error);
 		return null;
 	}
 }

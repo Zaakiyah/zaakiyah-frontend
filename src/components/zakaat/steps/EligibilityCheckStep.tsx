@@ -2,9 +2,7 @@ import { useState } from 'react';
 import { ArrowLeftIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import { motion } from 'framer-motion';
 import { CheckCircleIcon as CheckCircleIconSolid } from '@heroicons/react/24/solid';
-import { zakaatService } from '../../../services/zakaatService';
 import { alert } from '../../../store/alertStore';
-import { logger } from '../../../utils/logger';
 import type { EligibilityCheckRequest } from '../../../types/zakaat.types';
 import { useCurrencyStore } from '../../../store/currencyStore';
 import { useCurrencyConversion } from '../../../hooks/useCurrencyConversion';
@@ -24,9 +22,8 @@ export default function EligibilityCheckStep({
 	const [requestedAmount, setRequestedAmount] = useState<string>(
 		initialValue?.requestedAmount?.toString() || ''
 	);
-	const [isChecking, setIsChecking] = useState(false);
-	const [isEligible, setIsEligible] = useState<boolean | null>(null);
-	const [eligibilityMessage, setEligibilityMessage] = useState('');
+	const [isEligible] = useState<boolean | null>(null);
+	const [eligibilityMessage] = useState('');
 	const { preferredCurrency } = useCurrencyStore();
 	const amountNum = requestedAmount ? parseFloat(requestedAmount) : 0;
 	const { convertedAmount: nairaAmount, isLoading: isConverting } = useCurrencyConversion(
@@ -35,36 +32,6 @@ export default function EligibilityCheckStep({
 		'NGN',
 		amountNum > 0 && preferredCurrency !== 'NGN'
 	);
-
-	const handleCheckEligibility = async () => {
-		if (!requestedAmount) {
-			alert.error('Please enter the amount you need');
-			return;
-		}
-
-		try {
-			setIsChecking(true);
-			const response = await zakaatService.checkEligibility({
-				requestedAmount: parseFloat(requestedAmount),
-			});
-
-			if (response.data) {
-				setIsEligible(response.data.eligible);
-				setEligibilityMessage(response.data.message || '');
-
-				if (response.data.eligible) {
-					alert.success('You are eligible!');
-				} else {
-					alert.error(response.data.message || 'Not eligible');
-				}
-			}
-		} catch (error: any) {
-			logger.error('Error checking eligibility:', error);
-			alert.error(error.response?.data?.message || 'Failed to check eligibility');
-		} finally {
-			setIsChecking(false);
-		}
-	};
 
 	const handleContinue = () => {
 		if (!requestedAmount) {
@@ -106,7 +73,7 @@ export default function EligibilityCheckStep({
 						placeholder="0.00"
 						min="0"
 						step="0.01"
-						className="w-full pl-8 pr-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+						className="w-full pl-8 pr-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:focus:ring-primary-400/20 focus:border-primary-500 dark:focus:border-primary-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/20 dark:focus-visible:ring-primary-400/20 focus-visible:border-primary-500 dark:focus-visible:border-primary-400"
 					/>
 				</div>
 				{requestedAmount && amountNum > 0 && preferredCurrency !== 'NGN' && (
@@ -173,16 +140,9 @@ export default function EligibilityCheckStep({
 					Back
 				</button>
 				<button
-					onClick={handleCheckEligibility}
-					disabled={isChecking || !requestedAmount}
-					className="flex-1 px-4 py-3 bg-primary-500 text-white font-semibold rounded-xl hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-				>
-					{isChecking ? 'Checking...' : 'Check Eligibility'}
-				</button>
-				<button
 					onClick={handleContinue}
 					disabled={!requestedAmount}
-					className="flex-1 px-4 py-3 bg-primary-500 text-white font-semibold rounded-xl hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+					className="flex-1 px-4 py-3 bg-gradient-to-br from-primary-500 via-primary-600 to-primary-700 text-white font-semibold rounded-xl hover:from-primary-600 hover:via-primary-700 hover:to-primary-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-primary-500/30 hover:shadow-xl hover:shadow-primary-500/40"
 				>
 					Continue
 				</button>

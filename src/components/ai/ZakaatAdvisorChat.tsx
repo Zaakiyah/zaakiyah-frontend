@@ -100,12 +100,15 @@ export default function ZakaatAdvisorChat({ isOpen, onClose }: ZakaatAdvisorChat
 				animate={{ y: 0, opacity: 1 }}
 				exit={{ y: '100%', opacity: 0 }}
 				transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-				className="relative w-full max-w-md h-[600px] md:h-[700px] bg-white dark:bg-slate-800 rounded-t-2xl md:rounded-2xl shadow-2xl flex flex-col pointer-events-auto m-4 md:m-0 md:mr-4 md:mb-4"
+				className="relative w-full max-w-md h-[600px] md:h-[700px] bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-t-2xl md:rounded-2xl shadow-2xl flex flex-col pointer-events-auto m-4 md:m-0 md:mr-4 md:mb-4 overflow-hidden"
 			>
+				{/* Decorative gradient overlay */}
+				<div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-primary-500/10 via-secondary-500/10 to-primary-400/5 rounded-full blur-3xl -z-0" />
+				
 				{/* Header */}
-				<div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700 bg-gradient-to-r from-primary-50 dark:from-primary-900/20 to-teal-50 dark:to-teal-900/20 rounded-t-2xl">
+				<div className="relative flex items-center justify-between p-4 border-b-2 border-primary-500/20 dark:border-primary-400/20 bg-gradient-to-r from-primary-50 via-primary-100/50 dark:from-primary-900/30 dark:via-primary-800/20 to-teal-50 dark:to-teal-900/20 rounded-t-2xl z-10">
 					<div className="flex items-center gap-3">
-						<div className="w-10 h-10 bg-primary-600 dark:bg-primary-500 rounded-full flex items-center justify-center">
+						<div className="w-12 h-12 bg-gradient-to-br from-primary-600 to-primary-700 dark:from-primary-500 dark:to-primary-600 rounded-full flex items-center justify-center shadow-lg shadow-primary-500/30">
 							<SparklesIconSolid className="w-6 h-6 text-white" />
 						</div>
 						<div>
@@ -119,7 +122,7 @@ export default function ZakaatAdvisorChat({ isOpen, onClose }: ZakaatAdvisorChat
 					</div>
 					<button
 						onClick={onClose}
-						className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+						className="p-2 hover:bg-gradient-to-r hover:from-slate-100 hover:to-slate-50 dark:hover:from-slate-700 dark:hover:to-slate-800 rounded-xl transition-all"
 					>
 						<XMarkIcon className="w-5 h-5 text-slate-600 dark:text-slate-300" />
 					</button>
@@ -138,10 +141,10 @@ export default function ZakaatAdvisorChat({ isOpen, onClose }: ZakaatAdvisorChat
 								}`}
 							>
 								<div
-									className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+									className={`max-w-[80%] rounded-2xl px-4 py-3 shadow-sm ${
 										message.role === 'user'
-											? 'bg-primary-600 dark:bg-primary-500 text-white'
-											: 'bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-slate-100'
+											? 'bg-gradient-to-br from-primary-600 to-primary-700 dark:from-primary-500 dark:to-primary-600 text-white shadow-primary-500/20'
+											: 'bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 text-slate-900 dark:text-slate-100'
 									}`}
 								>
 									<p className="text-sm whitespace-pre-wrap leading-relaxed">
@@ -158,7 +161,7 @@ export default function ZakaatAdvisorChat({ isOpen, onClose }: ZakaatAdvisorChat
 							animate={{ opacity: 1 }}
 							className="flex justify-start"
 						>
-							<div className="bg-slate-100 dark:bg-slate-700 rounded-2xl px-4 py-3">
+							<div className="bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 rounded-2xl px-4 py-3 shadow-sm">
 								<div className="flex gap-1">
 									<div className="w-2 h-2 bg-slate-400 dark:bg-slate-500 rounded-full animate-bounce" />
 									<div
@@ -178,7 +181,7 @@ export default function ZakaatAdvisorChat({ isOpen, onClose }: ZakaatAdvisorChat
 						<motion.div
 							initial={{ opacity: 0, y: 10 }}
 							animate={{ opacity: 1, y: 0 }}
-							className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded-lg p-3"
+							className="bg-gradient-to-r from-red-50 to-red-100 dark:from-red-900/30 dark:to-red-800/20 border-2 border-red-200 dark:border-red-800/30 rounded-xl p-4 shadow-sm"
 						>
 							<p className="text-sm text-red-600 dark:text-red-400">{error}</p>
 						</motion.div>
@@ -188,7 +191,7 @@ export default function ZakaatAdvisorChat({ isOpen, onClose }: ZakaatAdvisorChat
 				</div>
 
 				{/* Input Area */}
-				<div className="p-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/50 rounded-b-2xl">
+				<div className="relative p-4 border-t-2 border-slate-200/60 dark:border-slate-700/60 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-700/50 dark:to-slate-800/50 rounded-b-2xl z-10">
 					<div className="flex gap-2">
 						<textarea
 							ref={inputRef}
@@ -196,14 +199,14 @@ export default function ZakaatAdvisorChat({ isOpen, onClose }: ZakaatAdvisorChat
 							onChange={(e) => setInput(e.target.value)}
 							onKeyPress={handleKeyPress}
 							placeholder="Ask about Zakaat..."
-							className="flex-1 resize-none rounded-lg border border-slate-300 dark:border-slate-600 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-transparent bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500"
+							className="flex-1 resize-none rounded-xl border-2 border-slate-200/60 dark:border-slate-700/60 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:focus:ring-primary-400/20 focus:border-primary-500 dark:focus:border-primary-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/20 dark:focus-visible:ring-primary-400/20 focus-visible:border-primary-500 dark:focus-visible:border-primary-400 bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 shadow-sm"
 							rows={1}
 							disabled={isLoading || true}
 						/>
 						<button
 							onClick={handleSend}
 							disabled={true}
-							className="px-4 py-2.5 bg-primary-600 dark:bg-primary-500 text-white rounded-lg hover:bg-primary-700 dark:hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
+							className="px-4 py-2.5 bg-gradient-to-br from-primary-600 to-primary-700 dark:from-primary-500 dark:to-primary-600 text-white rounded-xl hover:from-primary-700 hover:to-primary-800 dark:hover:from-primary-600 dark:hover:to-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center shadow-lg shadow-primary-500/30 hover:shadow-xl hover:shadow-primary-500/40"
 							title="API key not available"
 						>
 							<PaperAirplaneIcon className="w-5 h-5" />

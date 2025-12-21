@@ -13,7 +13,7 @@ export default function ReviewStep({ formData, onSubmit, onBack, isSubmitting }:
 
 	return (
 		<div className="space-y-6">
-			<div className="bg-primary-50 dark:bg-primary-900/20 border-2 border-primary-200 dark:border-primary-800 rounded-xl p-4">
+			<div className="bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/30 dark:to-primary-800/20 border-2 border-primary-200 dark:border-primary-800 rounded-xl p-4 shadow-sm">
 				<div className="flex items-start gap-3">
 					<CheckCircleIcon className="w-6 h-6 text-primary-600 dark:text-primary-400 flex-shrink-0 mt-0.5" />
 					<div>
@@ -29,7 +29,7 @@ export default function ReviewStep({ formData, onSubmit, onBack, isSubmitting }:
 			</div>
 
 			{/* Application Type */}
-			<div className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
+			<div className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-xl p-4 border-2 border-slate-200/60 dark:border-slate-700/60 shadow-sm">
 				<h4 className="font-semibold text-slate-900 dark:text-slate-100 mb-2">
 					Application Type
 				</h4>
@@ -40,7 +40,7 @@ export default function ReviewStep({ formData, onSubmit, onBack, isSubmitting }:
 
 			{/* Eligibility */}
 			{formData.eligibility && (
-				<div className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
+				<div className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-xl p-4 border-2 border-slate-200/60 dark:border-slate-700/60 shadow-sm">
 					<h4 className="font-semibold text-slate-900 dark:text-slate-100 mb-2">
 						Amount Requested
 					</h4>
@@ -52,7 +52,7 @@ export default function ReviewStep({ formData, onSubmit, onBack, isSubmitting }:
 
 			{/* Personal/Organization Info */}
 			{formData.personalInfo && (
-				<div className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
+				<div className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-xl p-4 border-2 border-slate-200/60 dark:border-slate-700/60 shadow-sm">
 					<h4 className="font-semibold text-slate-900 dark:text-slate-100 mb-2">
 						{isIndividual ? 'Personal Information' : 'Organization Information'}
 					</h4>
@@ -82,7 +82,7 @@ export default function ReviewStep({ formData, onSubmit, onBack, isSubmitting }:
 
 			{/* Identity Verification */}
 			{formData.identityVerification.idDocumentUrl && (
-				<div className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
+				<div className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-xl p-4 border-2 border-slate-200/60 dark:border-slate-700/60 shadow-sm">
 					<h4 className="font-semibold text-slate-900 dark:text-slate-100 mb-2">
 						Identity Verification
 					</h4>
@@ -94,7 +94,7 @@ export default function ReviewStep({ formData, onSubmit, onBack, isSubmitting }:
 
 			{/* Financial Info (for organizations) */}
 			{formData.financialInfo && (
-				<div className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
+				<div className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-xl p-4 border-2 border-slate-200/60 dark:border-slate-700/60 shadow-sm">
 					<h4 className="font-semibold text-slate-900 dark:text-slate-100 mb-2">
 						Financial Information
 					</h4>
@@ -113,7 +113,7 @@ export default function ReviewStep({ formData, onSubmit, onBack, isSubmitting }:
 
 			{/* Intended Use */}
 			{formData.intendedUse && (
-				<div className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
+				<div className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-xl p-4 border-2 border-slate-200/60 dark:border-slate-700/60 shadow-sm">
 					<h4 className="font-semibold text-slate-900 dark:text-slate-100 mb-2">
 						Intended Use of Funds
 					</h4>
@@ -129,7 +129,7 @@ export default function ReviewStep({ formData, onSubmit, onBack, isSubmitting }:
 
 			{/* Bank Details */}
 			{formData.bankDetails && (
-				<div className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
+				<div className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-xl p-4 border-2 border-slate-200/60 dark:border-slate-700/60 shadow-sm">
 					<h4 className="font-semibold text-slate-900 dark:text-slate-100 mb-2">
 						Bank Details
 					</h4>
@@ -146,7 +146,7 @@ export default function ReviewStep({ formData, onSubmit, onBack, isSubmitting }:
 				<button
 					onClick={onBack}
 					disabled={isSubmitting}
-					className="flex-1 px-4 py-3 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold rounded-xl hover:bg-slate-200 dark:hover:bg-slate-600 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+					className="flex-1 px-4 py-3 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 text-slate-700 dark:text-slate-300 font-semibold rounded-xl hover:from-slate-200 hover:to-slate-300 dark:hover:from-slate-600 dark:hover:to-slate-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50 shadow-sm"
 				>
 					<ArrowLeftIcon className="w-5 h-5" />
 					Back
@@ -154,11 +154,11 @@ export default function ReviewStep({ formData, onSubmit, onBack, isSubmitting }:
 				<button
 					onClick={onSubmit}
 					disabled={isSubmitting}
-					className="flex-1 px-4 py-3 bg-primary-500 text-white font-semibold rounded-xl hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+					className="flex-1 px-4 py-3 bg-gradient-to-br from-primary-500 via-primary-600 to-primary-700 text-white font-semibold rounded-xl hover:from-primary-600 hover:via-primary-700 hover:to-primary-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 shadow-lg shadow-primary-500/30 hover:shadow-xl hover:shadow-primary-500/40"
 				>
 					{isSubmitting ? (
 						<>
-							<div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+							<div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
 							Submitting...
 						</>
 					) : (

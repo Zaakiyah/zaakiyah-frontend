@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDownIcon, CheckIcon } from '@heroicons/react/24/outline';
 import { useCurrencyStore } from '../../store/currencyStore';
 import type { SupportedCurrency } from '../../services/currencyService';
@@ -22,7 +24,9 @@ export default function CurrencySelector({
 }: CurrencySelectorProps) {
 	const [isOpen, setIsOpen] = useState(false);
 	const [searchQuery, setSearchQuery] = useState('');
+	const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
 	const dropdownRef = useRef<HTMLDivElement>(null);
+	const buttonRef = useRef<HTMLButtonElement>(null);
 	
 	const { preferredCurrency, supportedCurrencies, fetchSupportedCurrencies } = useCurrencyStore();
 	const selectedCurrency = value || preferredCurrency;
@@ -34,18 +38,37 @@ export default function CurrencySelector({
 		}
 	}, [supportedCurrencies.length, fetchSupportedCurrencies]);
 
+	// Calculate dropdown position when opening
+	useEffect(() => {
+		if (isOpen && buttonRef.current) {
+			const rect = buttonRef.current.getBoundingClientRect();
+			setDropdownPosition({
+				top: rect.bottom + window.scrollY + 8,
+				left: rect.left + window.scrollX,
+				width: rect.width,
+			});
+		}
+	}, [isOpen]);
+
 	// Close dropdown when clicking outside
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
-			if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+			if (
+				dropdownRef.current &&
+				!dropdownRef.current.contains(event.target as Node) &&
+				buttonRef.current &&
+				!buttonRef.current.contains(event.target as Node)
+			) {
 				setIsOpen(false);
 				setSearchQuery('');
 			}
 		};
 
-		document.addEventListener('mousedown', handleClickOutside);
+		if (isOpen) {
+			document.addEventListener('mousedown', handleClickOutside);
+		}
 		return () => document.removeEventListener('mousedown', handleClickOutside);
-	}, []);
+	}, [isOpen]);
 
 	// Filter currencies based on search
 	const filteredCurrencies = supportedCurrencies.filter((currency) =>
@@ -65,24 +88,27 @@ export default function CurrencySelector({
 	};
 
 	return (
-		<div className={`relative ${className}`} ref={dropdownRef}>
+		<div className={`relative z-10 ${className}`} ref={dropdownRef}>
 			{label && (
-				<label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+				<label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
 					{label}
 				</label>
 			)}
 
 			<button
+				ref={buttonRef}
 				type="button"
 				onClick={() => !disabled && setIsOpen(!isOpen)}
 				disabled={disabled}
 				className={`
-					w-full px-4 py-2.5 text-left bg-white dark:bg-slate-800 border rounded-lg
-					flex items-center justify-between gap-2
-					transition-colors
-					${error ? 'border-error-300 dark:border-error-600 focus:border-error-500 dark:focus:border-error-500' : 'border-slate-300 dark:border-slate-700 focus:border-primary-500 dark:focus:border-primary-400'}
-					${disabled ? 'bg-slate-50 dark:bg-slate-700 cursor-not-allowed opacity-60' : 'hover:border-slate-400 dark:hover:border-slate-600 cursor-pointer'}
-					focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:focus:ring-primary-400/20
+					w-full px-4 py-3 text-left bg-white dark:bg-slate-800 border-2 rounded-xl
+					flex items-center justify-between gap-2 font-medium
+					transition-all shadow-sm hover:shadow-md focus:shadow-lg
+					focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:focus:ring-primary-400/20 focus:border-primary-500 dark:focus:border-primary-400
+					focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/20 dark:focus-visible:ring-primary-400/20 focus-visible:border-primary-500 dark:focus-visible:border-primary-400
+					${error ? 'border-red-500 dark:border-red-500 focus:border-red-500 dark:focus:border-red-500 focus:ring-red-500/20 focus-visible:border-red-500 dark:focus-visible:border-red-500 focus-visible:ring-red-500/20' : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'}
+					${isOpen && !error ? 'ring-2 ring-primary-500/20 dark:ring-primary-400/20 border-primary-500 dark:border-primary-400 shadow-lg' : ''}
+					${disabled ? 'bg-slate-50 dark:bg-slate-700 cursor-not-allowed opacity-60' : 'cursor-pointer'}
 				`}
 			>
 				<div className="flex items-center gap-2 min-w-0 flex-1">
@@ -107,16 +133,31 @@ export default function CurrencySelector({
 				<p className="mt-1.5 text-xs text-error-600 dark:text-error-400">{error}</p>
 			)}
 
-			{isOpen && (
-				<div className="absolute z-50 w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg max-h-64 overflow-hidden flex flex-col">
+			{typeof window !== 'undefined' &&
+				createPortal(
+					<AnimatePresence>
+						{isOpen && (
+							<motion.div
+								ref={dropdownRef}
+								initial={{ opacity: 0, y: -10, scale: 0.95 }}
+								animate={{ opacity: 1, y: 0, scale: 1 }}
+								exit={{ opacity: 0, y: -10, scale: 0.95 }}
+								transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+								className="fixed z-[9998] bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl max-h-64 overflow-hidden flex flex-col"
+								style={{
+									top: `${dropdownPosition.top}px`,
+									left: `${dropdownPosition.left}px`,
+									width: `${dropdownPosition.width}px`,
+								}}
+							>
 					{/* Search input */}
-					<div className="p-2 border-b border-slate-200 dark:border-slate-700">
+					<div className="p-3 border-b border-slate-200 dark:border-slate-700">
 						<input
 							type="text"
 							placeholder="Search currency..."
 							value={searchQuery}
 							onChange={(e) => setSearchQuery(e.target.value)}
-							className="w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:focus:ring-primary-400/20 focus:border-primary-500 dark:focus:border-primary-400 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500"
+							className="w-full px-3 py-2 text-sm font-medium border-2 border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:focus:ring-primary-400/20 focus:border-primary-500 dark:focus:border-primary-400 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 shadow-sm"
 							autoFocus
 						/>
 					</div>
@@ -134,9 +175,12 @@ export default function CurrencySelector({
 									type="button"
 									onClick={() => handleSelect(currency)}
 									className={`
-										w-full px-4 py-2.5 text-left flex items-center gap-3
-										hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors
-										${selectedCurrency === currency.code ? 'bg-primary-50 dark:bg-primary-900/20' : ''}
+										w-full px-4 py-3 text-left flex items-center gap-3 font-medium
+										transition-all duration-200
+										${selectedCurrency === currency.code 
+											? 'bg-gradient-to-r from-primary-50 to-primary-100 dark:from-primary-900/30 dark:to-primary-800/20' 
+											: 'hover:bg-gradient-to-r hover:from-slate-50 hover:to-slate-100 dark:hover:from-slate-700 dark:hover:to-slate-800'
+										}
 									`}
 								>
 									<span className="text-lg font-medium w-8">{currency.symbol}</span>
@@ -153,8 +197,11 @@ export default function CurrencySelector({
 							))
 						)}
 					</div>
-				</div>
-			)}
+							</motion.div>
+						)}
+					</AnimatePresence>,
+					document.body
+				)}
 		</div>
 	);
 }

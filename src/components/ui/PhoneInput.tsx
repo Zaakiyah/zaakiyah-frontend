@@ -172,7 +172,7 @@ const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
 		return (
 			<div className="w-full">
 				{label && (
-					<label className="block text-sm font-medium text-slate-900 dark:text-slate-100 mb-2">{label}</label>
+					<label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">{label}</label>
 				)}
 				<div className="relative flex">
 					<div className="relative" ref={dropdownRef}>
@@ -182,11 +182,11 @@ const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
 							className={`
 								px-4 py-3 rounded-l-xl border-2 border-r-0
 								transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-0
-								bg-white dark:bg-slate-800 flex items-center gap-2
+								bg-white dark:bg-slate-800 flex items-center gap-2 font-medium shadow-sm hover:shadow-md
 								${
 									error
-										? 'border-error-300 dark:border-error-600 focus:border-error-500 dark:focus:border-error-500 focus:ring-error-500/20'
-										: 'border-slate-200 dark:border-slate-700 focus:border-primary-500 dark:focus:border-primary-400 focus:ring-primary-500/20 dark:focus:ring-primary-400/20'
+										? 'border-red-500 dark:border-red-500 focus:border-red-500 dark:focus:border-red-500 focus:ring-red-500/20'
+										: 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-primary-500 dark:focus:border-primary-400 focus:ring-primary-500/20 dark:focus:ring-primary-400/20'
 								}
 							`}
 						>
@@ -209,10 +209,11 @@ const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
 										onClick={() => setIsOpen(false)}
 									/>
 									<motion.div
-										initial={{ opacity: 0, y: -10 }}
-										animate={{ opacity: 1, y: 0 }}
-										exit={{ opacity: 0, y: -10 }}
-										className="absolute top-full left-0 mt-1 w-64 max-h-80 overflow-hidden bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl shadow-lg z-20 flex flex-col"
+										initial={{ opacity: 0, y: -10, scale: 0.95 }}
+										animate={{ opacity: 1, y: 0, scale: 1 }}
+										exit={{ opacity: 0, y: -10, scale: 0.95 }}
+										transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+										className="absolute top-full left-0 mt-1 w-64 max-h-80 overflow-hidden bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl shadow-xl z-20 flex flex-col"
 									>
 										<div className="p-2 border-b border-slate-200 dark:border-slate-700 sticky top-0 bg-white dark:bg-slate-800 z-10">
 											<div className="relative">
@@ -223,7 +224,7 @@ const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
 													value={searchQuery}
 													onChange={(e) => setSearchQuery(e.target.value)}
 													placeholder="Search country..."
-													className="w-full pl-10 pr-3 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:focus:ring-primary-400/20 focus:border-primary-500 dark:focus:border-primary-400 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500"
+													className="w-full pl-10 pr-3 py-2 text-sm font-medium border-2 border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:focus:ring-primary-400/20 focus:border-primary-500 dark:focus:border-primary-400 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 shadow-sm"
 													onClick={(e) => e.stopPropagation()}
 												/>
 											</div>
@@ -239,13 +240,13 @@ const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
 																handleCountrySelect(country)
 															}
 															className={`
-																w-full px-3 py-2 rounded-lg text-left
-																transition-colors flex items-center gap-3
+																w-full px-3 py-2 rounded-xl text-left
+																transition-all duration-200 flex items-center gap-3 font-medium
 																${
 																	selectedCountry.code ===
 																	country.code
-																		? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400'
-																		: 'hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300'
+																		? 'bg-gradient-to-r from-primary-50 to-primary-100 dark:from-primary-900/30 dark:to-primary-800/20 text-primary-700 dark:text-primary-400'
+																		: 'hover:bg-gradient-to-r hover:from-slate-50 hover:to-slate-100 dark:hover:from-slate-700 dark:hover:to-slate-800 text-slate-700 dark:text-slate-300'
 																}
 															`}
 														>
@@ -284,15 +285,16 @@ const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
 						className={`
 							flex-1 px-5 py-3 
 							rounded-r-xl border-2 transition-all duration-200
-							text-sm
+							text-sm font-medium
 							focus:outline-none focus:ring-2 focus:ring-offset-0
 							placeholder:text-slate-400 dark:placeholder:text-slate-500
 							bg-white dark:bg-slate-800
 							text-slate-900 dark:text-slate-100
+							shadow-sm hover:shadow-md focus:shadow-lg
 							${
 								error
-									? 'border-error-300 dark:border-error-600 focus:border-error-500 dark:focus:border-error-500 focus:ring-error-500/20'
-									: 'border-slate-200 dark:border-slate-700 focus:border-primary-500 dark:focus:border-primary-400 focus:ring-primary-500/20 dark:focus:ring-primary-400/20'
+									? 'border-red-500 dark:border-red-500 focus:border-red-500 dark:focus:border-red-500 focus:ring-red-500/20'
+									: 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-primary-500 dark:focus:border-primary-400 focus:ring-primary-500/20 dark:focus:ring-primary-400/20'
 							}
 							${className}
 						`}

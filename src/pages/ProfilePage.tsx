@@ -22,6 +22,7 @@ import {
 	DocumentTextIcon,
 	ArrowRightIcon,
 } from '@heroicons/react/24/outline';
+import { CheckBadgeIcon } from '@heroicons/react/24/solid';
 
 export default function ProfilePage() {
 	const navigate = useNavigate();
@@ -93,10 +94,10 @@ export default function ProfilePage() {
 	];
 
 	return (
-		<div className="min-h-screen bg-slate-50 dark:bg-slate-900 pb-20">
+		<div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 pb-20">
 			{/* Compact Header */}
-			<header className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border-b border-slate-200/60 dark:border-slate-700/60 sticky top-0 z-40 shadow-sm">
-				<div className="px-4 py-3">
+			<header className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl border-b-2 border-slate-200/60 dark:border-slate-700/60 sticky top-0 z-40 shadow-lg">
+				<div className="px-4 py-3.5">
 					<h1 className="text-lg font-bold text-slate-900 dark:text-slate-100">Profile</h1>
 				</div>
 			</header>
@@ -105,21 +106,24 @@ export default function ProfilePage() {
 			<main className="px-4 py-4 space-y-4">
 				{/* Compact Profile Card */}
 				<motion.div
-					initial={{ opacity: 0, y: 20 }}
-					animate={{ opacity: 1, y: 0 }}
-					className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-slate-200/60 dark:border-slate-700/60"
+					initial={{ opacity: 0, y: 20, scale: 0.95 }}
+					animate={{ opacity: 1, y: 0, scale: 1 }}
+					transition={{ type: 'spring', stiffness: 100 }}
+					className="relative bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl p-5 shadow-lg border-2 border-slate-200/60 dark:border-slate-700/60 overflow-hidden"
 				>
-					<div className="flex flex-col items-center text-center mb-4">
+					{/* Decorative gradient overlay */}
+					<div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-primary-500/5 via-secondary-500/5 to-primary-400/5 rounded-full blur-3xl -z-0" />
+					<div className="flex flex-col items-center text-center mb-4 relative z-10">
 						{/* Avatar */}
 						<div className="relative mb-3">
 							{user?.avatarUrl ? (
 								<img
 									src={user.avatarUrl}
 									alt={`${user.firstName} ${user.lastName}`}
-									className="w-20 h-20 rounded-full object-cover ring-2 ring-primary-100 dark:ring-primary-800 shadow-md"
+									className="w-20 h-20 rounded-full object-cover ring-4 ring-primary-200 dark:ring-primary-800 shadow-lg"
 								/>
 							) : (
-								<div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center ring-2 ring-primary-100 dark:ring-primary-800 shadow-md">
+								<div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary-500 via-primary-600 to-primary-700 flex items-center justify-center ring-4 ring-primary-200 dark:ring-primary-800 shadow-lg shadow-primary-500/30 dark:shadow-primary-600/30">
 									<span className="text-3xl font-bold text-white">
 										{user?.firstName?.[0]?.toUpperCase() || 'U'}
 									</span>
@@ -128,7 +132,7 @@ export default function ProfilePage() {
 							{/* Edit avatar button */}
 							<button
 								onClick={() => setIsAvatarEditSheetOpen(true)}
-								className="absolute bottom-0 right-0 w-7 h-7 bg-primary-600 rounded-full flex items-center justify-center shadow-md hover:bg-primary-700 transition-colors active:scale-95"
+								className="absolute bottom-0 right-0 w-8 h-8 bg-gradient-to-br from-primary-500 via-primary-600 to-primary-700 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-110 transition-all active:scale-95"
 								title="Change avatar"
 							>
 								<svg
@@ -147,10 +151,23 @@ export default function ProfilePage() {
 							</button>
 						</div>
 
-						{/* Name */}
-						<h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-0.5">
-							{user?.firstName} {user?.lastName}
-						</h2>
+						{/* Name with badges */}
+						<div className="flex items-center justify-center gap-2 mb-0.5">
+							<h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">
+								{user?.firstName} {user?.lastName}
+							</h2>
+							{/* Badges next to name */}
+							{user?.isAdmin && (
+								<div className="flex items-center" title="Admin">
+									<ShieldCheckIcon className="w-5 h-5 text-amber-500" />
+								</div>
+							)}
+							{user?.isVerified && !user?.isAdmin && (
+								<div className="flex items-center" title="Verified">
+									<CheckBadgeIcon className="w-5 h-5 text-primary-500" />
+								</div>
+							)}
+						</div>
 
 						{/* Email */}
 						{user?.email && (
@@ -162,11 +179,11 @@ export default function ProfilePage() {
 					</div>
 
 					{/* User Info */}
-					<div className="space-y-2 border-t border-slate-200 dark:border-slate-700 pt-3">
+					<div className="space-y-3 border-t-2 border-slate-200/60 dark:border-slate-700/60 pt-4 relative z-10">
 						{user?.mobileNumber && (
-							<div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200/50 dark:border-slate-600/50">
-								<div className="w-9 h-9 bg-slate-100 dark:bg-slate-600 rounded-lg flex items-center justify-center shrink-0">
-									<PhoneIcon className="w-4.5 h-4.5 text-slate-600 dark:text-slate-300" />
+							<div className="flex items-center gap-3 p-4 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-700/50 dark:to-slate-800/50 rounded-xl border-2 border-slate-200/60 dark:border-slate-600/60 shadow-sm">
+								<div className="w-10 h-10 bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/20 rounded-xl flex items-center justify-center shrink-0 shadow-sm">
+									<PhoneIcon className="w-5 h-5 text-primary-600 dark:text-primary-400" />
 								</div>
 								<div className="flex-1 min-w-0">
 									<p className="text-xs text-slate-500 dark:text-slate-400 mb-0.5">Phone Number</p>
@@ -178,9 +195,9 @@ export default function ProfilePage() {
 						)}
 
 						{user?.email && (
-							<div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200/50 dark:border-slate-600/50">
-								<div className="w-9 h-9 bg-slate-100 dark:bg-slate-600 rounded-lg flex items-center justify-center shrink-0">
-									<EnvelopeIcon className="w-4.5 h-4.5 text-slate-600 dark:text-slate-300" />
+							<div className="flex items-center gap-3 p-4 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-700/50 dark:to-slate-800/50 rounded-xl border-2 border-slate-200/60 dark:border-slate-600/60 shadow-sm">
+								<div className="w-10 h-10 bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/20 rounded-xl flex items-center justify-center shrink-0 shadow-sm">
+									<EnvelopeIcon className="w-5 h-5 text-primary-600 dark:text-primary-400" />
 								</div>
 								<div className="flex-1 min-w-0">
 									<p className="text-xs text-slate-500 dark:text-slate-400 mb-0.5">Email Address</p>
@@ -192,8 +209,8 @@ export default function ProfilePage() {
 						)}
 
 						{user?.address && (
-							<div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200/50 dark:border-slate-600/50">
-								<div className="w-9 h-9 bg-slate-100 dark:bg-slate-600 rounded-lg flex items-center justify-center shrink-0">
+							<div className="flex items-center gap-3 p-4 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-700/50 dark:to-slate-800/50 rounded-xl border-2 border-slate-200/60 dark:border-slate-600/60 shadow-sm">
+								<div className="w-10 h-10 bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/20 rounded-xl flex items-center justify-center shrink-0 shadow-sm">
 									<svg
 										className="w-4.5 h-4.5 text-slate-600 dark:text-slate-300"
 										fill="none"
@@ -225,7 +242,7 @@ export default function ProfilePage() {
 
 						<button
 							onClick={() => setIsEditSheetOpen(true)}
-							className="w-full flex items-center justify-center gap-2 p-3 bg-primary-50 hover:bg-primary-100 rounded-lg border border-primary-200 transition-colors active:scale-[0.98] mt-2"
+							className="w-full flex items-center justify-center gap-2 p-3.5 bg-gradient-to-r from-primary-50 to-primary-100 dark:from-primary-900/30 dark:to-primary-800/20 hover:from-primary-100 hover:to-primary-200 dark:hover:from-primary-800/40 dark:hover:to-primary-700/30 rounded-xl border-2 border-primary-200 dark:border-primary-800/30 transition-all shadow-sm hover:shadow-md active:scale-[0.98] mt-3"
 						>
 							<svg
 								className="w-4 h-4 text-primary-600"
@@ -249,21 +266,24 @@ export default function ProfilePage() {
 
 				{/* Compact Menu Items */}
 				<motion.div
-					initial={{ opacity: 0, y: 20 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ delay: 0.1 }}
-					className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200/60 dark:border-slate-700/60 overflow-hidden"
+					initial={{ opacity: 0, y: 20, scale: 0.95 }}
+					animate={{ opacity: 1, y: 0, scale: 1 }}
+					transition={{ delay: 0.1, type: 'spring', stiffness: 100 }}
+					className="relative bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl shadow-lg border-2 border-slate-200/60 dark:border-slate-700/60 overflow-hidden"
 				>
+					{/* Decorative gradient overlay */}
+					<div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary-500/5 via-secondary-500/5 to-primary-400/5 rounded-full blur-2xl -z-0" />
+					
 					{menuItems.map((item) => {
 						const Icon = item.icon;
 						return (
 							<button
 								key={item.label}
 								onClick={item.onClick}
-								className="w-full flex items-center gap-3 p-3 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors active:scale-[0.98] border-b border-slate-200/60 dark:border-slate-700/60 last:border-b-0"
+								className="w-full flex items-center gap-3 p-4 hover:bg-gradient-to-r hover:from-slate-50 hover:to-slate-100 dark:hover:from-slate-700 dark:hover:to-slate-800 transition-all active:scale-[0.98] border-b-2 border-slate-200/60 dark:border-slate-700/60 last:border-b-0 relative z-10"
 							>
-								<div className="w-9 h-9 bg-slate-100 dark:bg-slate-700 rounded-lg flex items-center justify-center flex-shrink-0">
-									<Icon className="w-5 h-5 text-slate-700 dark:text-slate-300" />
+								<div className="w-10 h-10 bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/20 rounded-xl flex items-center justify-center shrink-0 shadow-sm">
+									<Icon className="w-5 h-5 text-primary-600 dark:text-primary-400" />
 								</div>
 								<div className="flex-1 text-left">
 									<p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
@@ -278,14 +298,14 @@ export default function ProfilePage() {
 
 				{/* Compact Logout Button */}
 				<motion.div
-					initial={{ opacity: 0, y: 20 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ delay: 0.2 }}
+					initial={{ opacity: 0, y: 20, scale: 0.95 }}
+					animate={{ opacity: 1, y: 0, scale: 1 }}
+					transition={{ delay: 0.2, type: 'spring', stiffness: 100 }}
 				>
 					<button
 						onClick={() => setIsLogoutDialogOpen(true)}
 						disabled={isLoggingOut}
-						className="w-full flex items-center justify-center gap-2 p-3 bg-error-50 hover:bg-error-100 active:bg-error-200 rounded-xl border border-error-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+						className="w-full flex items-center justify-center gap-2 p-3.5 bg-gradient-to-r from-red-50 to-red-100 dark:from-red-900/30 dark:to-red-800/20 hover:from-red-100 hover:to-red-200 dark:hover:from-red-800/40 dark:hover:to-red-700/30 active:from-red-200 active:to-red-300 rounded-xl border-2 border-red-200 dark:border-red-800/30 transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
 					>
 						<ArrowRightOnRectangleIcon className="w-5 h-5 text-error-600" />
 						<span className="text-sm font-semibold text-error-600">

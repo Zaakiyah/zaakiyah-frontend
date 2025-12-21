@@ -56,12 +56,17 @@ export default function IntendedUseStep({
 		loadCategories();
 	}, []);
 
-	// Reset subcategory when category changes
+	// Reset subcategory when category changes (but preserve if it's still valid)
 	useEffect(() => {
 		if (category) {
-			setSubcategory('');
+			const selectedCategory = categories.find((cat) => cat.id === category);
+			const validSubcategories = selectedCategory?.subcategories || [];
+			// Only reset if current subcategory is not valid for new category
+			if (subcategory && !validSubcategories.find((sub) => sub.id === subcategory)) {
+				setSubcategory('');
+			}
 		}
-	}, [category]);
+	}, [category, categories, subcategory]);
 
 	const selectedCategory = categories.find((cat) => cat.id === category);
 	const subcategories = selectedCategory?.subcategories || [];
@@ -167,7 +172,7 @@ export default function IntendedUseStep({
 					onChange={(e) => setDescription(e.target.value)}
 					placeholder="Describe how you intend to use the funds..."
 					rows={5}
-					className="w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
+					className="w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:focus:ring-primary-400/20 focus:border-primary-500 dark:focus:border-primary-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/20 dark:focus-visible:ring-primary-400/20 focus-visible:border-primary-500 dark:focus-visible:border-primary-400 resize-none"
 				/>
 			</div>
 

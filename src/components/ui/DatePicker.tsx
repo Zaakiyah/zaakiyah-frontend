@@ -146,16 +146,19 @@ export default function DatePicker({
 				onClick={() => !disabled && setIsOpen(!isOpen)}
 				disabled={disabled}
 				className={`
-					w-full px-3 py-2 text-sm rounded-lg border-2 transition-all
+					w-full px-4 py-3 text-sm font-medium rounded-xl border-2 transition-all
 					flex items-center gap-2
+					focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:focus:ring-primary-400/20 focus:border-primary-500 dark:focus:border-primary-400
+					focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/20 dark:focus-visible:ring-primary-400/20 focus-visible:border-primary-500 dark:focus-visible:border-primary-400
+					shadow-sm hover:shadow-md focus:shadow-lg
 					${
 						disabled
 							? 'opacity-60 cursor-not-allowed'
-							: 'cursor-pointer hover:border-primary-300 dark:hover:border-primary-600'
+							: 'cursor-pointer hover:border-slate-300 dark:hover:border-slate-600'
 					}
 					${
 						isOpen
-							? 'border-primary-500 dark:border-primary-400 ring-2 ring-primary-500/20 dark:ring-primary-400/20'
+							? 'border-primary-500 dark:border-primary-400 ring-2 ring-primary-500/20 dark:ring-primary-400/20 shadow-lg'
 							: 'border-slate-200 dark:border-slate-700'
 					}
 					bg-white dark:bg-slate-800
@@ -175,25 +178,25 @@ export default function DatePicker({
 						initial={{ opacity: 0, y: -10, scale: 0.95 }}
 						animate={{ opacity: 1, y: 0, scale: 1 }}
 						exit={{ opacity: 0, y: -10, scale: 0.95 }}
-						transition={{ duration: 0.2 }}
-						className="absolute top-full left-0 mt-2 z-50 w-72 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-4"
+						transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+						className="absolute top-full left-0 mt-2 z-50 w-72 bg-white dark:bg-slate-800 rounded-xl shadow-xl border-2 border-slate-200 dark:border-slate-700 p-4"
 					>
 						{/* Header */}
 						<div className="flex items-center justify-between mb-4">
 							<button
 								type="button"
 								onClick={() => navigateMonth('prev')}
-								className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+								className="p-2 rounded-xl hover:bg-gradient-to-r hover:from-slate-100 hover:to-slate-50 dark:hover:from-slate-700 dark:hover:to-slate-800 transition-all"
 							>
 								<ChevronLeftIcon className="w-5 h-5 text-slate-600 dark:text-slate-400" />
 							</button>
-							<h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+							<h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
 								{monthName}
 							</h3>
 							<button
 								type="button"
 								onClick={() => navigateMonth('next')}
-								className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+								className="p-2 rounded-xl hover:bg-gradient-to-r hover:from-slate-100 hover:to-slate-50 dark:hover:from-slate-700 dark:hover:to-slate-800 transition-all"
 							>
 								<ChevronRightIcon className="w-5 h-5 text-slate-600 dark:text-slate-400" />
 							</button>
@@ -231,17 +234,17 @@ export default function DatePicker({
 										onClick={() => !disabled && handleDateSelect(day)}
 										disabled={disabled}
 										className={`
-											aspect-square rounded-lg text-sm font-medium transition-all
+											aspect-square rounded-xl text-sm font-medium transition-all
 											${
 												disabled
 													? 'opacity-30 cursor-not-allowed text-slate-400 dark:text-slate-600'
-													: 'cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700'
+													: 'cursor-pointer hover:bg-gradient-to-r hover:from-slate-100 hover:to-slate-50 dark:hover:from-slate-700 dark:hover:to-slate-800'
 											}
 											${
 												selected
-													? 'bg-primary-500 dark:bg-primary-600 text-white hover:bg-primary-600 dark:hover:bg-primary-500'
+													? 'bg-gradient-to-br from-primary-500 via-primary-600 to-primary-700 dark:from-primary-600 dark:via-primary-700 dark:to-primary-800 text-white shadow-md shadow-primary-500/30 dark:shadow-primary-600/30 hover:from-primary-600 hover:via-primary-700 hover:to-primary-800'
 													: today
-														? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 font-semibold'
+														? 'bg-gradient-to-r from-primary-50 to-primary-100 dark:from-primary-900/30 dark:to-primary-800/20 text-primary-600 dark:text-primary-400 font-bold border-2 border-primary-200 dark:border-primary-800'
 														: 'text-slate-700 dark:text-slate-300'
 											}
 										`}

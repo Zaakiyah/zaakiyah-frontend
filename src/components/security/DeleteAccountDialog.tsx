@@ -95,36 +95,40 @@ export default function DeleteAccountDialog({
 							initial={{ opacity: 0, scale: 0.95, y: 20 }}
 							animate={{ opacity: 1, scale: 1, y: 0 }}
 							exit={{ opacity: 0, scale: 0.95, y: 20 }}
+							transition={{ type: 'spring', stiffness: 300, damping: 25 }}
 							onClick={(e) => e.stopPropagation()}
-							className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 pointer-events-auto"
+							className="relative bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl shadow-xl max-w-md w-full p-6 pointer-events-auto border-2 border-slate-200/60 dark:border-slate-700/60 overflow-hidden"
 						>
+							{/* Decorative gradient overlay */}
+							<div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-red-500/10 via-rose-500/10 to-red-400/5 rounded-full blur-2xl -z-0" />
+							
 							{/* Header */}
-							<div className="flex items-start gap-4 mb-6">
-								<div className="w-12 h-12 bg-error-100 rounded-full flex items-center justify-center shrink-0">
-									<ExclamationTriangleIcon className="w-6 h-6 text-error-600" />
+							<div className="flex items-start gap-4 mb-6 relative z-10">
+								<div className="w-14 h-14 bg-gradient-to-br from-red-100 to-rose-200 dark:from-red-900/30 dark:to-rose-800/20 rounded-2xl flex items-center justify-center shrink-0 shadow-lg shadow-red-500/20 dark:shadow-red-600/20">
+									<ExclamationTriangleIcon className="w-7 h-7 text-red-600 dark:text-red-400" />
 								</div>
 								<div className="flex-1">
-									<h2 className="text-xl font-bold text-slate-900 mb-1">
+									<h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">
 										Delete Account
 									</h2>
-									<p className="text-sm text-slate-600">
+									<p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
 										This action cannot be undone. All your data will be permanently deleted.
 									</p>
 								</div>
 								<button
 									onClick={handleClose}
 									disabled={isDeleting}
-									className="text-slate-400 hover:text-slate-600 transition-colors disabled:opacity-50"
+									className="p-2 rounded-xl hover:bg-gradient-to-r hover:from-slate-100 hover:to-slate-50 dark:hover:from-slate-700 dark:hover:to-slate-800 transition-all disabled:opacity-50 shrink-0"
 								>
-									<XMarkIcon className="w-5 h-5" />
+									<XMarkIcon className="w-5 h-5 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300" />
 								</button>
 							</div>
 
 							{/* Content */}
-							<div className="space-y-4 mb-6">
+							<div className="space-y-4 mb-6 relative z-10">
 								{!hasPassword && (
-									<div className="p-3 bg-primary-50 border border-primary-200 rounded-lg">
-										<p className="text-sm text-primary-700">
+									<div className="p-4 bg-gradient-to-r from-primary-50 to-primary-100 dark:from-primary-900/30 dark:to-primary-800/20 border-2 border-primary-200 dark:border-primary-800/30 rounded-xl shadow-sm">
+										<p className="text-sm font-medium text-primary-700 dark:text-primary-300">
 											You're signed in with OAuth. Your account will be deleted without password confirmation.
 										</p>
 									</div>
@@ -157,12 +161,12 @@ export default function DeleteAccountDialog({
 									</div>
 								)}
 
-								<div className="bg-slate-50 rounded-lg p-3 border border-slate-200">
-									<p className="text-xs text-slate-600">
-										<strong className="text-slate-900">Warning:</strong> Deleting your account
+								<div className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-700/50 dark:to-slate-800/50 rounded-xl p-4 border-2 border-slate-200 dark:border-slate-600 shadow-sm">
+									<p className="text-xs font-medium text-slate-600 dark:text-slate-400">
+										<strong className="text-slate-900 dark:text-slate-100">Warning:</strong> Deleting your account
 										will permanently remove all your data, including:
 									</p>
-									<ul className="mt-2 text-xs text-slate-600 list-disc list-inside space-y-1">
+									<ul className="mt-3 text-xs text-slate-600 dark:text-slate-400 list-disc list-inside space-y-1.5">
 										<li>Your profile information</li>
 										<li>All your preferences and settings</li>
 										<li>Your notification history</li>

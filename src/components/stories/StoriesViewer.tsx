@@ -85,7 +85,7 @@ export default function StoriesViewer({ isOpen, onClose }: StoriesViewerProps) {
 					onClick={handleClose}
 				>
 					<motion.div
-						className="relative w-full max-w-lg h-[85vh] bg-gradient-to-br from-slate-900 via-primary-900 to-slate-800 dark:from-slate-900 dark:via-primary-900 dark:to-slate-800 rounded-3xl overflow-hidden shadow-2xl border border-white/10 dark:border-white/10"
+						className="relative w-full max-w-lg h-[85vh] bg-gradient-to-br from-slate-900 via-primary-900 to-slate-800 dark:from-slate-900 dark:via-primary-900 dark:to-slate-800 rounded-3xl overflow-hidden shadow-2xl border-2 border-white/20 dark:border-white/20"
 						initial={{ scale: 0.95, opacity: 0, y: 20 }}
 						animate={{ scale: 1, opacity: 1, y: 0 }}
 						exit={{ scale: 0.95, opacity: 0, y: 20 }}
@@ -101,7 +101,7 @@ export default function StoriesViewer({ isOpen, onClose }: StoriesViewerProps) {
 							{impactStories.map((_, index) => (
 								<button
 									key={index}
-									className="flex-1 h-1 bg-white/20 dark:bg-white/20 rounded-full overflow-hidden cursor-pointer hover:bg-white/30 transition-colors"
+									className="flex-1 h-1.5 bg-white/20 dark:bg-white/20 rounded-full overflow-hidden cursor-pointer hover:bg-white/30 transition-all shadow-inner"
 									onClick={(e) => {
 										e.stopPropagation();
 										goToStory(index);
@@ -109,7 +109,7 @@ export default function StoriesViewer({ isOpen, onClose }: StoriesViewerProps) {
 									aria-label={`Go to story ${index + 1}`}
 								>
 									<motion.div
-										className="h-full bg-white dark:bg-white rounded-full shadow-lg"
+										className="h-full bg-gradient-to-r from-white via-white to-white/90 dark:from-white dark:via-white dark:to-white/90 rounded-full shadow-lg"
 										initial={{ width: index < currentStoryIndex ? '100%' : '0%' }}
 										animate={{
 											width:
@@ -128,7 +128,7 @@ export default function StoriesViewer({ isOpen, onClose }: StoriesViewerProps) {
 						{/* Close button - Modern design */}
 						<motion.button
 							onClick={handleClose}
-							className="absolute top-4 right-4 z-30 p-2.5 bg-white/10 dark:bg-white/10 backdrop-blur-md rounded-full text-white hover:bg-white/20 dark:hover:bg-white/20 transition-all hover:scale-110 active:scale-95 border border-white/20 dark:border-white/20"
+							className="absolute top-4 right-4 z-30 p-2.5 bg-white/10 dark:bg-white/10 backdrop-blur-md rounded-full text-white hover:bg-white/20 dark:hover:bg-white/20 transition-all hover:scale-110 active:scale-95 border-2 border-white/20 dark:border-white/20 shadow-lg"
 							aria-label="Close stories"
 							whileHover={{ scale: 1.1 }}
 							whileTap={{ scale: 0.95 }}
@@ -147,7 +147,7 @@ export default function StoriesViewer({ isOpen, onClose }: StoriesViewerProps) {
 								className="flex items-center gap-4 mb-6"
 							>
 								<div
-									className={`w-14 h-14 rounded-2xl ${currentStory.author.avatarColor} flex items-center justify-center text-white font-bold text-lg shadow-lg ring-2 ring-white/20 dark:ring-white/20`}
+									className={`w-14 h-14 rounded-2xl ${currentStory.author.avatarColor} flex items-center justify-center text-white font-bold text-lg shadow-xl ring-2 ring-white/30 dark:ring-white/30`}
 								>
 									{currentStory.author.avatar}
 								</div>
@@ -186,7 +186,7 @@ export default function StoriesViewer({ isOpen, onClose }: StoriesViewerProps) {
 									initial={{ opacity: 0, scale: 0.95 }}
 									animate={{ opacity: 1, scale: 1 }}
 									transition={{ delay: 0.25 }}
-									className="mt-auto bg-white/10 dark:bg-white/10 backdrop-blur-xl rounded-2xl p-6 mb-6 border border-white/20 dark:border-white/20 shadow-xl"
+									className="mt-auto bg-white/10 dark:bg-white/10 backdrop-blur-xl rounded-2xl p-6 mb-6 border-2 border-white/20 dark:border-white/20 shadow-xl"
 								>
 									<p className="text-sm font-medium text-white/70 dark:text-white/70 mb-2 uppercase tracking-wide">
 										{currentStory.stats.label}
@@ -205,7 +205,7 @@ export default function StoriesViewer({ isOpen, onClose }: StoriesViewerProps) {
 								transition={{ delay: 0.3 }}
 								className="text-center"
 							>
-								<div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 dark:bg-white/10 backdrop-blur-md rounded-full border border-white/20 dark:border-white/20">
+								<div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 dark:bg-white/10 backdrop-blur-md rounded-full border-2 border-white/20 dark:border-white/20 shadow-lg">
 									<span className="text-sm font-medium text-white/90 dark:text-white/90">
 										{currentStoryIndex + 1}
 									</span>
@@ -223,7 +223,7 @@ export default function StoriesViewer({ isOpen, onClose }: StoriesViewerProps) {
 								e.stopPropagation();
 								prevStory();
 							}}
-							className="absolute left-4 top-1/2 -translate-y-1/2 z-30 p-3 bg-white/10 dark:bg-white/10 backdrop-blur-md rounded-full text-white hover:bg-white/20 dark:hover:bg-white/20 transition-all hover:scale-110 active:scale-95 border border-white/20 dark:border-white/20 shadow-lg"
+							className="absolute left-4 top-1/2 -translate-y-1/2 z-30 p-3 bg-white/10 dark:bg-white/10 backdrop-blur-md rounded-full text-white hover:bg-white/20 dark:hover:bg-white/20 transition-all hover:scale-110 active:scale-95 border-2 border-white/20 dark:border-white/20 shadow-lg"
 							aria-label="Previous story"
 							whileHover={{ scale: 1.1, x: -2 }}
 							whileTap={{ scale: 0.95 }}
@@ -236,7 +236,7 @@ export default function StoriesViewer({ isOpen, onClose }: StoriesViewerProps) {
 								e.stopPropagation();
 								nextStory();
 							}}
-							className="absolute right-4 top-1/2 -translate-y-1/2 z-30 p-3 bg-white/10 dark:bg-white/10 backdrop-blur-md rounded-full text-white hover:bg-white/20 dark:hover:bg-white/20 transition-all hover:scale-110 active:scale-95 border border-white/20 dark:border-white/20 shadow-lg"
+							className="absolute right-4 top-1/2 -translate-y-1/2 z-30 p-3 bg-white/10 dark:bg-white/10 backdrop-blur-md rounded-full text-white hover:bg-white/20 dark:hover:bg-white/20 transition-all hover:scale-110 active:scale-95 border-2 border-white/20 dark:border-white/20 shadow-lg"
 							aria-label="Next story"
 							whileHover={{ scale: 1.1, x: 2 }}
 							whileTap={{ scale: 0.95 }}
