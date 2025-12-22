@@ -59,9 +59,9 @@ export default function CurrencyDisplay({
 	);
 
 	const sizeClasses = {
-		sm: 'text-sm',
-		md: 'text-base',
-		lg: 'text-2xl',
+		sm: 'text-xs sm:text-sm',
+		md: 'text-sm sm:text-base',
+		lg: 'text-lg sm:text-xl md:text-2xl',
 	};
 
 	const fontSizes = {
@@ -84,14 +84,14 @@ export default function CurrencyDisplay({
 					{label}
 				</p>
 			)}
-			<div className="flex flex-col gap-1">
+			<div className="flex flex-col gap-1 min-w-0">
 				{/* Original amount */}
-				<div className="flex items-center gap-2">
-					<span className={`${sizeClasses[size]} font-bold ${variantClasses[variant]}`}>
+				<div className="flex items-center gap-2 min-w-0">
+					<span className={`${sizeClasses[size]} font-bold ${variantClasses[variant]} truncate`} title={formatCurrency(amount, originalCurrency)}>
 						{formatCurrency(amount, originalCurrency)}
 					</span>
 					{needsConversion && (
-						<span className="text-xs text-slate-500 dark:text-slate-400">
+						<span className="text-xs text-slate-500 dark:text-slate-400 flex-shrink-0">
 							({originalCurrency})
 						</span>
 					)}
@@ -99,10 +99,10 @@ export default function CurrencyDisplay({
 
 				{/* Converted amount */}
 				{needsConversion && (
-					<div className="flex items-center gap-1.5">
+					<div className="flex items-center gap-1.5 min-w-0">
 						{isLoading ? (
 							<>
-								<ArrowPathIcon className="w-3 h-3 text-slate-400 animate-spin" />
+								<ArrowPathIcon className="w-3 h-3 text-slate-400 animate-spin flex-shrink-0" />
 								<span className="text-xs text-slate-500 dark:text-slate-400">
 									Converting...
 								</span>
@@ -110,11 +110,12 @@ export default function CurrencyDisplay({
 						) : convertedAmount !== null ? (
 							<>
 								<span
-									className={`${fontSizes[size]} font-medium text-primary-600 dark:text-primary-400`}
+									className={`${fontSizes[size]} font-medium text-primary-600 dark:text-primary-400 truncate`}
+									title={`≈ ${formatCurrency(convertedAmount, preferredCurrency)}`}
 								>
 									≈ {formatCurrency(convertedAmount, preferredCurrency)}
 								</span>
-								<span className="text-xs text-slate-500 dark:text-slate-400">
+								<span className="text-xs text-slate-500 dark:text-slate-400 flex-shrink-0">
 									({preferredCurrency})
 								</span>
 							</>

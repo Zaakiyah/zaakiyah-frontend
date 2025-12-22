@@ -487,7 +487,7 @@ export default function NisaabHistoryPage() {
 										Gold
 									</p>
 									{goldTrend && goldTrend !== 'same' && (
-										<div className={`flex items-center ${goldTrend === 'up' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+										<div className={`flex items-center flex-shrink-0 ${goldTrend === 'up' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
 											{goldTrend === 'up' ? (
 												<ArrowTrendingUpIcon className="w-3 h-3" />
 											) : (
@@ -497,11 +497,12 @@ export default function NisaabHistoryPage() {
 									)}
 								</div>
 								<p
-									className={`text-base font-bold ${
+									className={`text-xs sm:text-sm md:text-base font-bold truncate ${
 										formatCurrencyWithFallback(item.goldNisaabValue) === 'Not Available'
 											? 'text-slate-400 dark:text-slate-500'
 											: 'text-slate-900 dark:text-slate-100'
 									}`}
+									title={formatCurrencyWithFallback(item.goldNisaabValue)}
 								>
 									{formatCurrencyWithFallback(item.goldNisaabValue)}
 								</p>
@@ -522,7 +523,7 @@ export default function NisaabHistoryPage() {
 										Silver
 									</p>
 									{silverTrend && silverTrend !== 'same' && (
-										<div className={`flex items-center ${silverTrend === 'up' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+										<div className={`flex items-center flex-shrink-0 ${silverTrend === 'up' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
 											{silverTrend === 'up' ? (
 												<ArrowTrendingUpIcon className="w-3 h-3" />
 											) : (
@@ -532,11 +533,12 @@ export default function NisaabHistoryPage() {
 									)}
 								</div>
 								<p
-									className={`text-base font-bold ${
+									className={`text-xs sm:text-sm md:text-base font-bold truncate ${
 										formatCurrencyWithFallback(item.silverNisaabValue) === 'Not Available'
 											? 'text-slate-400 dark:text-slate-500'
 											: 'text-slate-900 dark:text-slate-100'
 									}`}
+									title={formatCurrencyWithFallback(item.silverNisaabValue)}
 								>
 									{formatCurrencyWithFallback(item.silverNisaabValue)}
 								</p>
@@ -591,15 +593,15 @@ export default function NisaabHistoryPage() {
 							</div>
 							
 							<div className="grid grid-cols-2 gap-3">
-								<div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20">
+								<div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20 min-w-0">
 									<p className="text-xs text-white/80 mb-1">Avg Gold</p>
-									<p className="text-lg font-bold text-white">
+									<p className="text-sm sm:text-base md:text-lg font-bold text-white truncate" title={formatCurrency(stats.avgGold)}>
 										{formatCurrency(stats.avgGold)}
 									</p>
 								</div>
-								<div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20">
+								<div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20 min-w-0">
 									<p className="text-xs text-white/80 mb-1">Avg Silver</p>
-									<p className="text-lg font-bold text-white">
+									<p className="text-sm sm:text-base md:text-lg font-bold text-white truncate" title={formatCurrency(stats.avgSilver)}>
 										{formatCurrency(stats.avgSilver)}
 									</p>
 								</div>

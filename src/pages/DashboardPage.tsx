@@ -435,8 +435,11 @@ export default function DashboardPage() {
 								<div className="flex items-center gap-2 mb-2">
 									{isAmountVisible ? (
 										<>
-											<div className="flex-1">
-												<p className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-1">
+											<div className="flex-1 min-w-0">
+												<p className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100 mb-1 truncate" title={formatCurrency(
+														zakaatCalculation.amount,
+														zakaatCalculation.currency
+													)}>
 													{formatCurrency(
 														zakaatCalculation.amount,
 														zakaatCalculation.currency
@@ -445,7 +448,10 @@ export default function DashboardPage() {
 												{convertedAmount !== null &&
 													zakaatCalculation.currency !==
 														preferredCurrency && (
-														<p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+														<p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate" title={`≈ ${formatCurrency(
+																convertedAmount,
+																preferredCurrency
+															)}`}>
 															≈{' '}
 															{formatCurrency(
 																convertedAmount,
@@ -690,7 +696,7 @@ export default function DashboardPage() {
 											Gold
 										</p>
 									</div>
-									<p className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-1">
+									<p className="text-sm sm:text-base md:text-lg font-bold text-slate-900 dark:text-slate-100 mb-1 truncate" title={formatCurrency(nisaabData.goldNisaabValue)}>
 										{formatCurrency(nisaabData.goldNisaabValue)}
 									</p>
 									<p className="text-xs text-amber-700/80 dark:text-amber-300/80 font-medium">
@@ -711,7 +717,7 @@ export default function DashboardPage() {
 											Silver
 										</p>
 									</div>
-									<p className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-1">
+									<p className="text-sm sm:text-base md:text-lg font-bold text-slate-900 dark:text-slate-100 mb-1 truncate" title={formatCurrency(nisaabData.silverNisaabValue)}>
 										{formatCurrency(nisaabData.silverNisaabValue)}
 									</p>
 									<p className="text-xs text-slate-700/80 dark:text-slate-300/80 font-medium">
