@@ -87,7 +87,7 @@ export default function CurrencyDisplay({
 			<div className="flex flex-col gap-1 min-w-0">
 				{/* Original amount */}
 				<div className="flex items-center gap-2 min-w-0">
-					<span className={`${sizeClasses[size]} font-bold ${variantClasses[variant]} truncate`} title={formatCurrency(amount, originalCurrency)}>
+					<span className={`${sizeClasses[size]} font-bold ${variantClasses[variant]} break-words`}>
 						{formatCurrency(amount, originalCurrency)}
 					</span>
 					{needsConversion && (
@@ -110,8 +110,7 @@ export default function CurrencyDisplay({
 						) : convertedAmount !== null ? (
 							<>
 								<span
-									className={`${fontSizes[size]} font-medium text-primary-600 dark:text-primary-400 truncate`}
-									title={`≈ ${formatCurrency(convertedAmount, preferredCurrency)}`}
+									className={`${fontSizes[size]} font-medium text-primary-600 dark:text-primary-400 break-words`}
 								>
 									≈ {formatCurrency(convertedAmount, preferredCurrency)}
 								</span>

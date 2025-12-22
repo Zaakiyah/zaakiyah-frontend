@@ -8,6 +8,8 @@ import ZakaatAdvisorChat from './components/ai/ZakaatAdvisorChat';
 import { useAiChatStore } from './store/aiChatStore';
 import ThemeProvider from './components/layout/ThemeProvider';
 import AlertProvider from './components/layout/AlertProvider';
+import GlobalPullToRefresh from './components/layout/GlobalPullToRefresh';
+import { PullToRefreshProvider } from './contexts/PullToRefreshContext';
 import ErrorBoundary from './components/ErrorBoundary';
 import LoadingSkeleton from './components/wealth/LoadingSkeleton';
 
@@ -57,11 +59,13 @@ function App() {
 	return (
 		<ErrorBoundary>
 			<ThemeProvider>
-				<DeviceRegistration />
-				<AlertProvider />
-				<ZakaatAdvisorChat isOpen={isChatOpen} onClose={closeChat} />
-				<Suspense fallback={<PageLoader />}>
-					<Routes location={location} key={location.pathname}>
+				<PullToRefreshProvider>
+					<GlobalPullToRefresh />
+					<DeviceRegistration />
+					<AlertProvider />
+					<ZakaatAdvisorChat isOpen={isChatOpen} onClose={closeChat} />
+					<Suspense fallback={<PageLoader />}>
+						<Routes location={location} key={location.pathname}>
 						<Route path="/" element={<RootRedirect />} />
 						<Route path="/onboarding" element={<OnboardingPage />} />
 						<Route
@@ -328,6 +332,7 @@ function App() {
 						/>
 					</Routes>
 				</Suspense>
+				</PullToRefreshProvider>
 			</ThemeProvider>
 		</ErrorBoundary>
 	);

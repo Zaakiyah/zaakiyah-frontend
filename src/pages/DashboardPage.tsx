@@ -436,10 +436,7 @@ export default function DashboardPage() {
 									{isAmountVisible ? (
 										<>
 											<div className="flex-1 min-w-0">
-												<p className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100 mb-1 truncate" title={formatCurrency(
-														zakaatCalculation.amount,
-														zakaatCalculation.currency
-													)}>
+												<p className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-bold text-slate-900 dark:text-slate-100 mb-1 break-words">
 													{formatCurrency(
 														zakaatCalculation.amount,
 														zakaatCalculation.currency
@@ -448,10 +445,7 @@ export default function DashboardPage() {
 												{convertedAmount !== null &&
 													zakaatCalculation.currency !==
 														preferredCurrency && (
-														<p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate" title={`≈ ${formatCurrency(
-																convertedAmount,
-																preferredCurrency
-															)}`}>
+														<p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 break-words">
 															≈{' '}
 															{formatCurrency(
 																convertedAmount,
@@ -696,7 +690,7 @@ export default function DashboardPage() {
 											Gold
 										</p>
 									</div>
-									<p className="text-sm sm:text-base md:text-lg font-bold text-slate-900 dark:text-slate-100 mb-1 truncate" title={formatCurrency(nisaabData.goldNisaabValue)}>
+									<p className="text-[10px] sm:text-xs md:text-sm lg:text-base xl:text-lg font-bold text-slate-900 dark:text-slate-100 mb-1 break-words">
 										{formatCurrency(nisaabData.goldNisaabValue)}
 									</p>
 									<p className="text-xs text-amber-700/80 dark:text-amber-300/80 font-medium">
@@ -717,7 +711,7 @@ export default function DashboardPage() {
 											Silver
 										</p>
 									</div>
-									<p className="text-sm sm:text-base md:text-lg font-bold text-slate-900 dark:text-slate-100 mb-1 truncate" title={formatCurrency(nisaabData.silverNisaabValue)}>
+									<p className="text-[10px] sm:text-xs md:text-sm lg:text-base xl:text-lg font-bold text-slate-900 dark:text-slate-100 mb-1 break-words">
 										{formatCurrency(nisaabData.silverNisaabValue)}
 									</p>
 									<p className="text-xs text-slate-700/80 dark:text-slate-300/80 font-medium">

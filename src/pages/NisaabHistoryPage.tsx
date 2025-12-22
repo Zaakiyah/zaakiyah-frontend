@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { usePullToRefreshContext } from '../contexts/PullToRefreshContext';
 import {
 	CalendarIcon,
 	SparklesIcon,
@@ -48,6 +49,8 @@ export default function NisaabHistoryPage() {
 	const [searchError, setSearchError] = useState<string | null>(null);
 	const observerTarget = useRef<HTMLDivElement>(null);
 	const isFetchingRef = useRef(false);
+	const location = useLocation();
+	const { registerRefresh } = usePullToRefreshContext();
 
 	const fetchHistory = useCallback(
 		async (page: number, reset = false) => {
@@ -92,6 +95,15 @@ export default function NisaabHistoryPage() {
 		},
 		[preferredCurrency, user?.preferredCurrency, startDate, endDate]
 	);
+
+	// Register this page's refresh function
+	useEffect(() => {
+		const unregister = registerRefresh(location.pathname, async () => {
+			await fetchHistory(1, true);
+		});
+		return unregister;
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [location.pathname, registerRefresh, fetchHistory]);
 
 	// Sync currency with user profile on mount
 	useEffect(() => {
@@ -497,12 +509,11 @@ export default function NisaabHistoryPage() {
 									)}
 								</div>
 								<p
-									className={`text-xs sm:text-sm md:text-base font-bold truncate ${
+									className={`text-[10px] sm:text-xs md:text-sm lg:text-base font-bold break-words ${
 										formatCurrencyWithFallback(item.goldNisaabValue) === 'Not Available'
 											? 'text-slate-400 dark:text-slate-500'
 											: 'text-slate-900 dark:text-slate-100'
 									}`}
-									title={formatCurrencyWithFallback(item.goldNisaabValue)}
 								>
 									{formatCurrencyWithFallback(item.goldNisaabValue)}
 								</p>
@@ -533,12 +544,11 @@ export default function NisaabHistoryPage() {
 									)}
 								</div>
 								<p
-									className={`text-xs sm:text-sm md:text-base font-bold truncate ${
+									className={`text-[10px] sm:text-xs md:text-sm lg:text-base font-bold break-words ${
 										formatCurrencyWithFallback(item.silverNisaabValue) === 'Not Available'
 											? 'text-slate-400 dark:text-slate-500'
 											: 'text-slate-900 dark:text-slate-100'
 									}`}
-									title={formatCurrencyWithFallback(item.silverNisaabValue)}
 								>
 									{formatCurrencyWithFallback(item.silverNisaabValue)}
 								</p>
@@ -551,7 +561,7 @@ export default function NisaabHistoryPage() {
 	};
 
 	return (
-		<div className="min-h-screen bg-slate-50 dark:bg-slate-900 pb-20">
+		<div className="min-h-screen bg-slate-50 dark:bg-slate-900 pb-20 relative">
 			<PageHeader
 				title="Nisaab History"
 				showBack
@@ -595,13 +605,13 @@ export default function NisaabHistoryPage() {
 							<div className="grid grid-cols-2 gap-3">
 								<div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20 min-w-0">
 									<p className="text-xs text-white/80 mb-1">Avg Gold</p>
-									<p className="text-sm sm:text-base md:text-lg font-bold text-white truncate" title={formatCurrency(stats.avgGold)}>
+									<p className="text-[10px] sm:text-xs md:text-sm lg:text-base xl:text-lg font-bold text-white break-words">
 										{formatCurrency(stats.avgGold)}
 									</p>
 								</div>
 								<div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20 min-w-0">
 									<p className="text-xs text-white/80 mb-1">Avg Silver</p>
-									<p className="text-sm sm:text-base md:text-lg font-bold text-white truncate" title={formatCurrency(stats.avgSilver)}>
+									<p className="text-[10px] sm:text-xs md:text-sm lg:text-base xl:text-lg font-bold text-white break-words">
 										{formatCurrency(stats.avgSilver)}
 									</p>
 								</div>
