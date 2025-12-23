@@ -75,6 +75,7 @@ export default function DashboardPage() {
 	const [isLoadingCommunity, setIsLoadingCommunity] = useState(true);
 	const [copiedValue, setCopiedValue] = useState<string | null>(null);
 	const isFetchingRef = useRef(false);
+	const [likingPostId, setLikingPostId] = useState<string | null>(null);
 
 	// Sync currency with user profile and fetch currencies on mount
 	useEffect(() => {
@@ -229,7 +230,9 @@ export default function DashboardPage() {
 	}, []);
 
 	const handlePostLike = async (postId: string) => {
+		if (likingPostId === postId) return; // Prevent multiple clicks
 		try {
+			setLikingPostId(postId);
 			const response = await communityService.togglePostLike(postId);
 			if (response.data) {
 				setCommunityPosts((posts) =>
@@ -908,6 +911,7 @@ export default function DashboardPage() {
 											onLike={handlePostLike}
 											renderContentWithHashtags={renderContentWithHashtags}
 											formatDistanceToNow={formatDistanceToNow}
+											isLiking={likingPostId === post.id}
 										/>
 									))}
 								</div>

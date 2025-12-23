@@ -42,6 +42,7 @@ export default function MemberProfilePage() {
 	const [isFollowing, setIsFollowing] = useState(false);
 	const [showCommentSheet, setShowCommentSheet] = useState(false);
 	const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
+	const [likingPostId, setLikingPostId] = useState<string | null>(null);
 
 	const fetchMemberProfile = useCallback(async () => {
 		if (!id) return;
@@ -147,7 +148,9 @@ export default function MemberProfilePage() {
 	}, [activeTab, fetchMemberComments]);
 
 	const handlePostLike = async (postId: string) => {
+		if (likingPostId === postId) return; // Prevent multiple clicks
 		try {
+			setLikingPostId(postId);
 			const response = await communityService.togglePostLike(postId);
 			if (response.data) {
 				setPosts((prev) =>
@@ -166,6 +169,8 @@ export default function MemberProfilePage() {
 			}
 		} catch (error: any) {
 			logger.error('Error toggling post like:', error);
+		} finally {
+			setLikingPostId(null);
 		}
 	};
 
@@ -392,6 +397,7 @@ export default function MemberProfilePage() {
 										onDeleted={() => handlePostDeleted(post.id)}
 										onUpdated={handlePostUpdated}
 										onCommentClick={() => handleCommentClick(post.id)}
+										isLiking={likingPostId === post.id}
 									/>
 								))}
 							</div>

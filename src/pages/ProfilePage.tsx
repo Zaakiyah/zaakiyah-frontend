@@ -21,6 +21,7 @@ import {
 	QuestionMarkCircleIcon,
 	DocumentTextIcon,
 	ArrowRightIcon,
+	UserGroupIcon,
 } from '@heroicons/react/24/outline';
 import { CheckBadgeIcon } from '@heroicons/react/24/solid';
 
@@ -238,6 +239,20 @@ export default function ProfilePage() {
 									</p>
 								</div>
 							</div>
+						)}
+
+						{/* Community Profile Link */}
+						{user?.id && (
+							<button
+								onClick={() => navigate(`/community/members/${user.id}`)}
+								className="w-full flex items-center justify-center gap-2 p-3.5 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-700/50 dark:to-slate-800/50 hover:from-slate-100 hover:to-slate-200 dark:hover:from-slate-700/70 dark:hover:to-slate-800/70 rounded-xl border-2 border-slate-200/60 dark:border-slate-600/60 transition-all shadow-sm hover:shadow-md active:scale-[0.98] mt-3"
+							>
+								<UserGroupIcon className="w-4 h-4 text-slate-700 dark:text-slate-300" />
+								<span className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+									View Community Profile
+								</span>
+								<ArrowRightIcon className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+							</button>
 						)}
 
 						<button

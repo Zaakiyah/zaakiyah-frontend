@@ -25,6 +25,7 @@ export default function CommunityFeed({ searchQuery = '' }: CommunityFeedProps) 
 	const [filter, setFilter] = useState<'all' | 'trending' | 'videos'>('all');
 	const [showCommentSheet, setShowCommentSheet] = useState(false);
 	const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
+	const [likingPostId, setLikingPostId] = useState<string | null>(null);
 
 	const fetchPosts = useCallback(
 		async (pageNum: number = 1, append: boolean = false) => {
@@ -79,7 +80,9 @@ export default function CommunityFeed({ searchQuery = '' }: CommunityFeedProps) 
 	};
 
 	const handlePostLike = async (postId: string) => {
+		if (likingPostId === postId) return; // Prevent multiple clicks
 		try {
+			setLikingPostId(postId);
 			const response = await communityService.togglePostLike(postId);
 			if (response.data) {
 				setPosts((prev) =>
@@ -98,6 +101,8 @@ export default function CommunityFeed({ searchQuery = '' }: CommunityFeedProps) 
 			}
 		} catch (error: any) {
 			logger.error('Error toggling post like:', error);
+		} finally {
+			setLikingPostId(null);
 		}
 	};
 
@@ -247,6 +252,7 @@ export default function CommunityFeed({ searchQuery = '' }: CommunityFeedProps) 
 						onDeleted={() => handlePostDeleted(post.id)}
 						onUpdated={handlePostUpdated}
 						onCommentClick={() => handleCommentClick(post.id)}
+						isLiking={likingPostId === post.id}
 					/>
 				))}
 			</div>

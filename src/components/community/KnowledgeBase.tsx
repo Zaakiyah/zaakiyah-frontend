@@ -29,6 +29,7 @@ export default function KnowledgeBase({ searchQuery: propSearchQuery = '' }: Kno
 	const [loadingMore, setLoadingMore] = useState(false);
 	const [page, setPage] = useState(1);
 	const [hasMore, setHasMore] = useState(true);
+	const [likingResourceId, setLikingResourceId] = useState<string | null>(null);
 	const [filter, setFilter] = useState<{
 		type?: KnowledgeResourceType;
 		category?: KnowledgeResourceCategory;
@@ -87,11 +88,12 @@ export default function KnowledgeBase({ searchQuery: propSearchQuery = '' }: Kno
 	};
 
 	const handleLike = async (resourceId: string) => {
-		if (!user) {
+		if (!user || likingResourceId === resourceId) {
 			return;
 		}
 
 		try {
+			setLikingResourceId(resourceId);
 			const response = await communityService.toggleKnowledgeResourceLike(resourceId);
 			if (response.data) {
 				setResources((prev) =>
@@ -110,6 +112,8 @@ export default function KnowledgeBase({ searchQuery: propSearchQuery = '' }: Kno
 			}
 		} catch (error: any) {
 			logger.error('Error toggling resource like:', error);
+		} finally {
+			setLikingResourceId(null);
 		}
 	};
 
@@ -260,6 +264,7 @@ export default function KnowledgeBase({ searchQuery: propSearchQuery = '' }: Kno
 							key={resource.id}
 							resource={resource}
 							onLike={() => handleLike(resource.id)}
+							isLiking={likingResourceId === resource.id}
 						/>
 					))}
 

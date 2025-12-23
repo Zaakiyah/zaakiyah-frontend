@@ -33,6 +33,8 @@ export default function CommunitySearchPage() {
 	const [resourcesMeta, setResourcesMeta] = useState({ total: 0, page: 1, limit: 20, totalPages: 0 });
 	const [showCommentSheet, setShowCommentSheet] = useState(false);
 	const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
+	const [likingPostId, setLikingPostId] = useState<string | null>(null);
+	const [likingResourceId, setLikingResourceId] = useState<string | null>(null);
 
 	const fetchSearchResults = useCallback(async () => {
 		if (!query.trim()) {
@@ -72,7 +74,9 @@ export default function CommunitySearchPage() {
 	};
 
 	const handlePostLike = async (postId: string) => {
+		if (likingPostId === postId) return; // Prevent multiple clicks
 		try {
+			setLikingPostId(postId);
 			const response = await communityService.togglePostLike(postId);
 			if (response.data) {
 				setPosts((prev) =>
@@ -91,6 +95,8 @@ export default function CommunitySearchPage() {
 			}
 		} catch (error: any) {
 			logger.error('Error toggling post like:', error);
+		} finally {
+			setLikingPostId(null);
 		}
 	};
 
@@ -122,7 +128,9 @@ export default function CommunitySearchPage() {
 	};
 
 	const handleResourceLike = async (resourceId: string) => {
+		if (likingResourceId === resourceId) return; // Prevent multiple clicks
 		try {
+			setLikingResourceId(resourceId);
 			const response = await communityService.toggleKnowledgeResourceLike(resourceId);
 			if (response.data) {
 				setResources((prev) =>
@@ -141,6 +149,8 @@ export default function CommunitySearchPage() {
 			}
 		} catch (error: any) {
 			logger.error('Error toggling resource like:', error);
+		} finally {
+			setLikingResourceId(null);
 		}
 	};
 
@@ -197,6 +207,7 @@ export default function CommunitySearchPage() {
 									onDeleted={() => handlePostDeleted(post.id)}
 									onUpdated={handlePostUpdated}
 									onCommentClick={() => handleCommentClick(post.id)}
+									isLiking={likingPostId === post.id}
 								/>
 							))}
 						</div>
@@ -247,6 +258,7 @@ export default function CommunitySearchPage() {
 									key={resource.id}
 									resource={resource}
 									onLike={() => handleResourceLike(resource.id)}
+									isLiking={likingResourceId === resource.id}
 								/>
 							))}
 						</div>

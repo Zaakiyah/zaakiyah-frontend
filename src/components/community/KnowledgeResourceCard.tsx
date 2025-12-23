@@ -18,11 +18,13 @@ import { WEBSITE_PAGES } from '../../config/website';
 interface KnowledgeResourceCardProps {
 	resource: KnowledgeResource;
 	onLike: () => void;
+	isLiking?: boolean;
 }
 
 export default function KnowledgeResourceCard({
 	resource,
 	onLike,
+	isLiking = false,
 }: KnowledgeResourceCardProps) {
 	const navigate = useNavigate();
 
@@ -231,9 +233,12 @@ export default function KnowledgeResourceCard({
 								e.stopPropagation();
 								onLike();
 							}}
-							className="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-error-500 transition-colors group"
+							disabled={isLiking}
+							className="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-error-500 transition-colors group disabled:opacity-50 disabled:cursor-not-allowed"
 						>
-							{resource.isLiked ? (
+							{isLiking ? (
+								<div className="w-5 h-5 border-2 border-error-500 border-t-transparent rounded-full animate-spin" />
+							) : resource.isLiked ? (
 								<HeartIconSolid className="w-5 h-5 text-error-500 group-hover:scale-110 transition-transform" />
 							) : (
 								<HeartIcon className="w-5 h-5 group-hover:scale-110 transition-transform" />

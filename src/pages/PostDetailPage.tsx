@@ -748,7 +748,7 @@ export default function PostDetailPage() {
 
 			{/* Post Actions Bottom Sheet */}
 			<BottomSheet isOpen={showMenu} onClose={() => setShowMenu(false)} title="Post Options">
-				<div className="space-y-1">
+				<div className="space-y-2">
 					{isOwner ? (
 						<>
 							<button
@@ -756,20 +756,24 @@ export default function PostDetailPage() {
 									setShowMenu(false);
 									navigate(`/community/posts/${post.id}/edit`);
 								}}
-								className="w-full px-4 py-3 text-left text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-gradient-to-br hover:from-slate-50 hover:to-slate-100 dark:hover:from-slate-700 dark:hover:to-slate-800 rounded-xl flex items-center gap-3 transition-all active:scale-95"
+								className="w-full px-4 py-3.5 text-left text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-gradient-to-br hover:from-primary-50 hover:to-primary-100 dark:hover:from-primary-900/30 dark:hover:to-primary-800/20 rounded-xl flex items-center gap-3 transition-all active:scale-95 group"
 							>
-								<PencilIcon className="w-5 h-5" />
-								Edit Post
+								<div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/40 dark:to-primary-800/30 group-hover:scale-110 transition-transform">
+									<PencilIcon className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+								</div>
+								<span>Edit Post</span>
 							</button>
 							<button
 								onClick={() => {
 									setShowMenu(false);
 									setShowDeleteDialog(true);
 								}}
-								className="w-full px-4 py-3 text-left text-sm font-medium text-red-600 dark:text-red-400 hover:bg-gradient-to-br hover:from-red-50 hover:to-red-100 dark:hover:from-red-900/30 dark:hover:to-red-800/20 rounded-xl flex items-center gap-3 transition-all active:scale-95"
+								className="w-full px-4 py-3.5 text-left text-sm font-semibold text-red-600 dark:text-red-400 hover:bg-gradient-to-br hover:from-red-50 hover:to-red-100 dark:hover:from-red-900/30 dark:hover:to-red-800/20 rounded-xl flex items-center gap-3 transition-all active:scale-95 group"
 							>
-								<TrashIcon className="w-5 h-5" />
-								Delete Post
+								<div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-red-100 to-red-200 dark:from-red-900/40 dark:to-red-800/30 group-hover:scale-110 transition-transform">
+									<TrashIcon className="w-5 h-5 text-red-600 dark:text-red-400" />
+								</div>
+								<span>Delete Post</span>
 							</button>
 						</>
 					) : (
@@ -778,10 +782,12 @@ export default function PostDetailPage() {
 							<button
 								onClick={handleToggleFollow}
 								disabled={isTogglingFollow}
-								className="w-full px-4 py-3 text-left text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded-lg flex items-center gap-3 transition-colors disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
+								className="w-full px-4 py-3.5 text-left text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-gradient-to-br hover:from-slate-50 hover:to-slate-100 dark:hover:from-slate-700 dark:hover:to-slate-800 rounded-xl flex items-center gap-3 transition-all disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 group"
 							>
-								<UserMinusIcon className="w-5 h-5" />
-								Unfollow {post.author.firstName}
+								<div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 group-hover:scale-110 transition-transform">
+									<UserMinusIcon className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+								</div>
+								<span>Unfollow {post.author.firstName}</span>
 							</button>
 						)
 					)}
@@ -810,10 +816,12 @@ export default function PostDetailPage() {
 								alert.success('Link copied to clipboard');
 							}
 						}}
-						className="w-full px-4 py-3 text-left text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded-lg flex items-center gap-3 transition-colors active:scale-95"
+						className="w-full px-4 py-3.5 text-left text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-gradient-to-br hover:from-primary-50 hover:to-primary-100 dark:hover:from-primary-900/30 dark:hover:to-primary-800/20 rounded-xl flex items-center gap-3 transition-all active:scale-95 group"
 					>
-						<ArrowUpTrayIcon className="w-5 h-5" />
-						Share via
+						<div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/40 dark:to-primary-800/30 group-hover:scale-110 transition-transform">
+							<ArrowUpTrayIcon className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+						</div>
+						<span>Share via</span>
 					</button>
 				</div>
 			</BottomSheet>

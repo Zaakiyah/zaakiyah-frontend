@@ -30,6 +30,7 @@ interface PostCardProps {
 	onDeleted: () => void;
 	onUpdated?: (updatedPost: Post) => void;
 	onCommentClick?: () => void;
+	isLiking?: boolean;
 }
 
 export default function PostCard({
@@ -38,6 +39,7 @@ export default function PostCard({
 	onDeleted,
 	onUpdated,
 	onCommentClick,
+	isLiking = false,
 }: PostCardProps) {
 	const navigate = useNavigate();
 	const { user } = useAuthStore();
@@ -335,9 +337,12 @@ export default function PostCard({
 					<div className="flex items-center gap-6">
 						<button
 							onClick={onLike}
-							className="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-all active:scale-95"
+							disabled={isLiking}
+							className="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
 						>
-							{post.isLiked ? (
+							{isLiking ? (
+								<div className="w-5 h-5 border-2 border-red-500 border-t-transparent rounded-full animate-spin" />
+							) : post.isLiked ? (
 								<HeartIconSolid className="w-5 h-5 text-red-500" />
 							) : (
 								<HeartIcon className="w-5 h-5" />

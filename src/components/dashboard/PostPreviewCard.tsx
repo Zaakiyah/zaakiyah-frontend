@@ -25,6 +25,7 @@ interface PostPreviewCardProps {
 	onLike: (postId: string) => void;
 	renderContentWithHashtags: (text: string) => React.ReactNode;
 	formatDistanceToNow: (date: Date, options: { addSuffix: boolean }) => string;
+	isLiking?: boolean;
 }
 
 export default function PostPreviewCard({
@@ -32,6 +33,7 @@ export default function PostPreviewCard({
 	onLike,
 	renderContentWithHashtags,
 	formatDistanceToNow,
+	isLiking = false,
 }: PostPreviewCardProps) {
 	const navigate = useNavigate();
 	
@@ -171,9 +173,12 @@ export default function PostPreviewCard({
 								e.stopPropagation();
 								onLike(post.id);
 							}}
-							className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400 hover:text-error-500 transition-colors"
+							disabled={isLiking}
+							className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400 hover:text-error-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
 						>
-							{post.isLiked ? (
+							{isLiking ? (
+								<div className="w-4 h-4 border-2 border-error-500 border-t-transparent rounded-full animate-spin" />
+							) : post.isLiked ? (
 								<HeartIconSolid className="w-4 h-4 text-error-500" />
 							) : (
 								<HeartIcon className="w-4 h-4" />

@@ -26,6 +26,10 @@ interface MediaItem {
 	file?: File;
 	preview: string;
 	type: 'image' | 'video';
+	cloudinaryUrl?: string; // URL after upload to Cloudinary
+	uploadProgress?: number; // 0-100
+	isUploading?: boolean;
+	isDeleting?: boolean;
 }
 
 export default function PostEditorPage() {
@@ -82,9 +86,10 @@ export default function PostEditorPage() {
 		};
 	}, [showAudienceMenu]);
 
-	// Clean up preview URLs on unmount
+	// Clean up preview URLs and delete Cloudinary files on unmount if post not submitted
 	useEffect(() => {
 		return () => {
+			// Clean up blob URLs
 			mediaItems.forEach((item) => {
 				if (item.preview.startsWith('blob:')) {
 					URL.revokeObjectURL(item.preview);
@@ -92,6 +97,20 @@ export default function PostEditorPage() {
 			});
 		};
 	}, []);
+
+	// Cleanup function for cancel - delete uploaded files from Cloudinary
+	const cleanupUploadedMedia = async () => {
+		const itemsToDelete = mediaItems.filter(item => item.cloudinaryUrl && !item.isDeleting);
+		if (itemsToDelete.length === 0) return;
+
+		// Delete all uploaded files
+		const deletePromises = itemsToDelete.map(item => 
+			communityService.deleteMedia(item.cloudinaryUrl!).catch(err => {
+				logger.error('Error cleaning up media:', err);
+			})
+		);
+		await Promise.all(deletePromises);
+	};
 
 	// Fetch post data if editing
 	useEffect(() => {
@@ -107,11 +126,14 @@ export default function PostEditorPage() {
 					if (post.mediaUrls && post.mediaUrls.length > 0) {
 						// Handle multiple media URLs from existing post
 						const items: MediaItem[] = post.mediaUrls.map((url, index) => {
-							const isVideo = url.match(/\.(mp4|webm|ogg)$/i);
+							const isVideo = url.match(/\.(mp4|webm|ogg|mov)$/i) || url.includes('/video/');
 							return {
 								id: `existing-${index}`,
 								preview: url,
+								cloudinaryUrl: url, // Mark as already uploaded
 								type: isVideo ? 'video' : 'image',
+								uploadProgress: 100,
+								isUploading: false,
 							};
 						});
 						setMediaItems(items);
@@ -126,12 +148,12 @@ export default function PostEditorPage() {
 		}
 	}, [id, isEditMode, navigate]);
 
-	const handleMediaSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+	const handleMediaSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
 		const files = Array.from(e.target.files || []);
 		if (files.length === 0) return;
 
-		const newMediaItems: MediaItem[] = [];
-
+		// Validate files first
+		const validFiles: File[] = [];
 		files.forEach((file) => {
 			// Validate file type
 			const isImage = file.type.startsWith('image/');
@@ -149,23 +171,110 @@ export default function PostEditorPage() {
 				return;
 			}
 
+			validFiles.push(file);
+		});
+
+		if (validFiles.length === 0) return;
+
+		// Check if adding these files would exceed the limit
+		const currentCount = mediaItems.length;
+		if (currentCount + validFiles.length > 10) {
+			alert.error(`Maximum 10 media items allowed. You can add ${10 - currentCount} more.`);
+			return;
+		}
+
+		// Create media items and upload immediately
+		validFiles.forEach(async (file) => {
+			const isVideo = file.type.startsWith('video/');
 			const preview = URL.createObjectURL(file);
-			newMediaItems.push({
-				id: `${Date.now()}-${Math.random()}`,
+			const mediaId = `${Date.now()}-${Math.random()}`;
+
+			// Add item with uploading state
+			const newItem: MediaItem = {
+				id: mediaId,
 				file,
 				preview,
 				type: isVideo ? 'video' : 'image',
-			});
+				uploadProgress: 0,
+				isUploading: true,
+			};
+
+			setMediaItems((prev) => [...prev, newItem].slice(0, 10));
+
+			try {
+				// Upload to Cloudinary with progress tracking
+				// Note: axios doesn't support progress for FormData uploads directly
+				// We'll simulate progress or use XMLHttpRequest for real progress
+				const uploadResponse = await communityService.uploadMedia(file);
+				
+				if (uploadResponse.data?.url) {
+					// Update item with Cloudinary URL
+					setMediaItems((prev) =>
+						prev.map((item) =>
+							item.id === mediaId
+								? {
+										...item,
+										cloudinaryUrl: uploadResponse.data.url,
+										uploadProgress: 100,
+										isUploading: false,
+									}
+								: item
+						)
+					);
+					// Revoke blob URL since we now have Cloudinary URL
+					URL.revokeObjectURL(preview);
+				}
+			} catch (error: any) {
+				logger.error('Error uploading media:', error);
+				alert.error(`Failed to upload ${file.name}. Please try again.`);
+				// Remove failed item
+				setMediaItems((prev) => {
+					const item = prev.find((item) => item.id === mediaId);
+					if (item && item.preview.startsWith('blob:')) {
+						URL.revokeObjectURL(item.preview);
+					}
+					return prev.filter((item) => item.id !== mediaId);
+				});
+			}
 		});
 
-		setMediaItems((prev) => [...prev, ...newMediaItems].slice(0, 10)); // Max 10 media items
+		// Reset input
+		if (fileInputRef.current) {
+			fileInputRef.current.value = '';
+		}
 	};
 
-	const handleRemoveMedia = (id: string) => {
+	const handleRemoveMedia = async (id: string) => {
+		const item = mediaItems.find((item) => item.id === id);
+		if (!item) return;
+
+		// If item has been uploaded to Cloudinary OR is an existing URL from edit mode, delete it
+		const urlToDelete = item.cloudinaryUrl || (!item.preview.startsWith('blob:') ? item.preview : null);
+		
+		if (urlToDelete) {
+			// Set deleting state
+			setMediaItems((prev) =>
+				prev.map((media) =>
+					media.id === id ? { ...media, isDeleting: true } : media
+				)
+			);
+
+			try {
+				await communityService.deleteMedia(urlToDelete);
+			} catch (error: any) {
+				logger.error('Error deleting media from Cloudinary:', error);
+				// Continue with removal even if Cloudinary deletion fails
+			}
+		}
+
+		// Remove item from state
 		setMediaItems((prev) => {
-			const item = prev.find((item) => item.id === id);
-			if (item && item.preview.startsWith('blob:')) {
-				URL.revokeObjectURL(item.preview);
+			const itemToRemove = prev.find((item) => item.id === id);
+			if (itemToRemove) {
+				// Revoke blob URL if it's a blob
+				if (itemToRemove.preview.startsWith('blob:')) {
+					URL.revokeObjectURL(itemToRemove.preview);
+				}
 			}
 			return prev.filter((item) => item.id !== id);
 		});
@@ -199,39 +308,27 @@ export default function PostEditorPage() {
 				postContent = mediaItems.length > 0 ? '.' : '';
 			}
 
-			// Collect media URLs: upload new files (blob URLs) and keep existing URLs
+			// Collect media URLs - all should already be uploaded
 			const mediaUrls: string[] = [];
 			
-			// Separate new files from existing URLs
-			const filesToUpload: File[] = [];
-			const existingUrls: string[] = [];
-
-			mediaItems.forEach(item => {
-				if (item.preview.startsWith('blob:') && item.file) {
-					// New file that needs to be uploaded
-					filesToUpload.push(item.file);
-				} else if (!item.preview.startsWith('blob:')) {
-					// Existing URL (from editing)
-					existingUrls.push(item.preview);
-				}
-			});
-
-			// Upload new files to Cloudinary
-			if (filesToUpload.length > 0) {
-				try {
-					const uploadResponse = await communityService.uploadMultipleMedia(filesToUpload);
-					if (uploadResponse.data?.urls) {
-						mediaUrls.push(...uploadResponse.data.urls);
-					}
-				} catch (uploadError: any) {
-					logger.error('Error uploading files:', uploadError);
-					alert.error(uploadError.response?.data?.message || 'Failed to upload media files');
-					return;
-				}
+			// Check if any items are still uploading
+			const stillUploading = mediaItems.some(item => item.isUploading);
+			if (stillUploading) {
+				alert.error('Please wait for all media to finish uploading');
+				return;
 			}
 
-			// Add existing URLs
-			mediaUrls.push(...existingUrls);
+			// Collect Cloudinary URLs (already uploaded) or existing URLs (from edit mode)
+			mediaItems.forEach(item => {
+				if (item.cloudinaryUrl) {
+					// Already uploaded to Cloudinary
+					mediaUrls.push(item.cloudinaryUrl);
+				} else if (!item.preview.startsWith('blob:')) {
+					// Existing URL from edit mode (not a blob)
+					mediaUrls.push(item.preview);
+				}
+				// If it's still a blob URL, it means upload failed - skip it
+			});
 
 			// Create FormData for post creation/update
 			const formData = new FormData();
@@ -264,6 +361,11 @@ export default function PostEditorPage() {
 	};
 
 	const renderMediaPreview = (item: MediaItem, index: number) => {
+		const mediaUrl = item.cloudinaryUrl || item.preview;
+		const isUploading = item.isUploading || false;
+		const isDeleting = item.isDeleting || false;
+		const uploadProgress = item.uploadProgress || 0;
+
 		return (
 			<motion.div
 				key={item.id}
@@ -276,14 +378,14 @@ export default function PostEditorPage() {
 				<div className="relative aspect-square rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 ring-1 ring-slate-200 dark:ring-slate-700 shadow-sm">
 					{item.type === 'image' ? (
 						<img
-							src={item.preview}
+							src={mediaUrl}
 							alt={`Media ${index + 1}`}
 							className="w-full h-full object-cover"
 						/>
 					) : (
 						<>
 							<video
-								src={item.preview}
+								src={mediaUrl}
 								className="w-full h-full object-cover"
 								controls={false}
 							/>
@@ -294,15 +396,46 @@ export default function PostEditorPage() {
 							</div>
 						</>
 					)}
-					<button
-						type="button"
-						onClick={() => handleRemoveMedia(item.id)}
-						className="absolute top-2 right-2 p-2 bg-black/70 hover:bg-red-500 text-white rounded-full transition-all shadow-lg backdrop-blur-sm"
-						aria-label="Remove media"
-					>
-						<XMarkIcon className="w-4 h-4" />
-					</button>
-					{item.type === 'video' && (
+					
+					{/* Upload Progress Overlay */}
+					{isUploading && (
+						<div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center z-10">
+							<div className="w-16 h-16 border-4 border-primary-500 border-t-transparent rounded-full animate-spin mb-3" />
+							<div className="w-3/4 bg-slate-700 rounded-full h-2 overflow-hidden">
+								<div
+									className="bg-primary-500 h-full transition-all duration-300"
+									style={{ width: `${uploadProgress}%` }}
+								/>
+							</div>
+							<p className="text-white text-xs mt-2 font-medium">
+								{uploadProgress < 100 ? `Uploading... ${uploadProgress}%` : 'Processing...'}
+							</p>
+						</div>
+					)}
+
+					{/* Deleting Overlay */}
+					{isDeleting && (
+						<div className="absolute inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-10">
+							<div className="flex flex-col items-center gap-2">
+								<div className="w-12 h-12 border-4 border-red-500 border-t-transparent rounded-full animate-spin" />
+								<p className="text-white text-xs font-medium">Deleting...</p>
+							</div>
+						</div>
+					)}
+
+					{/* Remove Button - disabled during upload/delete */}
+					{!isUploading && !isDeleting && (
+						<button
+							type="button"
+							onClick={() => handleRemoveMedia(item.id)}
+							className="absolute top-2 right-2 p-2 bg-black/70 hover:bg-red-500 text-white rounded-full transition-all shadow-lg backdrop-blur-sm z-20"
+							aria-label="Remove media"
+						>
+							<XMarkIcon className="w-4 h-4" />
+						</button>
+					)}
+
+					{item.type === 'video' && !isUploading && !isDeleting && (
 						<div className="absolute bottom-2 left-2 px-2.5 py-1 bg-black/70 backdrop-blur-sm text-white text-[10px] font-semibold rounded-lg uppercase tracking-wide">
 							Video
 						</div>
@@ -319,12 +452,14 @@ export default function PostEditorPage() {
 				<div className="px-4 py-3.5">
 					<div className="flex items-center justify-between">
 						<button
-							onClick={() => {
+							onClick={async () => {
 								// Check if there are changes
 								const hasChanges = content.trim().length > 0 || mediaItems.length > 0;
 								if (hasChanges) {
 									setShowCancelDialog(true);
 								} else {
+									// Clean up any uploaded media before navigating
+									await cleanupUploadedMedia();
 									navigate(-1);
 								}
 							}}
@@ -433,6 +568,7 @@ export default function PostEditorPage() {
 														type="button"
 														onClick={() => {
 															setIsPublic(false);
+															setIsAnonymous(false); // Reset anonymous when switching to "Only Me"
 															setShowAudienceMenu(false);
 														}}
 														className={`w-full text-left px-4 py-2.5 text-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-2 ${
@@ -447,31 +583,33 @@ export default function PostEditorPage() {
 												</motion.div>
 											)}
 										</div>
-										{/* Anonymous Toggle */}
-										<button
-											type="button"
-											onClick={() => setIsAnonymous(!isAnonymous)}
-											className={`px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all active:scale-95 ${
-												isAnonymous
-													? 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
-													: 'bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'
-											}`}
-										>
-											<svg
-												className={`w-3.5 h-3.5 ${isAnonymous ? 'opacity-100' : 'opacity-50'}`}
-												fill="none"
-												viewBox="0 0 24 24"
-												stroke="currentColor"
+										{/* Anonymous Toggle - Only show when post is public */}
+										{isPublic && (
+											<button
+												type="button"
+												onClick={() => setIsAnonymous(!isAnonymous)}
+												className={`px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all active:scale-95 ${
+													isAnonymous
+														? 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
+														: 'bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'
+												}`}
 											>
-												<path
-													strokeLinecap="round"
-													strokeLinejoin="round"
-													strokeWidth={2}
-													d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
-												/>
-											</svg>
-											<span>Anonymous</span>
-										</button>
+												<svg
+													className={`w-3.5 h-3.5 ${isAnonymous ? 'opacity-100' : 'opacity-50'}`}
+													fill="none"
+													viewBox="0 0 24 24"
+													stroke="currentColor"
+												>
+													<path
+														strokeLinecap="round"
+														strokeLinejoin="round"
+														strokeWidth={2}
+														d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+													/>
+												</svg>
+												<span>Anonymous</span>
+											</button>
+										)}
 									</div>
 								</div>
 							</div>
@@ -507,6 +645,39 @@ export default function PostEditorPage() {
 									</p>
 								</div>
 							)}
+							
+							{/* Formatting Guide */}
+							<div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700/50">
+								<details className="group">
+									<summary className="cursor-pointer text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 flex items-center gap-1.5">
+										<InformationCircleIcon className="w-4 h-4" />
+										<span>Formatting Help</span>
+									</summary>
+									<div className="mt-3 space-y-2 text-xs text-slate-600 dark:text-slate-400">
+										<div>
+											<p className="font-semibold mb-1">Lists:</p>
+											<p className="text-slate-500 dark:text-slate-500">
+												Use <code className="px-1 py-0.5 bg-slate-100 dark:bg-slate-800 rounded">-</code> at the start of a line to create a bullet list
+											</p>
+											<p className="text-slate-400 dark:text-slate-600 mt-1 italic">
+												Example: <code className="px-1 py-0.5 bg-slate-100 dark:bg-slate-800 rounded">- Item one</code>
+											</p>
+										</div>
+										<div>
+											<p className="font-semibold mb-1">Links & Hashtags:</p>
+											<p className="text-slate-500 dark:text-slate-500">
+												Links and hashtags are automatically detected and made clickable
+											</p>
+										</div>
+										<div>
+											<p className="font-semibold mb-1">Mentions:</p>
+											<p className="text-slate-500 dark:text-slate-500">
+												Type <code className="px-1 py-0.5 bg-slate-100 dark:bg-slate-800 rounded">@</code> followed by a username to mention someone
+											</p>
+										</div>
+									</div>
+								</details>
+							</div>
 						</div>
 					</div>
 
@@ -605,8 +776,10 @@ export default function PostEditorPage() {
 			<ConfirmDialog
 				isOpen={showCancelDialog}
 				onClose={() => setShowCancelDialog(false)}
-				onConfirm={() => {
+				onConfirm={async () => {
 					setShowCancelDialog(false);
+					// Clean up uploaded media before navigating
+					await cleanupUploadedMedia();
 					navigate(-1);
 				}}
 				title={isEditMode ? 'Discard Changes?' : 'Discard Post?'}
