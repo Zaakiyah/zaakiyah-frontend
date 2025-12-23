@@ -40,31 +40,53 @@ export function usePullToRefresh({
 					? window.scrollY || document.documentElement.scrollTop
 					: container.scrollTop;
 
-			if (scrollTop <= 5 && !isRefreshingRef.current) {
+			// Only start pull-to-refresh if we're at the very top (0 or very close)
+			if (scrollTop <= 1 && !isRefreshingRef.current) {
 				touchStartY.current = e.touches[0].clientY;
 				isDragging.current = true;
-				isPulling.current = true;
+				isPulling.current = false; // Don't set to true until we confirm it's a pull gesture
 			}
 		};
 
 		const handleTouchMove = (e: TouchEvent) => {
-			if (!isDragging.current || isRefreshingRef.current) return;
+			if (isRefreshingRef.current) return;
+
+			// If we're not in a dragging state, allow normal scroll
+			if (!isDragging.current) {
+				return;
+			}
 
 			touchCurrentY.current = e.touches[0].clientY;
 			const distance = touchCurrentY.current - touchStartY.current;
 
-			if (distance > 0) {
-				// Prevent default scrolling when pulling down
-				e.preventDefault();
+			// Check if we're still at the top
+			const scrollTop =
+				container === document.documentElement
+					? window.scrollY || document.documentElement.scrollTop
+					: container.scrollTop;
+
+			// If user scrolls up (negative distance) or page has scrolled down, cancel pull gesture
+			if (distance < 0 || scrollTop > 1) {
+				isDragging.current = false;
+				isPulling.current = false;
+				pullDistanceRef.current = 0;
+				setPullDistance(0);
+				return; // Allow normal scrolling - don't prevent default
+			}
+
+			// Only activate pull-to-refresh if:
+			// 1. User is pulling DOWN (distance > 0)
+			// 2. We're still at the top of the page
+			// 3. The pull distance is significant enough (at least 15px) to indicate pull intent
+			if (distance > 15 && scrollTop <= 1) {
+				// This is a confirmed pull-to-refresh gesture
+				isPulling.current = true;
+				e.preventDefault(); // Only prevent default when we're actually pulling
 				const pullAmount = Math.min(distance, threshold * 2); // Allow over-pull for visual feedback
 				pullDistanceRef.current = pullAmount;
 				setPullDistance(pullAmount);
-			} else {
-				pullDistanceRef.current = 0;
-				setPullDistance(0);
-				isDragging.current = false;
-				isPulling.current = false;
 			}
+			// If distance is 0-15px, don't prevent default - allow normal scroll to happen
 		};
 
 		const handleTouchEnd = async () => {
