@@ -34,17 +34,22 @@ export function usePullToRefresh({
 		const container = containerRef.current || document.documentElement;
 
 		const handleTouchStart = (e: TouchEvent) => {
-			// Only trigger if at the top of the scrollable container
+			// Only trigger if at the top of the scrollable container (content after header is at top)
 			const scrollTop =
 				container === document.documentElement
 					? window.scrollY || document.documentElement.scrollTop
 					: container.scrollTop;
 
-			// Only start pull-to-refresh if we're at the very top (0 or very close)
-			if (scrollTop <= 1 && !isRefreshingRef.current) {
+			// Only start pull-to-refresh if content is exactly at the top (scrollTop === 0)
+			// This means the content after the header has scrolled back to the top
+			if (scrollTop === 0 && !isRefreshingRef.current) {
 				touchStartY.current = e.touches[0].clientY;
 				isDragging.current = true;
 				isPulling.current = false; // Don't set to true until we confirm it's a pull gesture
+			} else {
+				// If not at top, don't interfere with normal scrolling
+				isDragging.current = false;
+				isPulling.current = false;
 			}
 		};
 
@@ -56,17 +61,26 @@ export function usePullToRefresh({
 				return;
 			}
 
-			touchCurrentY.current = e.touches[0].clientY;
-			const distance = touchCurrentY.current - touchStartY.current;
-
-			// Check if we're still at the top
+			// Check if content is still at the top (after header)
 			const scrollTop =
 				container === document.documentElement
 					? window.scrollY || document.documentElement.scrollTop
 					: container.scrollTop;
 
-			// If user scrolls up (negative distance) or page has scrolled down, cancel pull gesture
-			if (distance < 0 || scrollTop > 1) {
+			// If content has scrolled away from top, immediately cancel and allow normal scrolling
+			if (scrollTop > 0) {
+				isDragging.current = false;
+				isPulling.current = false;
+				pullDistanceRef.current = 0;
+				setPullDistance(0);
+				return; // Allow normal scrolling - don't prevent default
+			}
+
+			touchCurrentY.current = e.touches[0].clientY;
+			const distance = touchCurrentY.current - touchStartY.current;
+
+			// If user scrolls up (negative distance), cancel pull gesture and allow normal scroll
+			if (distance < 0) {
 				isDragging.current = false;
 				isPulling.current = false;
 				pullDistanceRef.current = 0;
@@ -75,10 +89,10 @@ export function usePullToRefresh({
 			}
 
 			// Only activate pull-to-refresh if:
-			// 1. User is pulling DOWN (distance > 0)
-			// 2. We're still at the top of the page
+			// 1. Content is still at the top (scrollTop === 0)
+			// 2. User is pulling DOWN (distance > 0)
 			// 3. The pull distance is significant enough (at least 15px) to indicate pull intent
-			if (distance > 15 && scrollTop <= 1) {
+			if (distance > 15 && scrollTop === 0) {
 				// This is a confirmed pull-to-refresh gesture
 				isPulling.current = true;
 				e.preventDefault(); // Only prevent default when we're actually pulling
@@ -90,7 +104,13 @@ export function usePullToRefresh({
 		};
 
 		const handleTouchEnd = async () => {
-			if (!isDragging.current || isRefreshingRef.current) {
+			// Check if content is still at the top before processing
+			const scrollTop =
+				container === document.documentElement
+					? window.scrollY || document.documentElement.scrollTop
+					: container.scrollTop;
+
+			if (!isDragging.current || isRefreshingRef.current || scrollTop > 0) {
 				isDragging.current = false;
 				isPulling.current = false;
 				pullDistanceRef.current = 0;
@@ -104,7 +124,8 @@ export function usePullToRefresh({
 			pullDistanceRef.current = 0;
 			setPullDistance(0);
 
-			if (finalDistance >= threshold) {
+			// Only trigger refresh if we're still at the top and threshold is met
+			if (finalDistance >= threshold && scrollTop === 0) {
 				setIsRefreshing(true);
 				try {
 					await onRefreshRef.current();

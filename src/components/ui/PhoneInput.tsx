@@ -174,13 +174,13 @@ const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
 				{label && (
 					<label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">{label}</label>
 				)}
-				<div className="relative flex">
-					<div className="relative" ref={dropdownRef}>
+				<div className="relative flex items-stretch">
+					<div className="relative flex-shrink-0" ref={dropdownRef}>
 						<button
 							type="button"
 							onClick={() => setIsOpen(!isOpen)}
 							className={`
-								px-4 py-3 rounded-l-xl border-2 border-r-0
+								px-4 py-3 h-full rounded-l-xl border-2 border-r-0
 								transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-0
 								bg-white dark:bg-slate-800 flex items-center gap-2 font-medium shadow-sm hover:shadow-md
 								${
@@ -191,11 +191,11 @@ const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
 							`}
 						>
 							<span className="text-xl">{selectedCountry.flag}</span>
-							<span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+							<span className="text-sm font-medium text-slate-700 dark:text-slate-300 whitespace-nowrap">
 								{selectedCountry.dialCode}
 							</span>
 							<ChevronDownIcon
-								className={`w-4 h-4 text-slate-500 dark:text-slate-400 transition-transform ${
+								className={`w-4 h-4 text-slate-500 dark:text-slate-400 transition-transform flex-shrink-0 ${
 									isOpen ? 'rotate-180' : ''
 								}`}
 							/>
@@ -283,7 +283,7 @@ const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
 						onChange={handleNumberChange}
 						placeholder="1234567890"
 						className={`
-							flex-1 px-5 py-3 
+							flex-1 min-w-0 px-4 py-3 
 							rounded-r-xl border-2 transition-all duration-200
 							text-sm font-medium
 							focus:outline-none focus:ring-2 focus:ring-offset-0
