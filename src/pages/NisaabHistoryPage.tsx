@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useSearchParams, useLocation } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { usePullToRefreshContext } from '../contexts/PullToRefreshContext';
 import {
 	CalendarIcon,
 	SparklesIcon,
@@ -52,8 +51,6 @@ export default function NisaabHistoryPage() {
 	const [copiedValue, setCopiedValue] = useState<string | null>(null);
 	const observerTarget = useRef<HTMLDivElement>(null);
 	const isFetchingRef = useRef(false);
-	const location = useLocation();
-	const { registerRefresh } = usePullToRefreshContext();
 
 	const fetchHistory = useCallback(
 		async (page: number, reset = false) => {
@@ -98,15 +95,6 @@ export default function NisaabHistoryPage() {
 		},
 		[preferredCurrency, user?.preferredCurrency, startDate, endDate]
 	);
-
-	// Register this page's refresh function
-	useEffect(() => {
-		const unregister = registerRefresh(location.pathname, async () => {
-			await fetchHistory(1, true);
-		});
-		return unregister;
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [location.pathname, registerRefresh, fetchHistory]);
 
 	// Sync currency with user profile on mount
 	useEffect(() => {
