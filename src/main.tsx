@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { initializeFirebase } from './lib/firebase';
 import { useThemeStore, applyTheme } from './store/themeStore';
+import { clearServiceWorkerStorage } from './utils/clearServiceWorkerCache';
 import './index.css';
 import App from './App.tsx';
 
@@ -61,6 +62,59 @@ if (typeof window !== 'undefined') {
 	setTimeout(() => {
 		window.scrollTo(0, 1);
 	}, 100);
+
+	// Register main service worker for PWA
+	if ('serviceWorker' in navigator) {
+		window.addEventListener('load', async () => {
+			try {
+				// Clear old service worker storage on load to prevent stale prompts
+				clearServiceWorkerStorage();
+
+				// Register main service worker (separate from Firebase messaging worker)
+				const registration = await navigator.serviceWorker.register('/sw.js', {
+					scope: '/',
+					updateViaCache: 'none', // Always fetch fresh service worker
+				});
+
+				// Only log in development to reduce console noise
+				if (import.meta.env.DEV) {
+					console.log('[PWA] Service Worker registered:', registration.scope);
+				}
+
+				// Check for updates periodically (only in production)
+				if (import.meta.env.PROD) {
+					setInterval(() => {
+						registration.update().catch(() => {
+							// Silently fail if update check fails
+						});
+					}, 60000);
+				}
+			} catch (error) {
+				console.warn('[PWA] Service Worker registration failed:', error);
+			}
+		});
+	}
+
+	// Prevent any accidental confirm() calls from old cached code
+	if (typeof window !== 'undefined') {
+		const originalConfirm = window.confirm;
+		window.confirm = function (message?: string): boolean {
+			// If it's a service worker update message, prevent it and let our component handle it
+			if (
+				message &&
+				(message.includes('new version') ||
+					message.includes('reload') ||
+					message.includes('update'))
+			) {
+				console.warn(
+					'[PWA] Blocked native confirm dialog for service worker update. Use ServiceWorkerUpdate component instead.'
+				);
+				return false;
+			}
+			// For other confirm dialogs, use the original
+			return originalConfirm.call(window, message);
+		};
+	}
 }
 
 createRoot(document.getElementById('root')!).render(

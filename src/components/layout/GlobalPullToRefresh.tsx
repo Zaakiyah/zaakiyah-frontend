@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { usePullToRefresh } from '../../hooks/usePullToRefresh';
 import { usePullToRefreshContext } from '../../contexts/PullToRefreshContext';
@@ -8,7 +8,7 @@ export default function GlobalPullToRefresh() {
 	const { getRefreshFunction } = usePullToRefreshContext();
 	const [isRefreshing, setIsRefreshing] = useState(false);
 
-	const { isRefreshing: isPulling } = usePullToRefresh({
+	usePullToRefresh({
 		onRefresh: async () => {
 			setIsRefreshing(true);
 			try {

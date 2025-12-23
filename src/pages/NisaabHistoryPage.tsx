@@ -12,6 +12,8 @@ import {
 	ChartBarIcon,
 	ArrowTrendingUpIcon,
 	ArrowTrendingDownIcon,
+	DocumentDuplicateIcon,
+	CheckIcon,
 } from '@heroicons/react/24/outline';
 import PageHeader from '../components/layout/PageHeader';
 import BottomNavigation from '../components/layout/BottomNavigation';
@@ -47,6 +49,7 @@ export default function NisaabHistoryPage() {
 	const [endDate, setEndDate] = useState('');
 	const [searchResult, setSearchResult] = useState<NisaabData | null>(null);
 	const [searchError, setSearchError] = useState<string | null>(null);
+	const [copiedValue, setCopiedValue] = useState<string | null>(null);
 	const observerTarget = useRef<HTMLDivElement>(null);
 	const isFetchingRef = useRef(false);
 	const location = useLocation();
@@ -304,6 +307,37 @@ export default function NisaabHistoryPage() {
 		}
 	};
 
+	const copyValue = async (value: string | number | null, type: 'gold' | 'silver') => {
+		if (!value || value === 0 || value === '0') return;
+
+		const formattedValue = formatCurrencyWithFallback(value);
+		if (formattedValue === 'Not Available') return;
+
+		const copyText = formattedValue;
+		const copyId = `${type}-${Date.now()}`;
+
+		try {
+			if (navigator.clipboard && navigator.clipboard.writeText) {
+				await navigator.clipboard.writeText(copyText);
+			} else {
+				const textarea = document.createElement('textarea');
+				textarea.value = copyText;
+				textarea.style.position = 'fixed';
+				textarea.style.opacity = '0';
+				document.body.appendChild(textarea);
+				textarea.select();
+				document.execCommand('copy');
+				document.body.removeChild(textarea);
+			}
+			setCopiedValue(copyId);
+			alert.success(`${type === 'gold' ? 'Gold' : 'Silver'} value copied!`);
+			setTimeout(() => setCopiedValue(null), 2000);
+		} catch (error) {
+			console.error('Failed to copy:', error);
+			alert.error('Failed to copy value');
+		}
+	};
+
 	// Format currency with "Not Available" fallback
 	const formatCurrencyWithFallback = (value: string | number | null | undefined): string => {
 		if (!value || value === 0 || value === '0') return 'Not Available';
@@ -374,18 +408,20 @@ export default function NisaabHistoryPage() {
 
 		const validGoldValues = filteredHistory
 			.map((item) => {
-				const val = typeof item.goldNisaabValue === 'string' 
-					? parseFloat(item.goldNisaabValue) 
-					: item.goldNisaabValue;
+				const val =
+					typeof item.goldNisaabValue === 'string'
+						? parseFloat(item.goldNisaabValue)
+						: item.goldNisaabValue;
 				return val && !isNaN(val) && val > 0 ? val : null;
 			})
 			.filter((v): v is number => v !== null);
 
 		const validSilverValues = filteredHistory
 			.map((item) => {
-				const val = typeof item.silverNisaabValue === 'string' 
-					? parseFloat(item.silverNisaabValue) 
-					: item.silverNisaabValue;
+				const val =
+					typeof item.silverNisaabValue === 'string'
+						? parseFloat(item.silverNisaabValue)
+						: item.silverNisaabValue;
 				return val && !isNaN(val) && val > 0 ? val : null;
 			})
 			.filter((v): v is number => v !== null);
@@ -394,19 +430,24 @@ export default function NisaabHistoryPage() {
 
 		// Get latest from original history (most recent)
 		const latestItem = history.length > 0 ? history[0] : null;
-		const latestGold = latestItem ? (typeof latestItem.goldNisaabValue === 'string' 
-			? parseFloat(latestItem.goldNisaabValue) 
-			: latestItem.goldNisaabValue) : null;
-		const latestSilver = latestItem ? (typeof latestItem.silverNisaabValue === 'string' 
-			? parseFloat(latestItem.silverNisaabValue) 
-			: latestItem.silverNisaabValue) : null;
+		const latestGold = latestItem
+			? typeof latestItem.goldNisaabValue === 'string'
+				? parseFloat(latestItem.goldNisaabValue)
+				: latestItem.goldNisaabValue
+			: null;
+		const latestSilver = latestItem
+			? typeof latestItem.silverNisaabValue === 'string'
+				? parseFloat(latestItem.silverNisaabValue)
+				: latestItem.silverNisaabValue
+			: null;
 
 		const avgGold = validGoldValues.reduce((a, b) => a + b, 0) / validGoldValues.length;
 		const avgSilver = validSilverValues.reduce((a, b) => a + b, 0) / validSilverValues.length;
 
 		return {
 			latestGold: latestGold && !isNaN(latestGold) && latestGold > 0 ? latestGold : null,
-			latestSilver: latestSilver && !isNaN(latestSilver) && latestSilver > 0 ? latestSilver : null,
+			latestSilver:
+				latestSilver && !isNaN(latestSilver) && latestSilver > 0 ? latestSilver : null,
 			avgGold,
 			avgSilver,
 			totalRecords: filteredHistory.length,
@@ -416,40 +457,60 @@ export default function NisaabHistoryPage() {
 	const stats = calculateStats();
 
 	const renderNisaabCard = (item: NisaabData, index?: number) => {
-		const goldValue = typeof item.goldNisaabValue === 'string' 
-			? parseFloat(item.goldNisaabValue) 
-			: item.goldNisaabValue;
-		const silverValue = typeof item.silverNisaabValue === 'string' 
-			? parseFloat(item.silverNisaabValue) 
-			: item.silverNisaabValue;
-		
-		const prevItem = index !== undefined && index > 0 ? filteredHistory[index - 1] : null;
-		const prevGold = prevItem ? (typeof prevItem.goldNisaabValue === 'string' 
-			? parseFloat(prevItem.goldNisaabValue) 
-			: prevItem.goldNisaabValue) : null;
-		const prevSilver = prevItem ? (typeof prevItem.silverNisaabValue === 'string' 
-			? parseFloat(prevItem.silverNisaabValue) 
-			: prevItem.silverNisaabValue) : null;
+		const goldValue =
+			typeof item.goldNisaabValue === 'string'
+				? parseFloat(item.goldNisaabValue)
+				: item.goldNisaabValue;
+		const silverValue =
+			typeof item.silverNisaabValue === 'string'
+				? parseFloat(item.silverNisaabValue)
+				: item.silverNisaabValue;
 
-		const goldTrend = prevGold && goldValue ? (goldValue > prevGold ? 'up' : goldValue < prevGold ? 'down' : 'same') : null;
-		const silverTrend = prevSilver && silverValue ? (silverValue > prevSilver ? 'up' : silverValue < prevSilver ? 'down' : 'same') : null;
+		const prevItem = index !== undefined && index > 0 ? filteredHistory[index - 1] : null;
+		const prevGold = prevItem
+			? typeof prevItem.goldNisaabValue === 'string'
+				? parseFloat(prevItem.goldNisaabValue)
+				: prevItem.goldNisaabValue
+			: null;
+		const prevSilver = prevItem
+			? typeof prevItem.silverNisaabValue === 'string'
+				? parseFloat(prevItem.silverNisaabValue)
+				: prevItem.silverNisaabValue
+			: null;
+
+		const goldTrend =
+			prevGold && goldValue
+				? goldValue > prevGold
+					? 'up'
+					: goldValue < prevGold
+					? 'down'
+					: 'same'
+				: null;
+		const silverTrend =
+			prevSilver && silverValue
+				? silverValue > prevSilver
+					? 'up'
+					: silverValue < prevSilver
+					? 'down'
+					: 'same'
+				: null;
 
 		return (
 			<motion.div
 				key={item.id}
 				initial={{ opacity: 0, y: 20, scale: 0.95 }}
 				animate={{ opacity: 1, y: 0, scale: 1 }}
-				transition={{ 
+				transition={{
 					delay: index !== undefined ? index * 0.03 : 0,
-					type: "spring",
-					stiffness: 100
+					type: 'spring',
+					stiffness: 100,
 				}}
 				whileHover={{ scale: 1.02, y: -2 }}
 				className="group relative bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:via-slate-800 dark:to-slate-900 rounded-2xl p-4 shadow-lg border-2 border-slate-200/60 dark:border-slate-700/60 hover:shadow-xl transition-all duration-300 overflow-hidden"
 			>
 				{/* Decorative gradient overlay */}
 				<div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary-500/10 to-secondary-500/10 rounded-full blur-3xl -z-0" />
-				
+
 				{/* Header */}
 				<div className="flex items-start justify-between mb-4 relative z-10">
 					<div className="flex items-center gap-3">
@@ -494,26 +555,50 @@ export default function NisaabHistoryPage() {
 								<SparklesIcon className="w-6 h-6 text-white" />
 							</div>
 							<div className="flex-1 min-w-0">
-								<div className="flex items-center gap-1.5 mb-1">
-									<p className="text-[10px] font-semibold text-amber-700 dark:text-amber-300 uppercase tracking-wider">
-										Gold
-									</p>
-									{goldTrend && goldTrend !== 'same' && (
-										<div className={`flex items-center flex-shrink-0 ${goldTrend === 'up' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-											{goldTrend === 'up' ? (
-												<ArrowTrendingUpIcon className="w-3 h-3" />
-											) : (
-												<ArrowTrendingDownIcon className="w-3 h-3" />
-											)}
-										</div>
-									)}
+								<div className="flex items-center justify-between mb-1">
+									<div className="flex items-center gap-1.5">
+										<p className="text-[10px] font-semibold text-amber-700 dark:text-amber-300 uppercase tracking-wider">
+											Gold
+										</p>
+										{goldTrend && goldTrend !== 'same' && (
+											<div
+												className={`flex items-center flex-shrink-0 ${
+													goldTrend === 'up'
+														? 'text-green-600 dark:text-green-400'
+														: 'text-red-600 dark:text-red-400'
+												}`}
+											>
+												{goldTrend === 'up' ? (
+													<ArrowTrendingUpIcon className="w-3 h-3" />
+												) : (
+													<ArrowTrendingDownIcon className="w-3 h-3" />
+												)}
+											</div>
+										)}
+									</div>
+									<button
+										onClick={(e) => {
+											e.stopPropagation();
+											copyValue(item.goldNisaabValue, 'gold');
+										}}
+										className="p-1 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-900/30 text-amber-600 dark:text-amber-400 transition-all active:scale-95 flex-shrink-0"
+										title="Copy gold value"
+									>
+										{copiedValue?.startsWith('gold') ? (
+											<CheckIcon className="w-3.5 h-3.5" />
+										) : (
+											<DocumentDuplicateIcon className="w-3.5 h-3.5" />
+										)}
+									</button>
 								</div>
 								<p
-									className={`text-[10px] sm:text-xs md:text-sm lg:text-base font-bold break-words ${
-										formatCurrencyWithFallback(item.goldNisaabValue) === 'Not Available'
+									className={`text-[10px] sm:text-xs md:text-sm lg:text-base font-bold whitespace-nowrap overflow-hidden text-ellipsis ${
+										formatCurrencyWithFallback(item.goldNisaabValue) ===
+										'Not Available'
 											? 'text-slate-400 dark:text-slate-500'
 											: 'text-slate-900 dark:text-slate-100'
 									}`}
+									title={formatCurrencyWithFallback(item.goldNisaabValue)}
 								>
 									{formatCurrencyWithFallback(item.goldNisaabValue)}
 								</p>
@@ -529,26 +614,50 @@ export default function NisaabHistoryPage() {
 								<CurrencyDollarIcon className="w-6 h-6 text-white" />
 							</div>
 							<div className="flex-1 min-w-0">
-								<div className="flex items-center gap-1.5 mb-1">
-									<p className="text-[10px] font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-										Silver
-									</p>
-									{silverTrend && silverTrend !== 'same' && (
-										<div className={`flex items-center flex-shrink-0 ${silverTrend === 'up' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-											{silverTrend === 'up' ? (
-												<ArrowTrendingUpIcon className="w-3 h-3" />
-											) : (
-												<ArrowTrendingDownIcon className="w-3 h-3" />
-											)}
-										</div>
-									)}
+								<div className="flex items-center justify-between mb-1">
+									<div className="flex items-center gap-1.5">
+										<p className="text-[10px] font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+											Silver
+										</p>
+										{silverTrend && silverTrend !== 'same' && (
+											<div
+												className={`flex items-center flex-shrink-0 ${
+													silverTrend === 'up'
+														? 'text-green-600 dark:text-green-400'
+														: 'text-red-600 dark:text-red-400'
+												}`}
+											>
+												{silverTrend === 'up' ? (
+													<ArrowTrendingUpIcon className="w-3 h-3" />
+												) : (
+													<ArrowTrendingDownIcon className="w-3 h-3" />
+												)}
+											</div>
+										)}
+									</div>
+									<button
+										onClick={(e) => {
+											e.stopPropagation();
+											copyValue(item.silverNisaabValue, 'silver');
+										}}
+										className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 transition-all active:scale-95 flex-shrink-0"
+										title="Copy silver value"
+									>
+										{copiedValue?.startsWith('silver') ? (
+											<CheckIcon className="w-3.5 h-3.5" />
+										) : (
+											<DocumentDuplicateIcon className="w-3.5 h-3.5" />
+										)}
+									</button>
 								</div>
 								<p
-									className={`text-[10px] sm:text-xs md:text-sm lg:text-base font-bold break-words ${
-										formatCurrencyWithFallback(item.silverNisaabValue) === 'Not Available'
+									className={`text-[10px] sm:text-xs md:text-sm lg:text-base font-bold whitespace-nowrap overflow-hidden text-ellipsis ${
+										formatCurrencyWithFallback(item.silverNisaabValue) ===
+										'Not Available'
 											? 'text-slate-400 dark:text-slate-500'
 											: 'text-slate-900 dark:text-slate-100'
 									}`}
+									title={formatCurrencyWithFallback(item.silverNisaabValue)}
 								>
 									{formatCurrencyWithFallback(item.silverNisaabValue)}
 								</p>
@@ -590,7 +699,7 @@ export default function NisaabHistoryPage() {
 						{/* Decorative elements */}
 						<div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
 						<div className="absolute bottom-0 left-0 w-48 h-48 bg-secondary-500/20 rounded-full blur-2xl" />
-						
+
 						<div className="relative z-10">
 							<div className="flex items-center gap-2 mb-4">
 								<div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
@@ -598,20 +707,28 @@ export default function NisaabHistoryPage() {
 								</div>
 								<div>
 									<h2 className="text-lg font-bold text-white">Summary</h2>
-									<p className="text-xs text-white/80">{stats.totalRecords} records</p>
+									<p className="text-xs text-white/80">
+										{stats.totalRecords} records
+									</p>
 								</div>
 							</div>
-							
+
 							<div className="grid grid-cols-2 gap-3">
 								<div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20 min-w-0">
 									<p className="text-xs text-white/80 mb-1">Avg Gold</p>
-									<p className="text-[10px] sm:text-xs md:text-sm lg:text-base xl:text-lg font-bold text-white break-words">
+									<p
+										className="text-[10px] sm:text-xs md:text-sm lg:text-base xl:text-lg font-bold text-white whitespace-nowrap overflow-hidden text-ellipsis"
+										title={formatCurrency(stats.avgGold)}
+									>
 										{formatCurrency(stats.avgGold)}
 									</p>
 								</div>
 								<div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20 min-w-0">
 									<p className="text-xs text-white/80 mb-1">Avg Silver</p>
-									<p className="text-[10px] sm:text-xs md:text-sm lg:text-base xl:text-lg font-bold text-white break-words">
+									<p
+										className="text-[10px] sm:text-xs md:text-sm lg:text-base xl:text-lg font-bold text-white whitespace-nowrap overflow-hidden text-ellipsis"
+										title={formatCurrency(stats.avgSilver)}
+									>
 										{formatCurrency(stats.avgSilver)}
 									</p>
 								</div>

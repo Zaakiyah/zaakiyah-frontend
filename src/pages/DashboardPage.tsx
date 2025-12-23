@@ -5,6 +5,7 @@ import { useAuthStore } from '../store/authStore';
 import { useCurrencyStore } from '../store/currencyStore';
 import { useTheme } from '../hooks/useTheme';
 import { logger } from '../utils/logger';
+import { alert } from '../store/alertStore';
 import { renderContentWithHashtagsAndLinks } from '../utils/textUtils';
 import {
 	nisaabService,
@@ -42,6 +43,8 @@ import {
 	MusicalNoteIcon,
 	PlayIcon,
 	ShieldCheckIcon,
+	DocumentDuplicateIcon,
+	CheckIcon,
 } from '@heroicons/react/24/outline';
 import {
 	CurrencyDollarIcon,
@@ -70,6 +73,7 @@ export default function DashboardPage() {
 	const [communityPosts, setCommunityPosts] = useState<any[]>([]);
 	const [knowledgeResources, setKnowledgeResources] = useState<any[]>([]);
 	const [isLoadingCommunity, setIsLoadingCommunity] = useState(true);
+	const [copiedValue, setCopiedValue] = useState<string | null>(null);
 	const isFetchingRef = useRef(false);
 
 	// Sync currency with user profile and fetch currencies on mount
@@ -318,6 +322,34 @@ export default function DashboardPage() {
 		if (diffInWeeks < 4) return `${diffInWeeks} weeks ago`;
 		if (diffInMonths === 1) return '1 month ago';
 		return `${diffInMonths} months ago`;
+	};
+
+	const copyValue = async (value: string | number | null, type: 'gold' | 'silver') => {
+		if (!value || value === 0 || value === '0') return;
+		
+		const formattedValue = formatCurrency(value);
+		const copyId = `${type}-${Date.now()}`;
+
+		try {
+			if (navigator.clipboard && navigator.clipboard.writeText) {
+				await navigator.clipboard.writeText(formattedValue);
+			} else {
+				const textarea = document.createElement('textarea');
+				textarea.value = formattedValue;
+				textarea.style.position = 'fixed';
+				textarea.style.opacity = '0';
+				document.body.appendChild(textarea);
+				textarea.select();
+				document.execCommand('copy');
+				document.body.removeChild(textarea);
+			}
+			setCopiedValue(copyId);
+			alert.success(`${type === 'gold' ? 'Gold' : 'Silver'} value copied!`);
+			setTimeout(() => setCopiedValue(null), 2000);
+		} catch (error) {
+			logger.error('Failed to copy:', error);
+			alert.error('Failed to copy value');
+		}
 	};
 
 	const actionButtons = [
@@ -682,15 +714,31 @@ export default function DashboardPage() {
 							<div className="relative group/gold overflow-hidden rounded-xl bg-gradient-to-br from-amber-50 via-yellow-50 to-amber-100/50 dark:from-amber-900/20 dark:via-yellow-900/10 dark:to-amber-800/10 p-4 border-2 border-amber-200/50 dark:border-amber-800/30 hover:border-amber-300 dark:hover:border-amber-700 transition-all duration-300">
 								<div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-amber-400/20 to-yellow-400/20 rounded-full blur-2xl" />
 								<div className="relative z-10">
-									<div className="flex items-center gap-2 mb-2">
-										<div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-yellow-600 rounded-xl flex items-center justify-center shadow-lg shadow-amber-500/30 flex-shrink-0">
-											<SparklesIcon className="w-5 h-5 text-white" />
+									<div className="flex items-center justify-between mb-2">
+										<div className="flex items-center gap-2">
+											<div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-yellow-600 rounded-xl flex items-center justify-center shadow-lg shadow-amber-500/30 flex-shrink-0">
+												<SparklesIcon className="w-5 h-5 text-white" />
+											</div>
+											<p className="text-[10px] font-semibold text-amber-700 dark:text-amber-300 uppercase tracking-wider">
+												Gold
+											</p>
 										</div>
-										<p className="text-[10px] font-semibold text-amber-700 dark:text-amber-300 uppercase tracking-wider">
-											Gold
-										</p>
+										<button
+											onClick={(e) => {
+												e.stopPropagation();
+												copyValue(nisaabData.goldNisaabValue, 'gold');
+											}}
+											className="p-1 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-900/30 text-amber-600 dark:text-amber-400 transition-all active:scale-95 flex-shrink-0"
+											title="Copy gold value"
+										>
+											{copiedValue?.startsWith('gold') ? (
+												<CheckIcon className="w-3.5 h-3.5" />
+											) : (
+												<DocumentDuplicateIcon className="w-3.5 h-3.5" />
+											)}
+										</button>
 									</div>
-									<p className="text-[10px] sm:text-xs md:text-sm lg:text-base xl:text-lg font-bold text-slate-900 dark:text-slate-100 mb-1 break-words">
+									<p className="text-[10px] sm:text-xs md:text-sm lg:text-base xl:text-lg font-bold text-slate-900 dark:text-slate-100 mb-1 whitespace-nowrap overflow-hidden text-ellipsis" title={formatCurrency(nisaabData.goldNisaabValue)}>
 										{formatCurrency(nisaabData.goldNisaabValue)}
 									</p>
 									<p className="text-xs text-amber-700/80 dark:text-amber-300/80 font-medium">
@@ -703,15 +751,31 @@ export default function DashboardPage() {
 							<div className="relative group/silver overflow-hidden rounded-xl bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100/50 dark:from-slate-700/30 dark:via-gray-800/20 dark:to-slate-700/20 p-4 border-2 border-slate-200/50 dark:border-slate-600/30 hover:border-slate-300 dark:hover:border-slate-500 transition-all duration-300">
 								<div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-slate-400/20 to-gray-400/20 rounded-full blur-2xl" />
 								<div className="relative z-10">
-									<div className="flex items-center gap-2 mb-2">
-										<div className="w-10 h-10 bg-gradient-to-br from-slate-500 to-gray-600 rounded-xl flex items-center justify-center shadow-lg shadow-slate-500/30 flex-shrink-0">
-											<CurrencyDollarIcon className="w-5 h-5 text-white" />
+									<div className="flex items-center justify-between mb-2">
+										<div className="flex items-center gap-2">
+											<div className="w-10 h-10 bg-gradient-to-br from-slate-500 to-gray-600 rounded-xl flex items-center justify-center shadow-lg shadow-slate-500/30 flex-shrink-0">
+												<CurrencyDollarIcon className="w-5 h-5 text-white" />
+											</div>
+											<p className="text-[10px] font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+												Silver
+											</p>
 										</div>
-										<p className="text-[10px] font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-											Silver
-										</p>
+										<button
+											onClick={(e) => {
+												e.stopPropagation();
+												copyValue(nisaabData.silverNisaabValue, 'silver');
+											}}
+											className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 transition-all active:scale-95 flex-shrink-0"
+											title="Copy silver value"
+										>
+											{copiedValue?.startsWith('silver') ? (
+												<CheckIcon className="w-3.5 h-3.5" />
+											) : (
+												<DocumentDuplicateIcon className="w-3.5 h-3.5" />
+											)}
+										</button>
 									</div>
-									<p className="text-[10px] sm:text-xs md:text-sm lg:text-base xl:text-lg font-bold text-slate-900 dark:text-slate-100 mb-1 break-words">
+									<p className="text-[10px] sm:text-xs md:text-sm lg:text-base xl:text-lg font-bold text-slate-900 dark:text-slate-100 mb-1 whitespace-nowrap overflow-hidden text-ellipsis" title={formatCurrency(nisaabData.silverNisaabValue)}>
 										{formatCurrency(nisaabData.silverNisaabValue)}
 									</p>
 									<p className="text-xs text-slate-700/80 dark:text-slate-300/80 font-medium">
