@@ -49,6 +49,7 @@ export default function PostCard({
 	const [showMediaViewer, setShowMediaViewer] = useState(false);
 	const [selectedMediaIndex, setSelectedMediaIndex] = useState(0);
 	const [isTogglingFollow, setIsTogglingFollow] = useState(false);
+	const [visibleLines, setVisibleLines] = useState(2); // Start with 2 lines
 
 	// Check ownership: use isOwner from backend (works for anonymous posts) or fallback to ID comparison
 	const isOwner = post.isOwner ?? user?.id === post.author.id;
@@ -245,21 +246,39 @@ export default function PostCard({
 				</div>
 
 				{/* Content */}
-				{post.content && (
-					<button
-						onClick={() => navigate(`/community/posts/${post.id}`)}
-						className="mb-3 relative z-10 text-left w-full"
-					>
-						<div className="text-[15px] leading-relaxed text-slate-900 dark:text-slate-100 line-clamp-2">
-							{renderContentWithHashtags(post.content)}
+				{post.content && (() => {
+					const contentLines = post.content.split('\n');
+					const totalLines = contentLines.length;
+					const needsTruncation = totalLines > 2 || post.content.length > 120;
+					const hasMoreContent = visibleLines < totalLines;
+					const visibleContent = hasMoreContent 
+						? contentLines.slice(0, visibleLines).join('\n')
+						: post.content;
+					
+					return (
+						<div className="mb-3 relative z-10">
+							<div
+								onClick={() => navigate(`/community/posts/${post.id}`)}
+								className="text-[15px] leading-relaxed text-slate-900 dark:text-slate-100 cursor-pointer"
+							>
+								{renderContentWithHashtags(visibleContent)}
+							</div>
+							{needsTruncation && hasMoreContent && (
+								<button
+									onClick={(e) => {
+										e.stopPropagation();
+										// Show 4 more lines each time, or all if less than 4 remain
+										const nextLines = Math.min(visibleLines + 4, totalLines);
+										setVisibleLines(nextLines);
+									}}
+									className="text-primary-600 dark:text-primary-400 text-sm font-medium hover:underline mt-1 inline-block"
+								>
+									... more
+								</button>
+							)}
 						</div>
-						{(post.content.split('\n').length > 2 || post.content.length > 120) && (
-							<span className="text-primary-600 dark:text-primary-400 text-sm font-medium hover:underline mt-1 inline-block">
-								... more
-							</span>
-						)}
-					</button>
-				)}
+					);
+				})()}
 
 				{/* Media Grid */}
 				{post.mediaUrls && post.mediaUrls.length > 0 && (

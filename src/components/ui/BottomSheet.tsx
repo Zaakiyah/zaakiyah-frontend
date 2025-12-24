@@ -78,7 +78,7 @@ export default function BottomSheet({ isOpen, onClose, title, children }: Bottom
 						</div>
 
 						{/* Content */}
-						<div className="flex-1 overflow-y-auto px-4 py-4 relative z-10">
+						<div className="flex-1 overflow-y-auto px-4 py-4 pb-0 relative z-10">
 							{children}
 						</div>
 					</motion.div>

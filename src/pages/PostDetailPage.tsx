@@ -622,7 +622,10 @@ export default function PostDetailPage() {
 
 			{/* Fixed Comment Input at Bottom */}
 			{user && (
-				<div className="fixed bottom-0 left-0 right-0 px-4 pb-4 pt-4 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-t-2 border-primary-500/20 dark:border-primary-400/20 shadow-lg z-40">
+				<div 
+					className="fixed bottom-0 left-0 right-0 px-4 pt-3 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-t-2 border-primary-500/20 dark:border-primary-400/20 shadow-lg z-40"
+					style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom, 0))' }}
+				>
 					{/* Decorative gradient overlay */}
 					<div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-primary-500/5 via-transparent to-transparent pointer-events-none -z-0" />
 
@@ -657,7 +660,7 @@ export default function PostDetailPage() {
 								</button>
 							</div>
 						)}
-						<div className="flex items-end gap-3">
+						<div className="flex items-center gap-3">
 							<div className="flex-shrink-0">
 								<Avatar
 									avatarUrl={user.avatarUrl}

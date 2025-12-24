@@ -10,6 +10,7 @@ import { PaperAirplaneIcon, ChevronDownIcon } from '@heroicons/react/24/outline'
 import type { Comment, CreateCommentData } from '../../types/community.types';
 import { useUserTagging, UserTaggingSuggestions } from '../../hooks/useUserTagging';
 import MentionTextarea from '../ui/MentionTextarea';
+import Avatar from '../ui/Avatar';
 
 interface CommentBottomSheetProps {
 	isOpen: boolean;
@@ -113,10 +114,15 @@ export default function CommentBottomSheet({
 			}
 
 			const sortParam = commentFilter === 'all' ? undefined : commentFilter;
-			const response = await communityService.getPostComments(postId, pageNum, 100, sortParam);
+			const response = await communityService.getPostComments(
+				postId,
+				pageNum,
+				100,
+				sortParam
+			);
 			if (response.data) {
 				const fetchedComments = response.data.data || [];
-				
+
 				if (append) {
 					setComments((prev) => [...prev, ...fetchedComments]);
 				} else {
@@ -218,9 +224,17 @@ export default function CommentBottomSheet({
 							className="flex items-center justify-between w-full px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors"
 						>
 							<span>
-								{commentFilter === 'all' ? 'All Comments' : commentFilter === 'relevant' ? 'Relevant Comments' : 'Most Recent'}
+								{commentFilter === 'all'
+									? 'All Comments'
+									: commentFilter === 'relevant'
+									? 'Relevant Comments'
+									: 'Most Recent'}
 							</span>
-							<ChevronDownIcon className={`w-4 h-4 transition-transform ${showFilterMenu ? 'rotate-180' : ''}`} />
+							<ChevronDownIcon
+								className={`w-4 h-4 transition-transform ${
+									showFilterMenu ? 'rotate-180' : ''
+								}`}
+							/>
 						</button>
 						{showFilterMenu && (
 							<div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg z-10">
@@ -231,7 +245,9 @@ export default function CommentBottomSheet({
 										setShowFilterMenu(false);
 									}}
 									className={`w-full text-left px-4 py-2 text-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors ${
-										commentFilter === 'all' ? 'text-primary-600 dark:text-primary-400 font-medium' : 'text-slate-700 dark:text-slate-300'
+										commentFilter === 'all'
+											? 'text-primary-600 dark:text-primary-400 font-medium'
+											: 'text-slate-700 dark:text-slate-300'
 									}`}
 								>
 									All Comments
@@ -243,7 +259,9 @@ export default function CommentBottomSheet({
 										setShowFilterMenu(false);
 									}}
 									className={`w-full text-left px-4 py-2 text-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors ${
-										commentFilter === 'relevant' ? 'text-primary-600 dark:text-primary-400 font-medium' : 'text-slate-700 dark:text-slate-300'
+										commentFilter === 'relevant'
+											? 'text-primary-600 dark:text-primary-400 font-medium'
+											: 'text-slate-700 dark:text-slate-300'
 									}`}
 								>
 									Relevant Comments
@@ -255,7 +273,9 @@ export default function CommentBottomSheet({
 										setShowFilterMenu(false);
 									}}
 									className={`w-full text-left px-4 py-2 text-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors ${
-										commentFilter === 'recent' ? 'text-primary-600 dark:text-primary-400 font-medium' : 'text-slate-700 dark:text-slate-300'
+										commentFilter === 'recent'
+											? 'text-primary-600 dark:text-primary-400 font-medium'
+											: 'text-slate-700 dark:text-slate-300'
 									}`}
 								>
 									Most Recent
@@ -276,7 +296,9 @@ export default function CommentBottomSheet({
 					) : comments.length === 0 ? (
 						<div className="py-12 text-center">
 							<div className="text-4xl mb-3">💬</div>
-							<p className="text-slate-500 dark:text-slate-400 font-medium">No comments yet</p>
+							<p className="text-slate-500 dark:text-slate-400 font-medium">
+								No comments yet
+							</p>
 							<p className="text-sm text-slate-400 dark:text-slate-500 mt-1">
 								Be the first to share your thoughts!
 							</p>
@@ -284,7 +306,14 @@ export default function CommentBottomSheet({
 					) : (
 						<div className="space-y-0">
 							{comments.map((comment, index) => (
-								<div key={comment.id} className={index > 0 ? 'border-t border-slate-100 dark:border-slate-800 pt-3' : ''}>
+								<div
+									key={comment.id}
+									className={
+										index > 0
+											? 'border-t border-slate-100 dark:border-slate-800 pt-3'
+											: ''
+									}
+								>
 									<CommentCard
 										comment={comment}
 										onReply={(commentId, authorName) => {
@@ -320,11 +349,15 @@ export default function CommentBottomSheet({
 
 				{/* Comment Form - Fixed at bottom */}
 				{user && (
-					<div className="pt-4 border-t border-slate-200 dark:border-slate-700 -mx-4 px-4 bg-white dark:bg-slate-800 pb-safe">
+					<div
+						className="pt-3 border-t border-slate-200 dark:border-slate-700 -mx-4 px-4 bg-white dark:bg-slate-800"
+						style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom, 0))' }}
+					>
 						{replyingTo && (
 							<div className="mb-2 flex items-center justify-between px-3 py-2 bg-primary-50 dark:bg-primary-900/20 rounded-lg">
 								<span className="text-xs text-primary-700 dark:text-primary-300">
-									Replying to <span className="font-semibold">{replyingTo.authorName}</span>
+									Replying to{' '}
+									<span className="font-semibold">{replyingTo.authorName}</span>
 								</span>
 								<button
 									type="button"
@@ -336,17 +369,29 @@ export default function CommentBottomSheet({
 							</div>
 						)}
 						<form onSubmit={handleCommentSubmit}>
-							<div className="relative flex items-end gap-2">
+							<div className="relative flex items-center gap-3">
+								<div className="flex-shrink-0">
+									<Avatar
+										avatarUrl={user.avatarUrl}
+										firstName={user.firstName}
+										lastName={user.lastName}
+										size="sm"
+									/>
+								</div>
 								<div className="flex-1 relative">
 									<MentionTextarea
 										ref={textareaRef}
 										value={commentContent}
 										onChange={handleTaggingChange}
 										onKeyDown={handleKeyDown}
-										placeholder={replyingTo ? `Reply to ${replyingTo.authorName}...` : "Add a comment..."}
-										rows={2}
-										maxLength={1000}
-										className="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:focus:ring-primary-400/20 focus:border-primary-500 dark:focus:border-primary-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/20 dark:focus-visible:ring-primary-400/20 focus-visible:border-primary-500 dark:focus-visible:border-primary-400 resize-none"
+										placeholder={
+											replyingTo
+												? `Reply to ${replyingTo.authorName}...`
+												: 'Add a comment...'
+										}
+										rows={1}
+										maxLength={2000}
+										className="w-full px-4 py-3 text-sm bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 border-2 border-slate-200/60 dark:border-slate-700/60 rounded-2xl text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:focus:ring-primary-400/20 focus:border-primary-500 dark:focus:border-primary-400 resize-none shadow-sm hover:shadow-md transition-all"
 									/>
 									<UserTaggingSuggestions
 										show={showSuggestions}
@@ -360,12 +405,12 @@ export default function CommentBottomSheet({
 								<button
 									type="submit"
 									disabled={isSubmitting || !commentContent.trim()}
-									className="p-3 sm:p-2.5 bg-primary-500 text-white rounded-lg hover:bg-primary-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-95 flex items-center justify-center shrink-0 min-h-[44px] sm:min-h-0"
+									className="p-3 bg-primary-500 text-white rounded-xl hover:bg-primary-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-95 flex items-center justify-center shrink-0 shadow-sm hover:shadow-md"
 								>
 									{isSubmitting ? (
-										<div className="w-5 h-5 sm:w-4 sm:h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+										<div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
 									) : (
-										<PaperAirplaneIcon className="w-5 h-5 sm:w-4 sm:h-4" />
+										<PaperAirplaneIcon className="w-5 h-5" />
 									)}
 								</button>
 							</div>
@@ -376,4 +421,3 @@ export default function CommentBottomSheet({
 		</BottomSheet>
 	);
 }
-

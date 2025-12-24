@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { HeartIcon, ChatBubbleLeftIcon, PlayIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
 import { HeartIcon as HeartIconSolid, CheckBadgeIcon } from '@heroicons/react/24/solid';
@@ -36,6 +36,7 @@ export default function PostPreviewCard({
 	isLiking = false,
 }: PostPreviewCardProps) {
 	const navigate = useNavigate();
+	const [visibleLines, setVisibleLines] = useState(2); // Start with 2 lines
 	
 	// Get media URLs - support both mediaUrl (legacy) and mediaUrls (new)
 	const mediaUrls = post.mediaUrls || (post.mediaUrl ? [post.mediaUrl] : []);
@@ -43,13 +44,15 @@ export default function PostPreviewCard({
 	
 	// Check if content should be truncated (more than 2 lines or long content)
 	const contentLines = post.content ? post.content.split('\n') : [];
-	const shouldTruncate = contentLines.length > 2 || post.content.length > 120;
+	const totalLines = contentLines.length;
+	const needsTruncation = totalLines > 2 || post.content.length > 120;
+	const hasMoreContent = visibleLines < totalLines;
+	const visibleContent = hasMoreContent 
+		? contentLines.slice(0, visibleLines).join('\n')
+		: post.content;
 
 	return (
-		<div
-			onClick={() => navigate(`/community/posts/${post.id}`)}
-			className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-100 dark:border-slate-700 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-		>
+		<div className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-100 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
 			<div className="flex items-start gap-2.5 mb-2">
 				{post.author && 'isAnonymous' in post.author && post.author.isAnonymous ? (
 					<div className="w-8 h-8 rounded-full bg-gradient-to-br from-slate-400 to-slate-600 flex items-center justify-center ring-2 ring-slate-200 dark:ring-slate-700 flex-shrink-0">
@@ -85,14 +88,19 @@ export default function PostPreviewCard({
 						</p>
 					</div>
 					<div className="mb-2">
-						<div className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed line-clamp-2">
-							{renderContentWithHashtags(post.content)}
+						<div
+							onClick={() => navigate(`/community/posts/${post.id}`)}
+							className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed cursor-pointer"
+						>
+							{renderContentWithHashtags(visibleContent)}
 						</div>
-						{shouldTruncate && (
+						{needsTruncation && hasMoreContent && (
 							<button
 								onClick={(e) => {
 									e.stopPropagation();
-									navigate(`/community/posts/${post.id}`);
+									// Show 4 more lines each time, or all if less than 4 remain
+									const nextLines = Math.min(visibleLines + 4, totalLines);
+									setVisibleLines(nextLines);
 								}}
 								className="text-primary-600 dark:text-primary-400 text-sm font-medium hover:underline mt-1"
 							>
