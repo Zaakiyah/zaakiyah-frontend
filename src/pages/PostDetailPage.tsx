@@ -433,9 +433,9 @@ export default function PostDetailPage() {
 
 				{/* Post Content */}
 				{post.content && (
-					<p className="text-[15px] leading-relaxed text-slate-900 dark:text-slate-100 mb-4 whitespace-pre-wrap">
+					<div className="text-[15px] leading-relaxed text-slate-900 dark:text-slate-100 mb-4 whitespace-pre-wrap">
 						{renderContentWithHashtags(post.content)}
-					</p>
+					</div>
 				)}
 
 				{/* Media Grid */}

@@ -129,8 +129,169 @@ export async function shortenUrlsInText(text: string): Promise<string> {
 }
 
 /**
- * Renders text content with clickable hashtags, mentions, and links
- * Supports hashtags (#tag), mentions (@FirstName LastName), and URLs (http://, https://, www.)
+ * Renders a single line of text with clickable hashtags, mentions, and links
+ */
+function renderLineContent(
+	line: string,
+	navigate: ReturnType<typeof useNavigate>
+): React.ReactNode {
+	// Combined pattern: URLs, mentions, or hashtags (URLs first to avoid matching # in URLs)
+	const combinedPattern =
+		/(https?:\/\/[^\s<>"']+|www\.[^\s<>"']+|[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]?\.[a-zA-Z]{2,}(?:\/[^\s<>"']*)?|@[\w]+(?:\s+[\w]+)?\u200C\[[^\]]+\]|@\[[^\]]+\][\w]+(?:\s+[\w]+)?|@[\w]+(?:\s+[\w]+)?|#[\w]+)/gi;
+
+	const parts: Array<{
+		type: 'text' | 'url' | 'hashtag' | 'mention';
+		content: string;
+		match: string;
+	}> = [];
+	let lastIndex = 0;
+	let match;
+
+	// Find all matches (URLs, mentions, and hashtags)
+	while ((match = combinedPattern.exec(line)) !== null) {
+		// Add text before match
+		if (match.index > lastIndex) {
+			let textBefore = line.substring(lastIndex, match.index);
+			const matchText = match[0];
+
+			// If this is a hashtag match, check if "hashtag" appears immediately before it
+			if (matchText.startsWith('#')) {
+				const hashtagPrefix = /hashtag\s*$/i;
+				if (hashtagPrefix.test(textBefore)) {
+					textBefore = textBefore.replace(hashtagPrefix, '').trimEnd();
+				}
+			}
+
+			if (textBefore) {
+				parts.push({
+					type: 'text',
+					content: textBefore,
+					match: '',
+				});
+			}
+		}
+
+		// Add the match
+		const matchText = match[0];
+		if (matchText.startsWith('@')) {
+			parts.push({
+				type: 'mention',
+				content: matchText,
+				match: matchText,
+			});
+		} else if (matchText.startsWith('#')) {
+			parts.push({
+				type: 'hashtag',
+				content: matchText,
+				match: matchText,
+			});
+		} else {
+			parts.push({
+				type: 'url',
+				content: matchText,
+				match: matchText,
+			});
+		}
+
+		lastIndex = combinedPattern.lastIndex;
+	}
+
+	// Add remaining text
+	if (lastIndex < line.length) {
+		parts.push({
+			type: 'text',
+			content: line.substring(lastIndex),
+			match: '',
+		});
+	}
+
+	// Render parts
+	return (
+		<>
+			{parts.map((part, index) => {
+				if (part.type === 'mention') {
+					let userId: string | null = null;
+					let displayText = part.content;
+
+					const newFormatMatch = part.content.match(
+						/@([\w]+(?:\s+[\w]+)?)\u200C\[([^\]]+)\]/
+					);
+					if (newFormatMatch) {
+						userId = newFormatMatch[2];
+						displayText = `@${newFormatMatch[1]}`;
+					} else {
+						const legacyFormatMatch = part.content.match(/@\[([^\]]+)\](.+)/);
+						if (legacyFormatMatch) {
+							userId = legacyFormatMatch[1];
+							displayText = `@${legacyFormatMatch[2]}`;
+						} else {
+							displayText = part.content;
+						}
+					}
+
+					return (
+						<span
+							key={index}
+							className="text-primary-600 dark:text-primary-400 font-semibold hover:underline cursor-pointer inline-flex items-center gap-1"
+							onClick={(e: React.MouseEvent) => {
+								e.stopPropagation();
+								if (userId) {
+									navigate(`/community/members/${userId}`);
+								} else {
+									const userName = part.content
+										.slice(1)
+										.replace(/\u200C\[[^\]]+\]/, '');
+									navigate(`/community/members/${encodeURIComponent(userName)}`);
+								}
+							}}
+						>
+							{displayText}
+						</span>
+					);
+				} else if (part.type === 'hashtag') {
+					return (
+						<span
+							key={index}
+							className="text-primary-600 dark:text-primary-400 font-medium hover:underline cursor-pointer"
+							onClick={(e: React.MouseEvent) => {
+								e.stopPropagation();
+							}}
+						>
+							{part.content}
+						</span>
+					);
+				} else if (part.type === 'url') {
+					let url = part.content;
+					if (!url.match(/^https?:\/\//i)) {
+						url = url.startsWith('www.') ? 'https://' + url : 'https://' + url;
+					}
+
+					const displayUrl = shortenUrl(part.content);
+
+					return (
+						<a
+							key={index}
+							href={url}
+							target="_blank"
+							rel="noopener noreferrer"
+							onClick={(e: React.MouseEvent) => e.stopPropagation()}
+							className="text-primary-600 dark:text-primary-400 hover:underline cursor-pointer break-all"
+							title={part.content}
+						>
+							{displayUrl}
+						</a>
+					);
+				} else {
+					return <span key={index}>{part.content}</span>;
+				}
+			})}
+		</>
+	);
+}
+
+/**
+ * Renders text content with clickable hashtags, mentions, links, and list formatting
+ * Supports hashtags (#tag), mentions (@FirstName LastName), URLs, and lists (- item)
  */
 function ContentRenderer({ text }: { text: string }) {
 	const navigate = useNavigate();
@@ -138,181 +299,67 @@ function ContentRenderer({ text }: { text: string }) {
 	if (!text || typeof text !== 'string') return <>{text}</>;
 
 	try {
-		// Combined pattern: URLs, mentions, or hashtags (URLs first to avoid matching # in URLs)
-		// Mentions: @FirstName LastName\u200C[userId] (with zero-width char) or @[userId]FirstName LastName (legacy) or @FirstName LastName (legacy)
-		const combinedPattern =
-			/(https?:\/\/[^\s<>"']+|www\.[^\s<>"']+|[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]?\.[a-zA-Z]{2,}(?:\/[^\s<>"']*)?|@[\w]+(?:\s+[\w]+)?\u200C\[[^\]]+\]|@\[[^\]]+\][\w]+(?:\s+[\w]+)?|@[\w]+(?:\s+[\w]+)?|#[\w]+)/gi;
+		// Normalize line endings and split text by newlines to handle list formatting
+		// Handle both \n and \r\n line endings
+		const normalizedText = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+		const lines = normalizedText.split('\n');
 
-		const parts: Array<{
-			type: 'text' | 'url' | 'hashtag' | 'mention';
-			content: string;
-			match: string;
-		}> = [];
-		let lastIndex = 0;
-		let match;
+		// Check if any line starts with "-" (with space after, or directly followed by content)
+		// Pattern: start of line (after trim), dash, then space or non-whitespace
+		const hasListItems = lines.some((line) => {
+			const trimmed = line.trim();
+			// Match: dash at start, followed by space OR directly by non-whitespace character
+			// Also handle cases where there might be leading/trailing whitespace
+			// Use more lenient pattern: starts with dash and has content after it
+			return trimmed.length > 1 && trimmed.startsWith('-');
+		});
 
-		// Find all matches (URLs, mentions, and hashtags)
-		while ((match = combinedPattern.exec(text)) !== null) {
-			// Add text before match
-			if (match.index > lastIndex) {
-				let textBefore = text.substring(lastIndex, match.index);
-				const matchText = match[0];
-
-				// If this is a hashtag match, check if "hashtag" appears immediately before it
-				if (matchText.startsWith('#')) {
-					// Remove "hashtag" (case-insensitive) if it appears at the end of textBefore
-					const hashtagPrefix = /hashtag\s*$/i;
-					if (hashtagPrefix.test(textBefore)) {
-						textBefore = textBefore.replace(hashtagPrefix, '').trimEnd();
-					}
-				}
-
-				// Only add text part if there's content after removing "hashtag"
-				if (textBefore) {
-					parts.push({
-						type: 'text',
-						content: textBefore,
-						match: '',
-					});
-				}
-			}
-
-			// Add the match
-			const matchText = match[0];
-			if (matchText.startsWith('@')) {
-				parts.push({
-					type: 'mention',
-					content: matchText,
-					match: matchText,
-				});
-			} else if (matchText.startsWith('#')) {
-				parts.push({
-					type: 'hashtag',
-					content: matchText,
-					match: matchText,
-				});
-			} else {
-				parts.push({
-					type: 'url',
-					content: matchText,
-					match: matchText,
-				});
-			}
-
-			lastIndex = combinedPattern.lastIndex;
+		// If no list items, render as before (single block)
+		if (!hasListItems) {
+			return <>{renderLineContent(text, navigate)}</>;
 		}
 
-		// Add remaining text
-		if (lastIndex < text.length) {
-			parts.push({
-				type: 'text',
-				content: text.substring(lastIndex),
-				match: '',
-			});
-		}
-
-		// If no matches, return text as-is
-		if (parts.length === 0) {
-			return <>{text}</>;
-		}
-
-		// Render parts
+		// Render with list formatting
 		return (
-			<>
-				{parts.map((part, index) => {
-					if (part.type === 'mention') {
-						// Extract user ID and name from mention
-						// Format: @FirstName LastName\u200C[userId] (new) or @[userId]FirstName LastName (legacy) or @FirstName LastName (legacy)
-						let userId: string | null = null;
-						let displayText = part.content;
+			<div className="space-y-1">
+				{lines.map((line, lineIndex) => {
+					const trimmedLine = line.trim();
+					// Match: dash at start with content after it
+					// More lenient: any line that starts with "-" and has more than just the dash
+					const isListItem = trimmedLine.length > 1 && trimmedLine.startsWith('-');
 
-						// Check for new format with zero-width char
-						const newFormatMatch = part.content.match(
-							/@([\w]+(?:\s+[\w]+)?)\u200C\[([^\]]+)\]/
-						);
-						if (newFormatMatch) {
-							userId = newFormatMatch[2];
-							displayText = `@${newFormatMatch[1]}`;
-						} else {
-							// Check for legacy format: @[userId]FirstName LastName
-							const legacyFormatMatch = part.content.match(/@\[([^\]]+)\](.+)/);
-							if (legacyFormatMatch) {
-								userId = legacyFormatMatch[1];
-								displayText = `@${legacyFormatMatch[2]}`;
-							} else {
-								// Legacy format: @FirstName LastName - extract name only
-								displayText = part.content;
-							}
+					if (isListItem) {
+						// Remove the "- " or "-" prefix and render the content
+						// Handle both "- item" and "-item" formats
+						const listItemContent = trimmedLine.replace(/^-\s*/, '').trim();
+						// Only render if there's actual content after removing the dash
+						if (listItemContent.length > 0) {
+							return (
+								<div key={lineIndex} className="flex items-start gap-2">
+									<span className="text-slate-600 dark:text-slate-400 font-semibold mt-0.5 shrink-0">
+										•
+									</span>
+									<span className="flex-1">
+										{renderLineContent(listItemContent, navigate)}
+									</span>
+								</div>
+							);
 						}
+					}
 
+					if (trimmedLine) {
+						// Regular line (not a list item)
 						return (
-							<span
-								key={index}
-								className="text-primary-600 dark:text-primary-400 font-semibold hover:underline cursor-pointer inline-flex items-center gap-1"
-								onClick={(e: React.MouseEvent) => {
-									e.stopPropagation();
-									// Navigate to community member profile using user ID
-									if (userId) {
-										navigate(`/community/members/${userId}`);
-									} else {
-										// Fallback: if no ID, try to navigate with name (legacy support)
-										const userName = part.content
-											.slice(1)
-											.replace(/\u200C\[[^\]]+\]/, '');
-										navigate(
-											`/community/members/${encodeURIComponent(userName)}`
-										);
-									}
-								}}
-							>
-								{displayText}
-							</span>
-						);
-					} else if (part.type === 'hashtag') {
-						return (
-							<span
-								key={index}
-								className="text-primary-600 dark:text-primary-400 font-medium hover:underline cursor-pointer"
-								onClick={(e: React.MouseEvent) => {
-									e.stopPropagation();
-									// Future: Navigate to hashtag feed
-									// navigate(`/community?hashtag=${part.content.slice(1)}`);
-								}}
-							>
-								{part.content}
-							</span>
-						);
-					} else if (part.type === 'url') {
-						let url = part.content;
-						// Ensure URL has protocol
-						if (!url.match(/^https?:\/\//i)) {
-							if (url.startsWith('www.')) {
-								url = 'https://' + url;
-							} else {
-								url = 'https://' + url;
-							}
-						}
-
-						const displayUrl = shortenUrl(part.content);
-
-						return (
-							<a
-								key={index}
-								href={url}
-								target="_blank"
-								rel="noopener noreferrer"
-								onClick={(e: React.MouseEvent) => e.stopPropagation()}
-								className="text-primary-600 dark:text-primary-400 hover:underline cursor-pointer break-all"
-								title={part.content}
-							>
-								{displayUrl}
-							</a>
+							<div key={lineIndex} className="py-0.5">
+								{renderLineContent(trimmedLine, navigate)}
+							</div>
 						);
 					} else {
-						return <span key={index}>{part.content}</span>;
+						// Empty line - preserve spacing
+						return <div key={lineIndex} className="h-1" />;
 					}
 				})}
-			</>
+			</div>
 		);
 	} catch (error) {
 		console.error('Error rendering content with hashtags and links:', error);

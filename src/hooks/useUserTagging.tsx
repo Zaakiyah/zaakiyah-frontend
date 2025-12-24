@@ -75,162 +75,6 @@ export function useUserTagging({
 		};
 	}, [searchQuery, showSuggestions, currentUserId]);
 
-	// Handle keyboard navigation in suggestions
-	const handleKeyDown = useCallback(
-		(e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-			if (!showSuggestions || suggestions.length === 0) {
-				// Handle backspace deletion of mentions
-				if (e.key === 'Backspace' && textareaRef.current) {
-					const textarea = textareaRef.current;
-					const cursorPosition = textarea.selectionStart;
-					const textBeforeCursor = value.substring(0, cursorPosition);
-
-					// Check if cursor is at the end of a completed mention with ID (using zero-width char)
-					// Format: @FirstName LastName\u200C[userId]
-					const completedMentionMatch = textBeforeCursor.match(
-						/@([\w]+(?:\s+[\w]+)?)\u200C\[([^\]]+)\]\s*$/
-					);
-					if (completedMentionMatch) {
-						const nameText = completedMentionMatch[1];
-						const userId = completedMentionMatch[2];
-						const mentionStartPos = textBeforeCursor.lastIndexOf('@');
-						const nameParts = nameText.trim().split(/\s+/);
-
-						if (nameParts.length === 2) {
-							// If deleting from last name, remove entire last name
-							e.preventDefault();
-							const newContent =
-								value.substring(0, mentionStartPos) +
-								`@${nameParts[0]}\u200C[${userId}] ` +
-								value.substring(cursorPosition);
-							onChange(newContent);
-							setTimeout(() => {
-								const newPos =
-									mentionStartPos + `@${nameParts[0]}\u200C[${userId}] `.length;
-								textarea.setSelectionRange(newPos, newPos);
-							}, 0);
-							return;
-						} else if (nameParts.length === 1) {
-							// If deleting from first name, remove entire mention
-							e.preventDefault();
-							const newContent =
-								value.substring(0, mentionStartPos) +
-								value.substring(cursorPosition);
-							onChange(newContent);
-							setTimeout(() => {
-								textarea.setSelectionRange(mentionStartPos, mentionStartPos);
-							}, 0);
-							return;
-						}
-					}
-
-					// Also check for legacy format: @[userId]FirstName LastName
-					const legacyMentionMatch = textBeforeCursor.match(
-						/@\[([^\]]+)\]([\w]+(?:\s+[\w]+)?)\s*$/
-					);
-					if (legacyMentionMatch) {
-						const nameText = legacyMentionMatch[2];
-						const mentionStartPos = textBeforeCursor.lastIndexOf('@');
-						const nameParts = nameText.trim().split(/\s+/);
-
-						if (nameParts.length === 2) {
-							// If deleting from last name, remove entire last name
-							e.preventDefault();
-							const userId = legacyMentionMatch[1];
-							const newContent =
-								value.substring(0, mentionStartPos) +
-								`@[${userId}]${nameParts[0]} ` +
-								value.substring(cursorPosition);
-							onChange(newContent);
-							setTimeout(() => {
-								const newPos =
-									mentionStartPos + `@[${userId}]${nameParts[0]} `.length;
-								textarea.setSelectionRange(newPos, newPos);
-							}, 0);
-							return;
-						} else if (nameParts.length === 1) {
-							// If deleting from first name, remove entire mention
-							e.preventDefault();
-							const newContent =
-								value.substring(0, mentionStartPos) +
-								value.substring(cursorPosition);
-							onChange(newContent);
-							setTimeout(() => {
-								textarea.setSelectionRange(mentionStartPos, mentionStartPos);
-							}, 0);
-							return;
-						}
-					}
-
-					// Check if cursor is at the end of a mention without ID (legacy or typing)
-					const mentionMatch = textBeforeCursor.match(/@([\w]+(?:\s+[\w]+)?)$/);
-					if (mentionMatch) {
-						const mentionText = mentionMatch[1];
-						const mentionStartPos = textBeforeCursor.lastIndexOf('@');
-
-						if (mentionStartPos !== -1) {
-							// Check if mention has both first and last name
-							const nameParts = mentionText.trim().split(/\s+/);
-
-							if (nameParts.length === 2) {
-								// If deleting from last name, remove entire last name
-								e.preventDefault();
-								const newContent =
-									value.substring(0, mentionStartPos + 1 + nameParts[0].length) +
-									' ' +
-									value.substring(cursorPosition);
-								onChange(newContent);
-								setTimeout(() => {
-									textarea.setSelectionRange(
-										mentionStartPos + 1 + nameParts[0].length + 1,
-										mentionStartPos + 1 + nameParts[0].length + 1
-									);
-								}, 0);
-								return;
-							} else if (nameParts.length === 1) {
-								// If deleting from first name, remove entire mention
-								e.preventDefault();
-								const newContent =
-									value.substring(0, mentionStartPos) +
-									value.substring(cursorPosition);
-								onChange(newContent);
-								setTimeout(() => {
-									textarea.setSelectionRange(mentionStartPos, mentionStartPos);
-								}, 0);
-								return;
-							}
-						}
-					}
-				}
-				return;
-			}
-
-			switch (e.key) {
-				case 'ArrowDown':
-					e.preventDefault();
-					setSelectedIndex((prev) => (prev < suggestions.length - 1 ? prev + 1 : prev));
-					break;
-				case 'ArrowUp':
-					e.preventDefault();
-					setSelectedIndex((prev) => (prev > 0 ? prev - 1 : 0));
-					break;
-				case 'Enter':
-				case 'Tab':
-					e.preventDefault();
-					if (suggestions[selectedIndex]) {
-						insertMention(suggestions[selectedIndex]);
-					}
-					break;
-				case 'Escape':
-					e.preventDefault();
-					setShowSuggestions(false);
-					setSuggestions([]);
-					break;
-			}
-		},
-		[showSuggestions, suggestions, selectedIndex, value, onChange]
-	);
-
 	// Insert mention into text with user ID embedded using zero-width non-joiner (invisible)
 	// Format: @FirstName LastName\u200C[userId] - ID is stored but invisible
 	const insertMention = useCallback(
@@ -276,6 +120,171 @@ export function useUserTagging({
 			}, 50); // Increased timeout to ensure contentEditable has updated
 		},
 		[value, mentionStart, onChange, textareaRef]
+	);
+
+	// Handle keyboard navigation in suggestions
+	const handleKeyDown = useCallback(
+		(e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+			// When suggestions are showing, handle navigation
+			if (showSuggestions && suggestions.length > 0) {
+				switch (e.key) {
+					case 'ArrowDown':
+						e.preventDefault();
+						setSelectedIndex((prev) => (prev < suggestions.length - 1 ? prev + 1 : prev));
+						return;
+					case 'ArrowUp':
+						e.preventDefault();
+						setSelectedIndex((prev) => (prev > 0 ? prev - 1 : 0));
+						return;
+					case 'Enter':
+					case 'Tab':
+						e.preventDefault();
+						if (suggestions[selectedIndex]) {
+							insertMention(suggestions[selectedIndex]);
+						}
+						return;
+					case 'Escape':
+						e.preventDefault();
+						setShowSuggestions(false);
+						setSuggestions([]);
+						return;
+				}
+			}
+
+			// When suggestions are NOT showing, allow Enter to create new lines
+			// Only prevent default for Enter if Shift+Enter or Ctrl+Enter (for submit)
+			if (e.key === 'Enter' && !e.shiftKey && !e.metaKey && !e.ctrlKey) {
+				// Allow Enter to create new line - don't prevent default
+				// This is especially important on mobile where Shift key is not available
+				return;
+			}
+
+			// Handle backspace deletion of mentions
+			if (e.key === 'Backspace' && textareaRef.current) {
+				const textarea = textareaRef.current;
+				const cursorPosition = textarea.selectionStart;
+				const textBeforeCursor = value.substring(0, cursorPosition);
+
+				// Check if cursor is at the end of a completed mention with ID (using zero-width char)
+				// Format: @FirstName LastName\u200C[userId]
+				const completedMentionMatch = textBeforeCursor.match(
+					/@([\w]+(?:\s+[\w]+)?)\u200C\[([^\]]+)\]\s*$/
+				);
+				if (completedMentionMatch) {
+					const nameText = completedMentionMatch[1];
+					const userId = completedMentionMatch[2];
+					const mentionStartPos = textBeforeCursor.lastIndexOf('@');
+					const nameParts = nameText.trim().split(/\s+/);
+
+					if (nameParts.length === 2) {
+						// If deleting from last name, remove entire last name
+						e.preventDefault();
+						const newContent =
+							value.substring(0, mentionStartPos) +
+							`@${nameParts[0]}\u200C[${userId}] ` +
+							value.substring(cursorPosition);
+						onChange(newContent);
+						setTimeout(() => {
+							const newPos =
+								mentionStartPos + `@${nameParts[0]}\u200C[${userId}] `.length;
+							textarea.setSelectionRange(newPos, newPos);
+						}, 0);
+						return;
+					} else if (nameParts.length === 1) {
+						// If deleting from first name, remove entire mention
+						e.preventDefault();
+						const newContent =
+							value.substring(0, mentionStartPos) +
+							value.substring(cursorPosition);
+						onChange(newContent);
+						setTimeout(() => {
+							textarea.setSelectionRange(mentionStartPos, mentionStartPos);
+						}, 0);
+						return;
+					}
+				}
+
+				// Also check for legacy format: @[userId]FirstName LastName
+				const legacyMentionMatch = textBeforeCursor.match(
+					/@\[([^\]]+)\]([\w]+(?:\s+[\w]+)?)\s*$/
+				);
+				if (legacyMentionMatch) {
+					const nameText = legacyMentionMatch[2];
+					const mentionStartPos = textBeforeCursor.lastIndexOf('@');
+					const nameParts = nameText.trim().split(/\s+/);
+
+					if (nameParts.length === 2) {
+						// If deleting from last name, remove entire last name
+						e.preventDefault();
+						const userId = legacyMentionMatch[1];
+						const newContent =
+							value.substring(0, mentionStartPos) +
+							`@[${userId}]${nameParts[0]} ` +
+							value.substring(cursorPosition);
+						onChange(newContent);
+						setTimeout(() => {
+							const newPos =
+								mentionStartPos + `@[${userId}]${nameParts[0]} `.length;
+							textarea.setSelectionRange(newPos, newPos);
+						}, 0);
+						return;
+					} else if (nameParts.length === 1) {
+						// If deleting from first name, remove entire mention
+						e.preventDefault();
+						const newContent =
+							value.substring(0, mentionStartPos) +
+							value.substring(cursorPosition);
+						onChange(newContent);
+						setTimeout(() => {
+							textarea.setSelectionRange(mentionStartPos, mentionStartPos);
+						}, 0);
+						return;
+					}
+				}
+
+				// Check if cursor is at the end of a mention without ID (legacy or typing)
+				const mentionMatch = textBeforeCursor.match(/@([\w]+(?:\s+[\w]+)?)$/);
+				if (mentionMatch) {
+					const mentionText = mentionMatch[1];
+					const mentionStartPos = textBeforeCursor.lastIndexOf('@');
+
+					if (mentionStartPos !== -1) {
+						// Check if mention has both first and last name
+						const nameParts = mentionText.trim().split(/\s+/);
+
+						if (nameParts.length === 2) {
+							// If deleting from last name, remove entire last name
+							e.preventDefault();
+							const newContent =
+								value.substring(0, mentionStartPos + 1 + nameParts[0].length) +
+								' ' +
+								value.substring(cursorPosition);
+							onChange(newContent);
+							setTimeout(() => {
+								textarea.setSelectionRange(
+									mentionStartPos + 1 + nameParts[0].length + 1,
+									mentionStartPos + 1 + nameParts[0].length + 1
+								);
+							}, 0);
+							return;
+						} else if (nameParts.length === 1) {
+							// If deleting from first name, remove entire mention
+							e.preventDefault();
+							const newContent =
+								value.substring(0, mentionStartPos) +
+								value.substring(cursorPosition);
+							onChange(newContent);
+							setTimeout(() => {
+								textarea.setSelectionRange(mentionStartPos, mentionStartPos);
+							}, 0);
+							return;
+						}
+					}
+				}
+			}
+
+		},
+		[showSuggestions, suggestions, selectedIndex, value, onChange, insertMention]
 	);
 
 	// Handle text change and detect @ trigger

@@ -294,9 +294,9 @@ export default function CommentCard({
 						</div>
 					</div>
 				) : (
-					<p className="text-sm leading-relaxed text-slate-900 dark:text-slate-100 mb-2 whitespace-pre-wrap">
+					<div className="text-sm leading-relaxed text-slate-900 dark:text-slate-100 mb-2 whitespace-pre-wrap">
 						{renderContentWithHashtagsAndLinks(comment.content)}
-					</p>
+					</div>
 				)}
 
 				{/* Comment Actions */}

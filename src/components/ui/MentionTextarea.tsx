@@ -54,21 +54,12 @@ const MentionTextarea = forwardRef<HTMLTextAreaElement, MentionTextareaProps>(
 		const getValueFromContentEditable = useCallback((): string => {
 			if (!contentEditableRef.current) return value;
 
-			// Get all text nodes and reconstruct the value
-			const walker = document.createTreeWalker(
-				contentEditableRef.current,
-				NodeFilter.SHOW_TEXT,
-				null
-			);
-
-			let text = '';
-			let node;
-			while ((node = walker.nextNode())) {
-				text += node.textContent || '';
-			}
+			// Use innerText which automatically handles line breaks from <br> and block elements
+			// This is simpler and more reliable than manually parsing the DOM
+			const displayText = contentEditableRef.current.innerText || contentEditableRef.current.textContent || '';
 
 			// The contentEditable shows clean text, but we need to restore IDs
-			return restoreIdsInText(text, value);
+			return restoreIdsInText(displayText, value);
 		}, [value]);
 
 		// Restore IDs in text by mapping mentions
@@ -356,8 +347,18 @@ const MentionTextarea = forwardRef<HTMLTextAreaElement, MentionTextareaProps>(
 					},
 				} as any;
 
+				// Call parent handler first
 				if (onKeyDown) {
 					onKeyDown(syntheticEvent);
+				}
+
+				// For Enter key: if parent didn't prevent default (suggestions not showing),
+				// ensure Enter creates a new line in contentEditable
+				// contentEditable naturally handles Enter, but we need to ensure it's not blocked
+				if (e.key === 'Enter' && !e.defaultPrevented && !e.shiftKey && !e.metaKey && !e.ctrlKey) {
+					// Let contentEditable handle Enter naturally - it will create a <br> or <div>
+					// The handleInput will pick up the change
+					return;
 				}
 			},
 			[onKeyDown, getValueFromContentEditable, getCaretPosition]
