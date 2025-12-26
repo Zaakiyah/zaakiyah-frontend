@@ -1,5 +1,3 @@
-import React from 'react';
-import { XMarkIcon } from '@heroicons/react/24/outline';
 import BottomSheet from '../../ui/BottomSheet';
 import type { Document } from '../../../types/donation.types';
 

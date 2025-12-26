@@ -1,4 +1,3 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDonationStore } from '../../../store/donationStore';
 import Avatar from '../../ui/Avatar';

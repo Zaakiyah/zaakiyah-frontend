@@ -1,8 +1,6 @@
-import React from 'react';
 import BottomSheet from '../../ui/BottomSheet';
 import {
 	CreditCardIcon,
-	WalletIcon,
 } from '@heroicons/react/24/outline';
 
 interface PaymentMethod {

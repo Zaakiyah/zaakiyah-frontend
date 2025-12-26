@@ -1,9 +1,5 @@
-import React from 'react';
 import BottomSheet from '../../ui/BottomSheet';
-import {
-	ScaleIcon,
-	PencilIcon,
-} from '@heroicons/react/24/outline';
+import { ScaleIcon, PencilIcon } from '@heroicons/react/24/outline';
 
 interface DistributionModalProps {
 	isOpen: boolean;
@@ -24,7 +20,7 @@ export default function DistributionModal({
 				<p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
 					Do you want to distribute fund manually to the recipients?
 				</p>
-				
+
 				<div className="space-y-3">
 					{/* Equal Distribution */}
 					<button
@@ -48,7 +44,7 @@ export default function DistributionModal({
 							</div>
 						</div>
 					</button>
-					
+
 					{/* Manual Distribution */}
 					<button
 						onClick={() => {
@@ -76,6 +72,3 @@ export default function DistributionModal({
 		</BottomSheet>
 	);
 }
-
-
-

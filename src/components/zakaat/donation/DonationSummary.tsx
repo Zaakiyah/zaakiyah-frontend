@@ -1,4 +1,3 @@
-import React from 'react';
 import BottomSheet from '../../ui/BottomSheet';
 import type { DonationBasket } from '../../../types/donation.types';
 

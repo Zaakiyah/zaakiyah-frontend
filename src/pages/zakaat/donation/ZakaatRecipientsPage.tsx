@@ -1,14 +1,12 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../../../hooks/useTheme';
 import { useDonationStore } from '../../../store/donationStore';
-import { useAuthStore } from '../../../store/authStore';
 import { donationService } from '../../../services/donationService';
 import { alert } from '../../../store/alertStore';
 import RecipientCard from '../../../components/zakaat/donation/RecipientCard';
 import {
 	MagnifyingGlassIcon,
-	FunnelIcon,
 	HeartIcon,
 	ShoppingBagIcon,
 	ArrowLeftIcon,
@@ -165,16 +163,14 @@ const mockRecipients: Recipient[] = [
 export default function ZakaatRecipientsPage() {
 	useTheme();
 	const navigate = useNavigate();
-	const { user } = useAuthStore();
 	const { basket, watchlist } = useDonationStore();
 	
 	const [searchQuery, setSearchQuery] = useState('');
 	const [showWatchlist, setShowWatchlist] = useState(false);
 	const [filterCategory, setFilterCategory] = useState<string | null>(null);
 	const [recipients, setRecipients] = useState<Recipient[]>([]);
-	const [isLoading, setIsLoading] = useState(true);
-	const [page, setPage] = useState(1);
-	const [hasMore, setHasMore] = useState(true);
+	const [, setIsLoading] = useState(true);
+	const [page] = useState(1);
 	
 	// Fetch recipients from API
 	useEffect(() => {
@@ -193,7 +189,6 @@ export default function ZakaatRecipientsPage() {
 				} else {
 					setRecipients(prev => [...prev, ...response.data.data]);
 				}
-				setHasMore(response.data.meta.page < response.data.meta.totalPages);
 			}
 		} catch (error: any) {
 			alert.error(error.response?.data?.message || 'Failed to fetch recipients');

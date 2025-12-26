@@ -1,15 +1,9 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTheme } from '../../../hooks/useTheme';
 import { useDonationStore } from '../../../store/donationStore';
-import { useAuthStore } from '../../../store/authStore';
 import Avatar from '../../../components/ui/Avatar';
-import {
-	ArrowLeftIcon,
-	HeartIcon,
-	DocumentTextIcon,
-	EyeIcon,
-} from '@heroicons/react/24/outline';
+import { ArrowLeftIcon, HeartIcon, DocumentTextIcon, EyeIcon } from '@heroicons/react/24/outline';
 import { HeartIcon as HeartIconSolid } from '@heroicons/react/24/solid';
 import type { Recipient, Document } from '../../../types/donation.types';
 import DocumentViewer from '../../../components/zakaat/donation/DocumentViewer';
@@ -29,7 +23,11 @@ const getMockRecipient = (id: string): Recipient | null => {
 			status: 'ready',
 			requestedAmount: 50000,
 			approvedAmount: 50000,
-			whyTheyNeedHelp: 'Ahmad is a student in need of financial assistance to complete his education. He has been accepted into a university program but lacks the funds for tuition and living expenses. His family has been struggling financially, and without this support, he may not be able to pursue his educational goals.',
+			disbursedAmount: 0,
+			totalDonations: 2500,
+			shortfall: 47500,
+			whyTheyNeedHelp:
+				'Ahmad is a student in need of financial assistance to complete his education. He has been accepted into a university program but lacks the funds for tuition and living expenses. His family has been struggling financially, and without this support, he may not be able to pursue his educational goals.',
 			supportingDocuments: [
 				{ id: '1', name: 'Admission Letter', type: 'pdf', url: '/documents/admission.pdf' },
 				{ id: '2', name: 'School ID Card', type: 'image', url: '/documents/id.jpg' },
@@ -52,7 +50,11 @@ const getMockRecipient = (id: string): Recipient | null => {
 			status: 'ready',
 			requestedAmount: 75000,
 			approvedAmount: 75000,
-			whyTheyNeedHelp: 'Fatima requires medical assistance for her ongoing treatment. She has been diagnosed with a condition that requires regular medication and medical check-ups. The cost of treatment has become a significant burden on her family.',
+			disbursedAmount: 0,
+			totalDonations: 5000,
+			shortfall: 70000,
+			whyTheyNeedHelp:
+				'Fatima requires medical assistance for her ongoing treatment. She has been diagnosed with a condition that requires regular medication and medical check-ups. The cost of treatment has become a significant burden on her family.',
 			supportingDocuments: [
 				{ id: '3', name: 'Medical Report', type: 'pdf', url: '/documents/medical.pdf' },
 				{ id: '4', name: 'Utility Bill', type: 'image', url: '/documents/bill.jpg' },
@@ -62,23 +64,23 @@ const getMockRecipient = (id: string): Recipient | null => {
 			updatedAt: new Date().toISOString(),
 		},
 	];
-	
-	return mockRecipients.find(r => r.id === id) || null;
+
+	return mockRecipients.find((r) => r.id === id) || null;
 };
 
 export default function RecipientDetailPage() {
 	useTheme();
 	const navigate = useNavigate();
 	const { id } = useParams<{ id: string }>();
-	const { user } = useAuthStore();
-	const { addToBasket, addToWatchlist, removeFromWatchlist, isInWatchlist, basket } = useDonationStore();
-	
+	const { addToBasket, addToWatchlist, removeFromWatchlist, isInWatchlist, basket } =
+		useDonationStore();
+
 	const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
 	const [showDocumentViewer, setShowDocumentViewer] = useState(false);
-	
+
 	// Mock data - will be replaced with API call
 	const recipient = id ? getMockRecipient(id) : null;
-	
+
 	if (!recipient) {
 		return (
 			<div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 flex items-center justify-center">
@@ -94,10 +96,10 @@ export default function RecipientDetailPage() {
 			</div>
 		);
 	}
-	
-	const isInBasket = basket.items.some(item => item.recipientId === recipient.id);
+
+	const isInBasket = basket.items.some((item) => item.recipientId === recipient.id);
 	const isWatched = isInWatchlist(recipient.id);
-	
+
 	const handleWatchlistToggle = () => {
 		if (isWatched) {
 			removeFromWatchlist(recipient.id);
@@ -105,11 +107,11 @@ export default function RecipientDetailPage() {
 			addToWatchlist(recipient);
 		}
 	};
-	
+
 	const handleAddToBasket = () => {
 		addToBasket(recipient);
 	};
-	
+
 	const handleViewDocument = (document: Document) => {
 		setSelectedDocument(document);
 		setShowDocumentViewer(true);
@@ -134,7 +136,9 @@ export default function RecipientDetailPage() {
 							<button
 								onClick={handleWatchlistToggle}
 								className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-								aria-label={isWatched ? 'Remove from watchlist' : 'Add to watchlist'}
+								aria-label={
+									isWatched ? 'Remove from watchlist' : 'Add to watchlist'
+								}
 							>
 								{isWatched ? (
 									<HeartIconSolid className="w-6 h-6 text-red-500" />
@@ -152,7 +156,7 @@ export default function RecipientDetailPage() {
 					<div className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl border-2 border-slate-200/60 dark:border-slate-700/60 p-5 mb-4 shadow-lg overflow-hidden relative">
 						{/* Decorative gradient overlay */}
 						<div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary-500/5 via-secondary-500/5 to-primary-400/5 rounded-full blur-2xl -z-0" />
-						
+
 						<div className="relative z-10">
 							<div className="flex items-start gap-4 mb-4">
 								<Avatar
@@ -174,7 +178,11 @@ export default function RecipientDetailPage() {
 												Requested
 											</p>
 											<p className="text-lg font-bold text-slate-900 dark:text-slate-100">
-												₦{recipient.requestedAmount.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+												₦
+												{recipient.requestedAmount.toLocaleString('en-NG', {
+													minimumFractionDigits: 2,
+													maximumFractionDigits: 2,
+												})}
 											</p>
 										</div>
 										{recipient.approvedAmount && (
@@ -183,7 +191,14 @@ export default function RecipientDetailPage() {
 													Approved
 												</p>
 												<p className="text-lg font-bold text-primary-600 dark:text-primary-400">
-													₦{recipient.approvedAmount.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+													₦
+													{recipient.approvedAmount.toLocaleString(
+														'en-NG',
+														{
+															minimumFractionDigits: 2,
+															maximumFractionDigits: 2,
+														}
+													)}
 												</p>
 											</div>
 										)}
@@ -246,7 +261,8 @@ export default function RecipientDetailPage() {
 				</main>
 
 				{/* Fixed Action Button */}
-				<div className="fixed bottom-0 left-0 right-0 px-4 pt-3 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-t-2 border-primary-500/20 dark:border-primary-400/20 shadow-lg z-40"
+				<div
+					className="fixed bottom-0 left-0 right-0 px-4 pt-3 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-t-2 border-primary-500/20 dark:border-primary-400/20 shadow-lg z-40"
 					style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom, 0))' }}
 				>
 					<button
@@ -273,6 +289,3 @@ export default function RecipientDetailPage() {
 		</>
 	);
 }
-
-
-

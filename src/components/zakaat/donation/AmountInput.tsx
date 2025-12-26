@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import BottomSheet from '../../ui/BottomSheet';
 
 interface AmountInputProps {
@@ -17,35 +17,35 @@ export default function AmountInput({
 	title = 'Enter Amount',
 }: AmountInputProps) {
 	const [amount, setAmount] = useState(initialAmount.toString());
-	
+
 	useEffect(() => {
 		if (isOpen) {
 			setAmount(initialAmount > 0 ? initialAmount.toString() : '');
 		}
 	}, [isOpen, initialAmount]);
-	
+
 	const handleNumberPress = (num: string) => {
 		if (amount === '0' && num !== '.') {
 			setAmount(num);
 		} else {
-			setAmount(prev => prev + num);
+			setAmount((prev) => prev + num);
 		}
 	};
-	
+
 	const handleBackspace = () => {
-		setAmount(prev => prev.slice(0, -1) || '0');
+		setAmount((prev) => prev.slice(0, -1) || '0');
 	};
-	
+
 	const handleClear = () => {
 		setAmount('0');
 	};
-	
+
 	const handleConfirm = () => {
 		const numAmount = parseFloat(amount) || 0;
 		onConfirm(numAmount);
 		onClose();
 	};
-	
+
 	const displayAmount = amount === '' ? '0' : amount;
 	const numericAmount = parseFloat(displayAmount) || 0;
 
@@ -55,7 +55,11 @@ export default function AmountInput({
 				{/* Amount Display */}
 				<div className="text-center mb-6">
 					<p className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">
-						₦{numericAmount.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+						₦
+						{numericAmount.toLocaleString('en-NG', {
+							minimumFractionDigits: 2,
+							maximumFractionDigits: 2,
+						})}
 					</p>
 					<p className="text-sm text-slate-500 dark:text-slate-400">
 						Enter the donation amount
@@ -117,6 +121,3 @@ export default function AmountInput({
 		</BottomSheet>
 	);
 }
-
-
-

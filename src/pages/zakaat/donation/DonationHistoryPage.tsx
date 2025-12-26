@@ -1,9 +1,8 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../../../hooks/useTheme';
 import { donationService } from '../../../services/donationService';
 import { alert } from '../../../store/alertStore';
-import Avatar from '../../../components/ui/Avatar';
 import BottomSheet from '../../../components/ui/BottomSheet';
 import {
 	ArrowLeftIcon,
@@ -12,7 +11,6 @@ import {
 	EyeIcon,
 	ChartBarIcon,
 	DocumentTextIcon,
-	CheckCircleIcon,
 } from '@heroicons/react/24/outline';
 import {
 	CheckCircleIcon as CheckCircleIconSolid,
@@ -25,12 +23,12 @@ const mockDonations: Donation[] = [
 		id: '1',
 		userId: 'user1',
 		recipients: [
-			{ recipientId: '1', recipientName: 'Ahmad Musa', amount: 2500 },
-			{ recipientId: '2', recipientName: 'Fatima Bello', amount: 2500 },
-			{ recipientId: '3', recipientName: 'Aminu Sani', amount: 2500 },
-			{ recipientId: '4', recipientName: 'Hassan Umar', amount: 2500 },
-			{ recipientId: '5', recipientName: 'Maryam Adamu', amount: 2500 },
-			{ recipientId: '6', recipientName: 'Usman Abubakar', amount: 2500 },
+			{ applicationId: 'app1', recipientId: '1', recipientName: 'Ahmad Musa', amount: 2500 },
+			{ applicationId: 'app2', recipientId: '2', recipientName: 'Fatima Bello', amount: 2500 },
+			{ applicationId: 'app3', recipientId: '3', recipientName: 'Aminu Sani', amount: 2500 },
+			{ applicationId: 'app4', recipientId: '4', recipientName: 'Hassan Umar', amount: 2500 },
+			{ applicationId: 'app5', recipientId: '5', recipientName: 'Maryam Adamu', amount: 2500 },
+			{ applicationId: 'app6', recipientId: '6', recipientName: 'Usman Abubakar', amount: 2500 },
 		],
 		totalAmount: 15000,
 		zaakiyahAmount: 0,
@@ -46,8 +44,8 @@ const mockDonations: Donation[] = [
 		id: '2',
 		userId: 'user1',
 		recipients: [
-			{ recipientId: '1', recipientName: 'Ahmad Musa', amount: 5000 },
-			{ recipientId: '2', recipientName: 'Fatima Bello', amount: 3000 },
+			{ applicationId: 'app1', recipientId: '1', recipientName: 'Ahmad Musa', amount: 5000 },
+			{ applicationId: 'app2', recipientId: '2', recipientName: 'Fatima Bello', amount: 3000 },
 		],
 		totalAmount: 8000,
 		zaakiyahAmount: 1000,

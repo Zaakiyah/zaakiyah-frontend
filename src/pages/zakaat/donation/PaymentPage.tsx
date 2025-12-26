@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTheme } from '../../../hooks/useTheme';
 import { useDonationStore } from '../../../store/donationStore';
@@ -19,7 +19,6 @@ export default function PaymentPage() {
 	const [showPaymentMethodModal, setShowPaymentMethodModal] = useState(false);
 	const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string | null>(null);
 	const [isProcessing, setIsProcessing] = useState(false);
-	const [donationId, setDonationId] = useState<string | null>(null);
 	
 	const totalAmount = getBasketTotal();
 	
@@ -55,7 +54,6 @@ export default function PaymentPage() {
 			});
 			
 			if (response.data) {
-				setDonationId(response.data.donationId);
 				// Redirect to Paystack checkout
 				window.location.href = response.data.paymentLink;
 			}
