@@ -395,7 +395,7 @@ export default function CalculationDetailsPage() {
 					</Button>
 					<Button
 						variant="primary"
-						onClick={() => navigate('/donations')}
+						onClick={() => navigate('/zakaat/donation/recipients')}
 						className="flex-1"
 					>
 						Give Zakaat

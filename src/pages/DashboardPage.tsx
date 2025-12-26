@@ -364,7 +364,7 @@ export default function DashboardPage() {
 		{
 			icon: HeartIcon,
 			label: 'Give',
-			onClick: () => navigate('/donations'),
+			onClick: () => navigate('/zakaat/donation/recipients'),
 		},
 		{
 			icon: HandRaisedIcon,

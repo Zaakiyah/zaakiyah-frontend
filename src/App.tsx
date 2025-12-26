@@ -42,6 +42,13 @@ const FollowingPage = lazy(() => import('./pages/FollowingPage'));
 const KnowledgeResourcePlayerPage = lazy(() => import('./pages/KnowledgeResourcePlayerPage'));
 const ZakaatApplicationPage = lazy(() => import('./pages/zakaat/ZakaatApplicationPage'));
 const ZakaatApplicationFlowPage = lazy(() => import('./pages/zakaat/ZakaatApplicationFlowPage'));
+const ZakaatRecipientsPage = lazy(() => import('./pages/zakaat/donation/ZakaatRecipientsPage'));
+const RecipientDetailPage = lazy(() => import('./pages/zakaat/donation/RecipientDetailPage'));
+const DonationBasketPage = lazy(() => import('./pages/zakaat/donation/DonationBasketPage'));
+const AllocateFundPage = lazy(() => import('./pages/zakaat/donation/AllocateFundPage'));
+const PaymentPage = lazy(() => import('./pages/zakaat/donation/PaymentPage'));
+const DonationSuccessPage = lazy(() => import('./pages/zakaat/donation/DonationSuccessPage'));
+const DonationHistoryPage = lazy(() => import('./pages/zakaat/donation/DonationHistoryPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
 // Loading fallback component
@@ -174,6 +181,63 @@ function App() {
 							element={
 								<ProtectedRoute>
 									<ZakaatApplicationFlowPage />
+								</ProtectedRoute>
+							}
+						/>
+						{/* Zakaat Donation Routes */}
+						<Route
+							path="/zakaat/donation/recipients"
+							element={
+								<ProtectedRoute>
+									<ZakaatRecipientsPage />
+								</ProtectedRoute>
+							}
+						/>
+						<Route
+							path="/zakaat/donation/recipients/:id"
+							element={
+								<ProtectedRoute>
+									<RecipientDetailPage />
+								</ProtectedRoute>
+							}
+						/>
+						<Route
+							path="/zakaat/donation/basket"
+							element={
+								<ProtectedRoute>
+									<DonationBasketPage />
+								</ProtectedRoute>
+							}
+						/>
+						<Route
+							path="/zakaat/donation/allocate"
+							element={
+								<ProtectedRoute>
+									<AllocateFundPage />
+								</ProtectedRoute>
+							}
+						/>
+						<Route
+							path="/zakaat/donation/payment"
+							element={
+								<ProtectedRoute>
+									<PaymentPage />
+								</ProtectedRoute>
+							}
+						/>
+						<Route
+							path="/zakaat/donation/success"
+							element={
+								<ProtectedRoute>
+									<DonationSuccessPage />
+								</ProtectedRoute>
+							}
+						/>
+						<Route
+							path="/zakaat/donation/history"
+							element={
+								<ProtectedRoute>
+									<DonationHistoryPage />
 								</ProtectedRoute>
 							}
 						/>
