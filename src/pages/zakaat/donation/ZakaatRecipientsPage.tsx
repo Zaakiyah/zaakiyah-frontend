@@ -31,7 +31,8 @@ const mockRecipients: Recipient[] = [
 		disbursedAmount: 0,
 		totalDonations: 2500,
 		shortfall: 47500, // requestedAmount - disbursedAmount - totalDonations
-		whyTheyNeedHelp: 'Ahmad is a student in need of financial assistance to complete his education. He has been accepted into a university program but lacks the funds for tuition and living expenses.',
+		whyTheyNeedHelp:
+			'Ahmad is a student in need of financial assistance to complete his education. He has been accepted into a university program but lacks the funds for tuition and living expenses.',
 		supportingDocuments: [
 			{ id: '1', name: 'Admission Letter', type: 'pdf', url: '/documents/admission.pdf' },
 			{ id: '2', name: 'School ID Card', type: 'image', url: '/documents/id.jpg' },
@@ -56,7 +57,8 @@ const mockRecipients: Recipient[] = [
 		disbursedAmount: 0,
 		totalDonations: 5000,
 		shortfall: 70000,
-		whyTheyNeedHelp: 'Fatima requires medical assistance for her ongoing treatment. She has been diagnosed with a condition that requires regular medication and medical check-ups.',
+		whyTheyNeedHelp:
+			'Fatima requires medical assistance for her ongoing treatment. She has been diagnosed with a condition that requires regular medication and medical check-ups.',
 		supportingDocuments: [
 			{ id: '3', name: 'Medical Report', type: 'pdf', url: '/documents/medical.pdf' },
 			{ id: '4', name: 'Utility Bill', type: 'image', url: '/documents/bill.jpg' },
@@ -81,7 +83,8 @@ const mockRecipients: Recipient[] = [
 		disbursedAmount: 0,
 		totalDonations: 10000,
 		shortfall: 90000,
-		whyTheyNeedHelp: 'Aminu is starting a small business to support his family. He needs capital to purchase equipment and initial inventory for his shop.',
+		whyTheyNeedHelp:
+			'Aminu is starting a small business to support his family. He needs capital to purchase equipment and initial inventory for his shop.',
 		supportingDocuments: [
 			{ id: '5', name: 'Business Plan', type: 'pdf', url: '/documents/business.pdf' },
 		],
@@ -104,7 +107,8 @@ const mockRecipients: Recipient[] = [
 		disbursedAmount: 0,
 		totalDonations: 15000,
 		shortfall: 15000,
-		whyTheyNeedHelp: 'Hassan needs assistance with housing expenses. He is currently unable to afford rent and is at risk of eviction.',
+		whyTheyNeedHelp:
+			'Hassan needs assistance with housing expenses. He is currently unable to afford rent and is at risk of eviction.',
 		supportingDocuments: [
 			{ id: '6', name: 'Rent Agreement', type: 'pdf', url: '/documents/rent.pdf' },
 		],
@@ -127,7 +131,8 @@ const mockRecipients: Recipient[] = [
 		disbursedAmount: 0,
 		totalDonations: 20000,
 		shortfall: 40000,
-		whyTheyNeedHelp: 'Maryam is a single mother struggling to provide for her children. She needs support for basic necessities and children\'s education.',
+		whyTheyNeedHelp:
+			"Maryam is a single mother struggling to provide for her children. She needs support for basic necessities and children's education.",
 		supportingDocuments: [
 			{ id: '7', name: 'Birth Certificates', type: 'pdf', url: '/documents/birth.pdf' },
 		],
@@ -150,7 +155,8 @@ const mockRecipients: Recipient[] = [
 		disbursedAmount: 0,
 		totalDonations: 35000,
 		shortfall: 5000,
-		whyTheyNeedHelp: 'Usman requires assistance with debt repayment. He has accumulated debts due to medical expenses and needs help to clear them.',
+		whyTheyNeedHelp:
+			'Usman requires assistance with debt repayment. He has accumulated debts due to medical expenses and needs help to clear them.',
 		supportingDocuments: [
 			{ id: '8', name: 'Debt Statement', type: 'pdf', url: '/documents/debt.pdf' },
 		],
@@ -164,65 +170,64 @@ export default function ZakaatRecipientsPage() {
 	useTheme();
 	const navigate = useNavigate();
 	const { basket, watchlist } = useDonationStore();
-	
+
 	const [searchQuery, setSearchQuery] = useState('');
 	const [showWatchlist, setShowWatchlist] = useState(false);
 	const [filterCategory, setFilterCategory] = useState<string | null>(null);
 	const [recipients, setRecipients] = useState<Recipient[]>([]);
 	const [, setIsLoading] = useState(true);
 	const [page] = useState(1);
-	
+
 	// Fetch recipients from API
 	useEffect(() => {
 		if (!showWatchlist) {
 			fetchRecipients();
 		}
 	}, [showWatchlist, page]);
-	
+
 	const fetchRecipients = async () => {
 		try {
 			setIsLoading(true);
 			const response = await donationService.getRecipients({ page, limit: 20 });
 			if (response.data) {
 				if (page === 1) {
-					setRecipients(response.data.data);
+					setRecipients(response.data.items);
 				} else {
-					setRecipients(prev => [...prev, ...response.data.data]);
+					setRecipients((prev) => [...prev, ...response.data.items]);
 				}
 			}
 		} catch (error: any) {
 			alert.error(error.response?.data?.message || 'Failed to fetch recipients');
 			// Fallback to mock data for development
-			setRecipients(mockRecipients.filter(r => r.status === 'ready'));
+			setRecipients(mockRecipients.filter((r) => r.status === 'ready'));
 		} finally {
 			setIsLoading(false);
 		}
 	};
-	
+
 	// Filter recipients
 	const filteredRecipients = useMemo(() => {
-		let filtered = showWatchlist 
-			? watchlist.map(item => item.recipient)
-			: recipients;
-		
+		let filtered = showWatchlist ? watchlist.map((item) => item.recipient) : recipients;
+
 		// Search filter
 		if (searchQuery.trim()) {
 			const query = searchQuery.toLowerCase();
-			filtered = filtered.filter(r =>
-				r.name.toLowerCase().includes(query) ||
-				r.location.toLowerCase().includes(query) ||
-				r.whyTheyNeedHelp?.toLowerCase().includes(query)
+			filtered = filtered.filter(
+				(r) =>
+					r.name.toLowerCase().includes(query) ||
+					r.location.toLowerCase().includes(query) ||
+					r.whyTheyNeedHelp?.toLowerCase().includes(query)
 			);
 		}
-		
+
 		// Category filter (if implemented)
 		if (filterCategory) {
-			filtered = filtered.filter(r => r.category === filterCategory);
+			filtered = filtered.filter((r) => r.category === filterCategory);
 		}
-		
+
 		return filtered;
 	}, [searchQuery, showWatchlist, filterCategory, watchlist, recipients]);
-	
+
 	const basketItemCount = basket.items.length;
 
 	return (
@@ -273,7 +278,7 @@ export default function ZakaatRecipientsPage() {
 							)}
 						</div>
 					</div>
-					
+
 					{/* Search Bar */}
 					<div className="relative">
 						<MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500" />
@@ -352,10 +357,7 @@ export default function ZakaatRecipientsPage() {
 				) : (
 					<>
 						{filteredRecipients.map((recipient) => (
-							<RecipientCard
-								key={recipient.id}
-								recipient={recipient}
-							/>
+							<RecipientCard key={recipient.id} recipient={recipient} />
 						))}
 					</>
 				)}
@@ -363,18 +365,19 @@ export default function ZakaatRecipientsPage() {
 
 			{/* Continue Button (if basket has items) */}
 			{basketItemCount > 0 && (
-				<div className="fixed bottom-0 left-0 right-0 px-4 pt-3 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-t-2 border-primary-500/20 dark:border-primary-400/20 shadow-lg z-40"
+				<div
+					className="fixed bottom-0 left-0 right-0 px-4 pt-3 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-t-2 border-primary-500/20 dark:border-primary-400/20 shadow-lg z-40"
 					style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom, 0))' }}
 				>
 					<button
 						onClick={() => navigate('/zakaat/donation/basket')}
 						className="w-full py-3.5 bg-gradient-to-r from-primary-500 via-primary-600 to-primary-700 text-white font-semibold rounded-xl hover:from-primary-600 hover:via-primary-700 hover:to-primary-800 transition-all active:scale-95 shadow-lg shadow-primary-500/30 mb-3"
 					>
-						Continue ({basketItemCount} {basketItemCount === 1 ? 'recipient' : 'recipients'})
+						Continue ({basketItemCount}{' '}
+						{basketItemCount === 1 ? 'recipient' : 'recipients'})
 					</button>
 				</div>
 			)}
 		</div>
 	);
 }
-

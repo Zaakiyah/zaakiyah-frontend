@@ -6,11 +6,7 @@ import PostCard from './PostCard';
 import CommentBottomSheet from './CommentBottomSheet';
 import LoadingSkeleton from '../wealth/LoadingSkeleton';
 import EmptyState from '../wealth/EmptyState';
-import { 
-	RectangleStackIcon, 
-	FireIcon, 
-	VideoCameraIcon 
-} from '@heroicons/react/24/outline';
+import { RectangleStackIcon, FireIcon, VideoCameraIcon } from '@heroicons/react/24/outline';
 
 interface CommunityFeedProps {
 	searchQuery?: string;
@@ -48,11 +44,13 @@ export default function CommunityFeed({ searchQuery = '' }: CommunityFeedProps) 
 
 				if (response.data) {
 					if (append) {
-						setPosts((prev) => [...prev, ...response.data.data]);
+						setPosts((prev) => [...prev, ...response.data.items]);
 					} else {
-						setPosts(response.data.data);
+						setPosts(response.data.items);
 					}
-					setHasMore(response.data.meta.page < response.data.meta.totalPages);
+					setHasMore(
+						response.data.pagination.currentPage < response.data.pagination.totalPages
+					);
 				}
 			} catch (error: any) {
 				logger.error('Error fetching posts:', error);
@@ -111,9 +109,7 @@ export default function CommunityFeed({ searchQuery = '' }: CommunityFeedProps) 
 	};
 
 	const handlePostUpdated = (updatedPost: Post) => {
-		setPosts((prev) =>
-			prev.map((post) => (post.id === updatedPost.id ? updatedPost : post))
-		);
+		setPosts((prev) => prev.map((post) => (post.id === updatedPost.id ? updatedPost : post)));
 	};
 
 	const handleCommentClick = (postId: string) => {

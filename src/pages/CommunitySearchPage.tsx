@@ -28,9 +28,9 @@ export default function CommunitySearchPage() {
 	const [isLoading, setIsLoading] = useState(false);
 	const [searchInput, setSearchInput] = useState(query);
 
-	const [postsMeta, setPostsMeta] = useState({ total: 0, page: 1, limit: 20, totalPages: 0 });
-	const [commentsMeta, setCommentsMeta] = useState({ total: 0, page: 1, limit: 20, totalPages: 0 });
-	const [resourcesMeta, setResourcesMeta] = useState({ total: 0, page: 1, limit: 20, totalPages: 0 });
+	const [postsMeta, setPostsMeta] = useState({ totalItems: 0, currentPage: 1, itemsPerPage: 20, totalPages: 0 });
+	const [commentsMeta, setCommentsMeta] = useState({ totalItems: 0, currentPage: 1, itemsPerPage: 20, totalPages: 0 });
+	const [resourcesMeta, setResourcesMeta] = useState({ totalItems: 0, currentPage: 1, itemsPerPage: 20, totalPages: 0 });
 	const [showCommentSheet, setShowCommentSheet] = useState(false);
 	const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
 	const [likingPostId, setLikingPostId] = useState<string | null>(null);
@@ -48,12 +48,12 @@ export default function CommunitySearchPage() {
 			setIsLoading(true);
 			const response = await communityService.search(query, 1, 20);
 			if (response.data) {
-				setPosts(response.data.posts.data);
-				setComments(response.data.comments.data);
-				setResources(response.data.knowledgeResources.data);
-				setPostsMeta(response.data.posts.meta);
-				setCommentsMeta(response.data.comments.meta);
-				setResourcesMeta(response.data.knowledgeResources.meta);
+				setPosts(response.data.posts.items);
+				setComments(response.data.comments.items);
+				setResources(response.data.knowledgeResources.items);
+				setPostsMeta(response.data.posts.pagination);
+				setCommentsMeta(response.data.comments.pagination);
+				setResourcesMeta(response.data.knowledgeResources.pagination);
 			}
 		} catch (error: any) {
 			logger.error('Error searching community:', error);
@@ -155,7 +155,7 @@ export default function CommunitySearchPage() {
 	};
 
 	const getTotalResults = () => {
-		return postsMeta.total + commentsMeta.total + resourcesMeta.total;
+		return postsMeta.totalItems + commentsMeta.totalItems + resourcesMeta.totalItems;
 	};
 
 	const renderResults = () => {
@@ -196,7 +196,7 @@ export default function CommunitySearchPage() {
 				{showPosts && posts.length > 0 && (
 					<div>
 						<h2 className="text-xl font-bold text-slate-900 dark:text-slate-50 mb-4">
-							Posts ({postsMeta.total})
+							Posts ({postsMeta.totalItems})
 						</h2>
 						<div>
 							{posts.map((post) => (
@@ -217,7 +217,7 @@ export default function CommunitySearchPage() {
 				{showComments && comments.length > 0 && (
 					<div>
 						<h2 className="text-xl font-bold text-slate-900 dark:text-slate-50 mb-4">
-							Comments ({commentsMeta.total})
+							Comments ({commentsMeta.totalItems})
 						</h2>
 						<div className="space-y-4">
 							{comments.map((comment) => (
@@ -250,7 +250,7 @@ export default function CommunitySearchPage() {
 				{showResources && resources.length > 0 && (
 					<div>
 						<h2 className="text-xl font-bold text-slate-900 dark:text-slate-50 mb-4">
-							Knowledge Resources ({resourcesMeta.total})
+							Knowledge Resources ({resourcesMeta.totalItems})
 						</h2>
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 							{resources.map((resource) => (
@@ -317,7 +317,7 @@ export default function CommunitySearchPage() {
 										: 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/50'
 								}`}
 							>
-								Posts ({postsMeta.total})
+								Posts ({postsMeta.totalItems})
 							</button>
 							<button
 								onClick={() => setActiveTab('comments')}
@@ -327,7 +327,7 @@ export default function CommunitySearchPage() {
 										: 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/50'
 								}`}
 							>
-								Comments ({commentsMeta.total})
+								Comments ({commentsMeta.totalItems})
 							</button>
 							<button
 								onClick={() => setActiveTab('resources')}
@@ -337,7 +337,7 @@ export default function CommunitySearchPage() {
 										: 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/50'
 								}`}
 							>
-								Resources ({resourcesMeta.total})
+								Resources ({resourcesMeta.totalItems})
 							</button>
 						</div>
 					)}

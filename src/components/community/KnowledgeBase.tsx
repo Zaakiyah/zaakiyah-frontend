@@ -57,11 +57,13 @@ export default function KnowledgeBase({ searchQuery: propSearchQuery = '' }: Kno
 
 				if (response.data) {
 					if (append) {
-						setResources((prev) => [...prev, ...response.data.data]);
+						setResources((prev) => [...prev, ...response.data.items]);
 					} else {
-						setResources(response.data.data);
+						setResources(response.data.items);
 					}
-					setHasMore(response.data.meta.page < response.data.meta.totalPages);
+					setHasMore(
+						response.data.pagination.currentPage < response.data.pagination.totalPages
+					);
 				}
 			} catch (error: any) {
 				logger.error('Error fetching knowledge resources:', error);
@@ -70,7 +72,7 @@ export default function KnowledgeBase({ searchQuery: propSearchQuery = '' }: Kno
 				setLoadingMore(false);
 			}
 		},
-		[filter, searchQuery],
+		[filter, searchQuery]
 	);
 
 	useEffect(() => {
@@ -105,7 +107,7 @@ export default function KnowledgeBase({ searchQuery: propSearchQuery = '' }: Kno
 									likeCount: response.data.liked
 										? resource.likeCount + 1
 										: resource.likeCount - 1,
-								}
+							  }
 							: resource
 					)
 				);
@@ -191,7 +193,7 @@ export default function KnowledgeBase({ searchQuery: propSearchQuery = '' }: Kno
 										{type.charAt(0).toUpperCase() + type.slice(1)}
 									</button>
 								);
-							},
+							}
 						)}
 					</div>
 				</div>
@@ -285,6 +287,3 @@ export default function KnowledgeBase({ searchQuery: propSearchQuery = '' }: Kno
 		</div>
 	);
 }
-
-
-

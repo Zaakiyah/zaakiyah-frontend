@@ -121,11 +121,11 @@ export interface CreateZakaatApplicationRequest {
 }
 
 export interface PaginatedResponse<T> {
-	data: T[];
-	meta: {
-		total: number;
-		page: number;
-		limit: number;
+	items: T[];
+	pagination: {
+		totalItems: number;
+		currentPage: number;
+		itemsPerPage: number;
 		totalPages: number;
 	};
 }

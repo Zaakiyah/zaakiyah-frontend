@@ -40,7 +40,7 @@ export default function ZakaatApplicationPage() {
 			setIsLoading(true);
 			const response = await zakaatService.getApplications();
 			if (response.data) {
-				setApplications(response.data.data);
+				setApplications(response.data.items);
 			}
 		} catch (error: any) {
 			logger.error('Error fetching applications:', error);

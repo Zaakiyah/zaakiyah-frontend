@@ -85,8 +85,8 @@ export default function ZakaatApplicationFlowPage() {
 				status: ApplicationStatus.DRAFT,
 				limit: 1,
 			});
-			if (response.data && response.data.data.length > 0) {
-				const draft = response.data.data[0];
+			if (response.data && response.data.items.length > 0) {
+				const draft = response.data.items[0];
 				// Navigate to the draft application
 				navigate(`/zakaat/apply/${draft.id}`, { replace: true });
 			}

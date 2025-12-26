@@ -80,8 +80,18 @@ export default function CommentCard({
 		try {
 			const date = new Date(dateString);
 			const months = [
-				'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-				'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+				'Jan',
+				'Feb',
+				'Mar',
+				'Apr',
+				'May',
+				'Jun',
+				'Jul',
+				'Aug',
+				'Sep',
+				'Oct',
+				'Nov',
+				'Dec',
 			];
 			const month = months[date.getMonth()];
 			const day = date.getDate();
@@ -101,7 +111,6 @@ export default function CommentCard({
 		// Allow 5 seconds difference to account for database precision
 		return updatedAt - createdAt > 5000;
 	};
-
 
 	const handleLike = async () => {
 		if (isLiking) return; // Prevent multiple clicks
@@ -169,7 +178,6 @@ export default function CommentCard({
 		}
 	};
 
-
 	const loadReplies = async (force: boolean = false) => {
 		if (!force && (showReplies || replies.length > 0)) return;
 
@@ -177,11 +185,11 @@ export default function CommentCard({
 			setIsLoadingReplies(true);
 			const response = await communityService.getCommentReplies(comment.id, 1, 20);
 			if (response.data) {
-				setReplies(response.data.data);
+				setReplies(response.data.items);
 			}
-			} catch (error: any) {
-				logger.error('Error fetching replies:', error);
-			} finally {
+		} catch (error: any) {
+			logger.error('Error fetching replies:', error);
+		} finally {
 			setIsLoadingReplies(false);
 		}
 	};
@@ -219,10 +227,16 @@ export default function CommentCard({
 								</p>
 								{/* Badges next to name */}
 								{comment.author.isAdmin && (
-									<ShieldCheckIcon className="w-4 h-4 text-amber-500 flex-shrink-0" title="Admin" />
+									<ShieldCheckIcon
+										className="w-4 h-4 text-amber-500 flex-shrink-0"
+										title="Admin"
+									/>
 								)}
 								{comment.author.isVerified && !comment.author.isAdmin && (
-									<CheckBadgeIcon className="w-4 h-4 text-primary-500 flex-shrink-0" title="Verified" />
+									<CheckBadgeIcon
+										className="w-4 h-4 text-primary-500 flex-shrink-0"
+										title="Verified"
+									/>
 								)}
 							</div>
 							<div className="flex items-center gap-1.5 mt-0.5">
@@ -326,7 +340,8 @@ export default function CommentCard({
 								className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 transition-all text-xs font-semibold active:scale-95 cursor-pointer"
 							>
 								<ChatBubbleOvalLeftIcon className="w-4 h-4" />
-								{comment.repliesCount} {comment.repliesCount === 1 ? 'reply' : 'replies'}
+								{comment.repliesCount}{' '}
+								{comment.repliesCount === 1 ? 'reply' : 'replies'}
 							</button>
 						)}
 						{user && (
@@ -344,7 +359,6 @@ export default function CommentCard({
 						)}
 					</div>
 				)}
-
 
 				{/* Replies - Recursively render nested replies */}
 				<AnimatePresence>
@@ -373,12 +387,16 @@ export default function CommentCard({
 											postId={postId}
 											onUpdated={(updated) => {
 												setReplies((prev) =>
-													prev.map((r) => (r.id === updated.id ? updated : r))
+													prev.map((r) =>
+														r.id === updated.id ? updated : r
+													)
 												);
 												onUpdated?.(updated);
 											}}
 											onDeleted={(deletedId) => {
-												setReplies((prev) => prev.filter((r) => r.id !== deletedId));
+												setReplies((prev) =>
+													prev.filter((r) => r.id !== deletedId)
+												);
 												onDeleted?.(deletedId);
 											}}
 										/>
@@ -391,7 +409,11 @@ export default function CommentCard({
 			</div>
 
 			{/* Comment Options Bottom Sheet */}
-			<BottomSheet isOpen={showMenu} onClose={() => setShowMenu(false)} title="Comment Options">
+			<BottomSheet
+				isOpen={showMenu}
+				onClose={() => setShowMenu(false)}
+				title="Comment Options"
+			>
 				<div className="space-y-2">
 					<button
 						type="button"

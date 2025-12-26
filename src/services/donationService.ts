@@ -1,11 +1,7 @@
 import api from '../lib/api';
 import { logger } from '../utils/logger';
 import type { ApiResponse } from '../types/wealth.types';
-import type {
-	Recipient,
-	Donation,
-	DonationBasket,
-} from '../types/donation.types';
+import type { Recipient, Donation, DonationBasket } from '../types/donation.types';
 
 export const donationService = {
 	/**
@@ -14,9 +10,9 @@ export const donationService = {
 	async getRecipients(params?: {
 		page?: number;
 		limit?: number;
-	}): Promise<ApiResponse<{ data: Recipient[]; meta: any }>> {
+	}): Promise<ApiResponse<{ items: Recipient[]; pagination: any }>> {
 		try {
-			const response = await api.get<ApiResponse<{ data: Recipient[]; meta: any }>>(
+			const response = await api.get<ApiResponse<{ items: Recipient[]; pagination: any }>>(
 				'/donations/recipients',
 				{ params }
 			);
@@ -41,7 +37,9 @@ export const donationService = {
 					applicationId: item.recipient.applicationId,
 					amount: item.amount,
 				})),
-				totalAmount: data.basket.items.reduce((sum, item) => sum + item.amount, 0) + data.basket.zaakiyahAmount,
+				totalAmount:
+					data.basket.items.reduce((sum, item) => sum + item.amount, 0) +
+					data.basket.zaakiyahAmount,
 				zaakiyahAmount: data.basket.zaakiyahAmount,
 				paymentMethod: data.paymentMethod,
 				distributionMethod: data.basket.distributionMethod || 'manual',
@@ -83,9 +81,9 @@ export const donationService = {
 	async getDonationHistory(params?: {
 		page?: number;
 		limit?: number;
-	}): Promise<ApiResponse<{ data: Donation[]; meta: any }>> {
+	}): Promise<ApiResponse<{ items: Donation[]; pagination: any }>> {
 		try {
-			const response = await api.get<ApiResponse<{ data: Donation[]; meta: any }>>(
+			const response = await api.get<ApiResponse<{ items: Donation[]; pagination: any }>>(
 				'/donations/history',
 				{ params }
 			);
@@ -109,6 +107,3 @@ export const donationService = {
 		}
 	},
 };
-
-
-

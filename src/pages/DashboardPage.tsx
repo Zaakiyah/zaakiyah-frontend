@@ -199,8 +199,8 @@ export default function DashboardPage() {
 				// Fetch recent posts (limit to 3)
 				try {
 					const postsResponse = await communityService.getPosts({ page: 1, limit: 3 });
-					if (postsResponse?.data?.data) {
-						setCommunityPosts(postsResponse.data.data);
+					if (postsResponse?.data?.items) {
+						setCommunityPosts(postsResponse.data.items);
 					}
 				} catch (error) {
 					logger.error('[Dashboard] Error fetching community posts:', error);
@@ -213,8 +213,8 @@ export default function DashboardPage() {
 						limit: 3,
 						featured: true,
 					});
-					if (knowledgeResponse?.data?.data) {
-						setKnowledgeResources(knowledgeResponse.data.data);
+					if (knowledgeResponse?.data?.items) {
+						setKnowledgeResources(knowledgeResponse.data.items);
 					}
 				} catch (error) {
 					logger.error('[Dashboard] Error fetching knowledge resources:', error);

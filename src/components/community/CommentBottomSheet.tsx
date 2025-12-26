@@ -121,14 +121,16 @@ export default function CommentBottomSheet({
 				sortParam
 			);
 			if (response.data) {
-				const fetchedComments = response.data.data || [];
+				const fetchedComments = response.data.items || [];
 
 				if (append) {
 					setComments((prev) => [...prev, ...fetchedComments]);
 				} else {
 					setComments(fetchedComments);
 				}
-				setHasMore(response.data.meta.page < response.data.meta.totalPages);
+				setHasMore(
+					response.data.pagination.currentPage < response.data.pagination.totalPages
+				);
 			}
 		} catch (error: any) {
 			logger.error('Error fetching comments:', error);

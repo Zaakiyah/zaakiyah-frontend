@@ -36,19 +36,19 @@ export default function FollowersPage() {
 				const response = await communityService.getFollowers(id, pageNum, 20);
 				if (response.data) {
 					if (append) {
-						setFollowers((prev) => [...prev, ...response.data.data]);
+						setFollowers((prev) => [...prev, ...response.data.items]);
 					} else {
-						setFollowers(response.data.data);
+						setFollowers(response.data.items);
 					}
-					setHasMore(response.data.meta.page < response.data.meta.totalPages);
+					setHasMore(response.data.pagination.currentPage < response.data.pagination.totalPages);
 					
 					// Get member name from first follower's context or fetch separately
-					if (pageNum === 1 && response.data.data.length > 0) {
+					if (pageNum === 1 && response.data.items.length > 0) {
 						// Try to get member name from profile
 						try {
 							const postsResponse = await communityService.getPosts({ userId: id, limit: 1 });
-							if (postsResponse.data && postsResponse.data.data.length > 0) {
-								const member = postsResponse.data.data[0].author;
+							if (postsResponse.data && postsResponse.data.items.length > 0) {
+								const member = postsResponse.data.items[0].author;
 								setMemberName(`${member.firstName} ${member.lastName}`);
 							}
 						} catch (error) {

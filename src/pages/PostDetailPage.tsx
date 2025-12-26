@@ -109,7 +109,7 @@ export default function PostDetailPage() {
 			setIsLoadingComments(true);
 			const response = await communityService.getPostComments(id, 1, 100, commentFilter);
 			if (response.data) {
-				setComments(response.data.data || []);
+				setComments(response.data.items || []);
 			}
 		} catch (error: any) {
 			logger.error('Error fetching comments:', error);

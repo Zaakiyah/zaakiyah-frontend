@@ -12,9 +12,7 @@ import {
 	ChartBarIcon,
 	DocumentTextIcon,
 } from '@heroicons/react/24/outline';
-import {
-	CheckCircleIcon as CheckCircleIconSolid,
-} from '@heroicons/react/24/solid';
+import { CheckCircleIcon as CheckCircleIconSolid } from '@heroicons/react/24/solid';
 import type { Donation, DonationRecipientDetail } from '../../../types/donation.types';
 
 // Mock data for UI development
@@ -24,11 +22,26 @@ const mockDonations: Donation[] = [
 		userId: 'user1',
 		recipients: [
 			{ applicationId: 'app1', recipientId: '1', recipientName: 'Ahmad Musa', amount: 2500 },
-			{ applicationId: 'app2', recipientId: '2', recipientName: 'Fatima Bello', amount: 2500 },
+			{
+				applicationId: 'app2',
+				recipientId: '2',
+				recipientName: 'Fatima Bello',
+				amount: 2500,
+			},
 			{ applicationId: 'app3', recipientId: '3', recipientName: 'Aminu Sani', amount: 2500 },
 			{ applicationId: 'app4', recipientId: '4', recipientName: 'Hassan Umar', amount: 2500 },
-			{ applicationId: 'app5', recipientId: '5', recipientName: 'Maryam Adamu', amount: 2500 },
-			{ applicationId: 'app6', recipientId: '6', recipientName: 'Usman Abubakar', amount: 2500 },
+			{
+				applicationId: 'app5',
+				recipientId: '5',
+				recipientName: 'Maryam Adamu',
+				amount: 2500,
+			},
+			{
+				applicationId: 'app6',
+				recipientId: '6',
+				recipientName: 'Usman Abubakar',
+				amount: 2500,
+			},
 		],
 		totalAmount: 15000,
 		zaakiyahAmount: 0,
@@ -45,7 +58,12 @@ const mockDonations: Donation[] = [
 		userId: 'user1',
 		recipients: [
 			{ applicationId: 'app1', recipientId: '1', recipientName: 'Ahmad Musa', amount: 5000 },
-			{ applicationId: 'app2', recipientId: '2', recipientName: 'Fatima Bello', amount: 3000 },
+			{
+				applicationId: 'app2',
+				recipientId: '2',
+				recipientName: 'Fatima Bello',
+				amount: 3000,
+			},
 		],
 		totalAmount: 8000,
 		zaakiyahAmount: 1000,
@@ -66,20 +84,22 @@ export default function DonationHistoryPage() {
 	const [donations, setDonations] = useState<Donation[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [selectedDonation, setSelectedDonation] = useState<Donation | null>(null);
-	const [selectedRecipient, setSelectedRecipient] = useState<DonationRecipientDetail | null>(null);
+	const [selectedRecipient, setSelectedRecipient] = useState<DonationRecipientDetail | null>(
+		null
+	);
 	const [showRecipientDetail, setShowRecipientDetail] = useState(false);
-	
+
 	// Fetch donation history
 	useEffect(() => {
 		fetchDonationHistory();
 	}, []);
-	
+
 	const fetchDonationHistory = async () => {
 		try {
 			setIsLoading(true);
 			const response = await donationService.getDonationHistory({ page: 1, limit: 50 });
 			if (response.data) {
-				setDonations(response.data.data);
+				setDonations(response.data.items);
 			}
 		} catch (error: any) {
 			alert.error(error.response?.data?.message || 'Failed to fetch donation history');
@@ -89,17 +109,18 @@ export default function DonationHistoryPage() {
 			setIsLoading(false);
 		}
 	};
-	
+
 	const filteredDonations = useMemo(() => {
 		if (!searchQuery.trim()) return donations;
-		
+
 		const query = searchQuery.toLowerCase();
-		return donations.filter(donation =>
-			donation.recipients.some(r => r.recipientName.toLowerCase().includes(query)) ||
-			donation.paymentReference.toLowerCase().includes(query)
+		return donations.filter(
+			(donation) =>
+				donation.recipients.some((r) => r.recipientName.toLowerCase().includes(query)) ||
+				donation.paymentReference.toLowerCase().includes(query)
 		);
 	}, [searchQuery, donations]);
-	
+
 	const formatDate = (dateString: string) => {
 		const date = new Date(dateString);
 		return date.toLocaleDateString('en-NG', {
@@ -108,12 +129,12 @@ export default function DonationHistoryPage() {
 			day: 'numeric',
 		});
 	};
-	
+
 	const handleViewRecipient = async (donation: Donation, recipientId: string) => {
 		// Mock: In real implementation, fetch recipient details from API
-		const recipient = donation.recipients.find(r => r.recipientId === recipientId);
+		const recipient = donation.recipients.find((r) => r.recipientId === recipientId);
 		if (!recipient) return;
-		
+
 		// Mock recipient detail - will be replaced with API call
 		const recipientDetail: DonationRecipientDetail = {
 			applicationId: recipientId,
@@ -133,13 +154,14 @@ export default function DonationHistoryPage() {
 					id: '1',
 					applicationId: recipientId,
 					title: 'Thank you for your support',
-					description: 'I am grateful for the donation. It will help me complete my education.',
+					description:
+						'I am grateful for the donation. It will help me complete my education.',
 					createdAt: new Date(Date.now() - 86400000).toISOString(),
 					createdBy: recipientId,
 				},
 			],
 		};
-		
+
 		setSelectedDonation(donation);
 		setSelectedRecipient(recipientDetail);
 		setShowRecipientDetail(true);
@@ -162,7 +184,7 @@ export default function DonationHistoryPage() {
 						</h1>
 						<div className="w-10" /> {/* Spacer */}
 					</div>
-					
+
 					{/* Search Bar */}
 					<div className="relative">
 						<MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500" />
@@ -193,7 +215,9 @@ export default function DonationHistoryPage() {
 							No donations found
 						</p>
 						<p className="text-sm text-slate-400 dark:text-slate-500">
-							{searchQuery ? 'Try adjusting your search' : 'Your donation history will appear here'}
+							{searchQuery
+								? 'Try adjusting your search'
+								: 'Your donation history will appear here'}
 						</p>
 					</div>
 				) : (
@@ -210,25 +234,36 @@ export default function DonationHistoryPage() {
 											{formatDate(donation.createdAt)}
 										</p>
 										<p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-											{donation.recipients.length} {donation.recipients.length === 1 ? 'Recipient' : 'Recipients'}
+											{donation.recipients.length}{' '}
+											{donation.recipients.length === 1
+												? 'Recipient'
+												: 'Recipients'}
 										</p>
 									</div>
 									<div className="text-right">
 										<p className="text-lg font-bold text-primary-600 dark:text-primary-400">
-											₦{donation.totalAmount.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+											₦
+											{donation.totalAmount.toLocaleString('en-NG', {
+												minimumFractionDigits: 2,
+												maximumFractionDigits: 2,
+											})}
 										</p>
 										<p className="text-xs text-slate-500 dark:text-slate-400">
-											{donation.paymentStatus === 'completed' ? 'Completed' : donation.paymentStatus}
+											{donation.paymentStatus === 'completed'
+												? 'Completed'
+												: donation.paymentStatus}
 										</p>
 									</div>
 								</div>
-								
+
 								{/* Recipients List */}
 								<div className="space-y-2 pt-3 border-t border-slate-200 dark:border-slate-700">
 									{donation.recipients.map((recipient) => (
 										<button
 											key={recipient.recipientId}
-											onClick={() => handleViewRecipient(donation, recipient.recipientId)}
+											onClick={() =>
+												handleViewRecipient(donation, recipient.recipientId)
+											}
 											className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors group"
 										>
 											<div className="flex items-center gap-2 flex-1 min-w-0">
@@ -238,7 +273,11 @@ export default function DonationHistoryPage() {
 												<EyeIcon className="w-4 h-4 text-slate-400 dark:text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity" />
 											</div>
 											<span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-												₦{recipient.amount.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+												₦
+												{recipient.amount.toLocaleString('en-NG', {
+													minimumFractionDigits: 2,
+													maximumFractionDigits: 2,
+												})}
 											</span>
 										</button>
 									))}
@@ -248,16 +287,23 @@ export default function DonationHistoryPage() {
 												Support Zaakiyah
 											</span>
 											<span className="text-sm font-semibold text-primary-600 dark:text-primary-400">
-												₦{donation.zaakiyahAmount.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+												₦
+												{donation.zaakiyahAmount.toLocaleString('en-NG', {
+													minimumFractionDigits: 2,
+													maximumFractionDigits: 2,
+												})}
 											</span>
 										</div>
 									)}
 								</div>
-								
+
 								{/* Metadata */}
 								<div className="flex items-center gap-2 mt-3 pt-3 border-t border-slate-200 dark:border-slate-700">
 									<span className="text-xs text-slate-500 dark:text-slate-400">
-										{donation.distributionMethod === 'equal' ? 'Equal' : 'Manual'} distribution
+										{donation.distributionMethod === 'equal'
+											? 'Equal'
+											: 'Manual'}{' '}
+										distribution
 									</span>
 									{donation.isAnonymous && (
 										<span className="text-xs text-slate-500 dark:text-slate-400">
@@ -270,7 +316,7 @@ export default function DonationHistoryPage() {
 					</div>
 				)}
 			</main>
-			
+
 			{/* Recipient Detail Modal */}
 			{showRecipientDetail && selectedRecipient && (
 				<BottomSheet
@@ -300,11 +346,16 @@ export default function DonationHistoryPage() {
 								/>
 							</div>
 							<div className="flex items-center justify-between mt-2 text-xs text-slate-500 dark:text-slate-400">
-								<span>₦{selectedRecipient.totalDonations.toLocaleString('en-NG')} raised</span>
-								<span>₦{selectedRecipient.shortfall.toLocaleString('en-NG')} remaining</span>
+								<span>
+									₦{selectedRecipient.totalDonations.toLocaleString('en-NG')}{' '}
+									raised
+								</span>
+								<span>
+									₦{selectedRecipient.shortfall.toLocaleString('en-NG')} remaining
+								</span>
 							</div>
 						</div>
-						
+
 						{/* Donation Details */}
 						<div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4">
 							<h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 mb-3">
@@ -316,7 +367,11 @@ export default function DonationHistoryPage() {
 										Amount
 									</span>
 									<span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-										₦{selectedRecipient.donationAmount.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+										₦
+										{selectedRecipient.donationAmount.toLocaleString('en-NG', {
+											minimumFractionDigits: 2,
+											maximumFractionDigits: 2,
+										})}
 									</span>
 								</div>
 								<div className="flex items-center justify-between">
@@ -338,7 +393,7 @@ export default function DonationHistoryPage() {
 								</div>
 							</div>
 						</div>
-						
+
 						{/* Application Status */}
 						<div className="bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/30 dark:to-primary-800/20 rounded-xl p-4 border-2 border-primary-200/60 dark:border-primary-800/60">
 							<h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 mb-2">
@@ -351,7 +406,7 @@ export default function DonationHistoryPage() {
 								</span>
 							</div>
 						</div>
-						
+
 						{/* Updates from Applicant */}
 						{selectedRecipient.updates && selectedRecipient.updates.length > 0 && (
 							<div>
@@ -385,12 +440,14 @@ export default function DonationHistoryPage() {
 								</div>
 							</div>
 						)}
-						
+
 						{/* View Full Application */}
 						<button
 							onClick={() => {
 								setShowRecipientDetail(false);
-								navigate(`/zakaat/donation/recipients/${selectedRecipient.applicationId}`);
+								navigate(
+									`/zakaat/donation/recipients/${selectedRecipient.applicationId}`
+								);
 							}}
 							className="w-full py-3 bg-gradient-to-r from-primary-500 via-primary-600 to-primary-700 text-white font-semibold rounded-xl hover:from-primary-600 hover:via-primary-700 hover:to-primary-800 transition-all active:scale-95 shadow-lg shadow-primary-500/30"
 						>
@@ -402,4 +459,3 @@ export default function DonationHistoryPage() {
 		</div>
 	);
 }
-

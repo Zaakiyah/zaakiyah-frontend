@@ -98,7 +98,7 @@ export default function MemberProfilePage() {
 			setIsLoadingPosts(true);
 			const response = await communityService.getPosts({ userId: id });
 			if (response.data) {
-				setPosts(response.data.data);
+				setPosts(response.data.items);
 			}
 		} catch (error: any) {
 			logger.error('Error fetching member posts:', error);
@@ -113,8 +113,10 @@ export default function MemberProfilePage() {
 			setIsLoadingComments(true);
 			const response = await communityService.getUserComments(id, 1, 20);
 			if (response.data) {
-				setComments(response.data.data);
-				setCommentsCount(response.data.meta?.total || response.data.data.length);
+				setComments(response.data.items);
+				setCommentsCount(
+					response.data.pagination?.totalItems || response.data.items.length
+				);
 			}
 		} catch (error: any) {
 			logger.error('Error fetching member comments:', error);
@@ -131,8 +133,8 @@ export default function MemberProfilePage() {
 			communityService
 				.getUserComments(id, 1, 1)
 				.then((response) => {
-					if (response.data && response.data.meta) {
-						setCommentsCount(response.data.meta.total);
+					if (response.data && response.data.pagination) {
+						setCommentsCount(response.data.pagination.totalItems);
 					}
 				})
 				.catch((error) => {
@@ -205,7 +207,7 @@ export default function MemberProfilePage() {
 				<header className="relative bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl border-b-2 border-primary-500/20 dark:border-primary-400/20 sticky top-0 z-40 shadow-lg">
 					{/* Decorative gradient overlay */}
 					<div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary-500/5 to-secondary-500/5 rounded-full blur-2xl -z-0 pointer-events-none" />
-					
+
 					<div className="px-4 py-3 relative z-10">
 						<div className="flex items-center gap-3">
 							<div className="w-10 h-10 bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-800 rounded-full animate-pulse" />
@@ -237,7 +239,7 @@ export default function MemberProfilePage() {
 			<header className="relative bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl border-b-2 border-primary-500/20 dark:border-primary-400/20 sticky top-0 z-40 shadow-lg">
 				{/* Decorative gradient overlay */}
 				<div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary-500/5 to-secondary-500/5 rounded-full blur-2xl -z-0 pointer-events-none" />
-				
+
 				<div className="px-4 py-3 relative z-10">
 					{/* Top row: Back button */}
 					<div className="flex items-center mb-3">
@@ -274,12 +276,18 @@ export default function MemberProfilePage() {
 									{/* Badges next to name */}
 									{member.isAdmin && (
 										<div className="flex items-center justify-center w-5 h-5 rounded-full bg-gradient-to-br from-amber-100 to-amber-200 dark:from-amber-900/30 dark:to-amber-800/20">
-											<ShieldCheckIcon className="w-3 h-3 text-amber-600 dark:text-amber-400" title="Admin" />
+											<ShieldCheckIcon
+												className="w-3 h-3 text-amber-600 dark:text-amber-400"
+												title="Admin"
+											/>
 										</div>
 									)}
 									{member.isVerified && !member.isAdmin && (
 										<div className="flex items-center justify-center w-5 h-5 rounded-full bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/20">
-											<CheckBadgeIcon className="w-3 h-3 text-primary-600 dark:text-primary-400" title="Verified" />
+											<CheckBadgeIcon
+												className="w-3 h-3 text-primary-600 dark:text-primary-400"
+												title="Verified"
+											/>
 										</div>
 									)}
 								</div>
@@ -290,7 +298,8 @@ export default function MemberProfilePage() {
 											<CalendarDaysIcon className="w-2.5 h-2.5 text-slate-600 dark:text-slate-400" />
 										</div>
 										<span className="font-medium truncate">
-											Member since {new Date(member.createdAt).toLocaleDateString(
+											Member since{' '}
+											{new Date(member.createdAt).toLocaleDateString(
 												'en-US',
 												{ month: 'short', year: 'numeric' }
 											)}
@@ -331,7 +340,9 @@ export default function MemberProfilePage() {
 								<span className="text-xs font-semibold text-slate-900 dark:text-slate-100">
 									{followStats.followersCount}
 								</span>
-								<span className="text-xs text-slate-600 dark:text-slate-400">followers</span>
+								<span className="text-xs text-slate-600 dark:text-slate-400">
+									followers
+								</span>
 							</button>
 							<button
 								onClick={() => navigate(`/community/members/${id}/following`)}
@@ -343,7 +354,9 @@ export default function MemberProfilePage() {
 								<span className="text-xs font-semibold text-slate-900 dark:text-slate-100">
 									{followStats.followingCount}
 								</span>
-								<span className="text-xs text-slate-600 dark:text-slate-400">following</span>
+								<span className="text-xs text-slate-600 dark:text-slate-400">
+									following
+								</span>
 							</button>
 						</div>
 					</div>
@@ -426,7 +439,7 @@ export default function MemberProfilePage() {
 									>
 										{/* Decorative gradient overlay */}
 										<div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-primary-500/5 to-secondary-500/5 rounded-full blur-2xl -z-0 pointer-events-none" />
-										
+
 										<div className="relative z-10">
 											<CommentCard
 												comment={comment}
@@ -445,7 +458,9 @@ export default function MemberProfilePage() {
 														className="group/btn flex items-center gap-1.5 text-xs font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors"
 													>
 														<span>View post</span>
-														<span className="group-hover/btn:translate-x-0.5 transition-transform">→</span>
+														<span className="group-hover/btn:translate-x-0.5 transition-transform">
+															→
+														</span>
 													</button>
 												</div>
 											)}
