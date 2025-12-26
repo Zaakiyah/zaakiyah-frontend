@@ -42,14 +42,14 @@ export default function CommunityFeed({ searchQuery = '' }: CommunityFeedProps) 
 				};
 				const response = await communityService.getPosts(params);
 
-				if (response.data) {
+				if (response.data && response.data.items) {
 					if (append) {
-						setPosts((prev) => [...prev, ...response.data.items]);
+						setPosts((prev) => [...prev, ...(response.data.items || [])]);
 					} else {
-						setPosts(response.data.items);
+						setPosts(response.data.items || []);
 					}
 					setHasMore(
-						response.data.pagination.currentPage < response.data.pagination.totalPages
+						response.data.pagination?.currentPage < response.data.pagination?.totalPages
 					);
 				}
 			} catch (error: any) {
@@ -148,7 +148,7 @@ export default function CommunityFeed({ searchQuery = '' }: CommunityFeedProps) 
 		);
 	}
 
-	if (posts.length === 0) {
+	if (!posts || posts.length === 0) {
 		return (
 			<div className="space-y-4">
 				{/* Filter buttons */}

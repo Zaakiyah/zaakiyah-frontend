@@ -55,14 +55,14 @@ export default function KnowledgeBase({ searchQuery: propSearchQuery = '' }: Kno
 
 				const response = await communityService.getKnowledgeResources(params);
 
-				if (response.data) {
+				if (response.data && response.data.items) {
 					if (append) {
-						setResources((prev) => [...prev, ...response.data.items]);
+						setResources((prev) => [...prev, ...(response.data.items || [])]);
 					} else {
-						setResources(response.data.items);
+						setResources(response.data.items || []);
 					}
 					setHasMore(
-						response.data.pagination.currentPage < response.data.pagination.totalPages
+						response.data.pagination?.currentPage < response.data.pagination?.totalPages
 					);
 				}
 			} catch (error: any) {
@@ -254,7 +254,7 @@ export default function KnowledgeBase({ searchQuery: propSearchQuery = '' }: Kno
 			</div>
 
 			{/* Resources */}
-			{resources.length === 0 ? (
+			{!resources || resources.length === 0 ? (
 				<EmptyState
 					title="No resources found"
 					description="Try adjusting your filters or search query"

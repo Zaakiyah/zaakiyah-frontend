@@ -295,7 +295,7 @@ export default function CommentBottomSheet({
 								<LoadingSkeleton key={i} type="card" />
 							))}
 						</div>
-					) : comments.length === 0 ? (
+					) : !comments || comments.length === 0 ? (
 						<div className="py-12 text-center">
 							<div className="text-4xl mb-3">💬</div>
 							<p className="text-slate-500 dark:text-slate-400 font-medium">
