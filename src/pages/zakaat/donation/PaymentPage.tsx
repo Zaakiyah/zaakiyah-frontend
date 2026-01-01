@@ -6,6 +6,7 @@ import { donationService } from '../../../services/donationService';
 import { alert } from '../../../store/alertStore';
 import PaymentMethodModal from '../../../components/zakaat/donation/PaymentMethodModal';
 import DonationSummary from '../../../components/zakaat/donation/DonationSummary';
+import Loader from '../../../components/ui/Loader';
 import {
 	ArrowLeftIcon,
 } from '@heroicons/react/24/outline';
@@ -25,10 +26,21 @@ export default function PaymentPage() {
 	// Check for Paystack callback
 	useEffect(() => {
 		const reference = searchParams.get('reference');
-		const donationIdParam = searchParams.get('donation_id');
+		const donationIdParam = searchParams.get('donation_id') || searchParams.get('donationId');
 		
 		if (reference && donationIdParam) {
 			handlePaymentCallback(donationIdParam, reference);
+		} else if (reference) {
+			// If we have reference but no donation_id, try to get it from localStorage
+			// (stored when initiating payment), or verify with just reference
+			const storedDonationId = localStorage.getItem('pendingDonationId');
+			if (storedDonationId) {
+				handlePaymentCallback(storedDonationId, reference);
+				localStorage.removeItem('pendingDonationId');
+			} else {
+				// Try to verify with just reference (backend can find donation by Paystack reference)
+				handlePaymentCallback(null, reference);
+			}
 		} else if (basket.items.length === 0) {
 			// No items in basket, redirect to recipients
 			navigate('/zakaat/donation/recipients');
@@ -54,6 +66,8 @@ export default function PaymentPage() {
 			});
 			
 			if (response.data) {
+				// Store donation ID for callback
+				localStorage.setItem('pendingDonationId', response.data.donationId);
 				// Redirect to Paystack checkout
 				window.location.href = response.data.paymentLink;
 			}
@@ -63,20 +77,26 @@ export default function PaymentPage() {
 		}
 	};
 	
-	const handlePaymentCallback = async (donationId: string, reference: string) => {
+	const handlePaymentCallback = async (donationId: string | null, reference: string) => {
 		setIsProcessing(true);
 		
 		try {
-			const response = await donationService.verifyPayment(donationId, reference);
+			// Verify payment - donationId is optional, can find by reference
+			const response = await donationService.verifyPayment(donationId || '', reference);
 			
 			if (response.data) {
 				if (response.data.status === 'completed') {
+					// Get actual donation data from response
+					const donation = response.data.donation;
+					const recipientCount = donation?.recipients?.length || basket.items.length;
+					const actualTotalAmount = donation?.totalAmount || totalAmount;
+					
 					// Clear basket and navigate to success
 					clearBasket();
 					navigate('/zakaat/donation/success', {
 						state: {
-							recipientCount: basket.items.length,
-							totalAmount: totalAmount,
+							recipientCount,
+							totalAmount: actualTotalAmount,
 						},
 						replace: true,
 					});
@@ -132,10 +152,7 @@ export default function PaymentPage() {
 					{/* Processing State */}
 					{isProcessing && (
 						<div className="mt-4 text-center py-8">
-							<div className="inline-block w-12 h-12 border-4 border-primary-500 border-t-transparent rounded-full animate-spin mb-4" />
-							<p className="text-slate-600 dark:text-slate-400">
-								Processing payment...
-							</p>
+							<Loader size="xl" text="Processing payment..." />
 						</div>
 					)}
 				</main>

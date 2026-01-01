@@ -75,7 +75,7 @@ export default function DonationSummary({
 	if (isOpen && onClose) {
 		return (
 			<BottomSheet isOpen={isOpen} onClose={onClose} title="Donation Summary">
-				<div className="space-y-4">
+				<div className="space-y-4 pb-6">
 					{content}
 					{onProceed && (
 						<button

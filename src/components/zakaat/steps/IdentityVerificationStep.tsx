@@ -1,11 +1,17 @@
 import { useState, useRef } from 'react';
-import { ArrowLeftIcon, PhotoIcon, CameraIcon } from '@heroicons/react/24/outline';
+import {
+	ArrowLeftIcon,
+	PhotoIcon,
+	CameraIcon,
+	DocumentTextIcon,
+} from '@heroicons/react/24/outline';
 import { communityService } from '../../../services/communityService';
 import { alert } from '../../../store/alertStore';
 import { logger } from '../../../utils/logger';
 import type { ApplicationType } from '../../../types/zakaat.types';
 import Select from '../../ui/Select';
 import CountrySelector from '../../ui/CountrySelector';
+import Loader from '../../ui/Loader';
 
 interface IdentityVerificationStepProps {
 	applicationType?: ApplicationType;
@@ -45,6 +51,12 @@ export default function IdentityVerificationStep({
 	const [selfieUrl, setSelfieUrl] = useState(initialValue?.selfieUrl || '');
 	const [isUploadingId, setIsUploadingId] = useState(false);
 	const [isUploadingSelfie, setIsUploadingSelfie] = useState(false);
+	const [idUploadProgress, setIdUploadProgress] = useState(0);
+	const [selfieUploadProgress, setSelfieUploadProgress] = useState(0);
+	const [idUploadError, setIdUploadError] = useState<string | undefined>();
+	const [selfieUploadError, setSelfieUploadError] = useState<string | undefined>();
+	const [idPreview, setIdPreview] = useState<string | null>(null);
+	const [selfiePreview, setSelfiePreview] = useState<string | null>(null);
 
 	const idFileInputRef = useRef<HTMLInputElement>(null);
 	const selfieFileInputRef = useRef<HTMLInputElement>(null);
@@ -53,21 +65,68 @@ export default function IdentityVerificationStep({
 		const file = e.target.files?.[0];
 		if (!file) return;
 
-		if (!file.type.startsWith('image/')) {
-			alert.error('Please upload an image file');
+		// Allow images and documents (PDF, DOC, DOCX, etc.)
+		const allowedTypes = [
+			'image/',
+			'application/pdf',
+			'application/msword',
+			'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+		];
+		const isValidFile = allowedTypes.some((type) => file.type.includes(type));
+
+		if (!isValidFile) {
+			alert.error('Please upload an image or document file (PDF, DOC, DOCX)');
 			return;
 		}
 
+		// Create preview URL for immediate display
+		const preview = URL.createObjectURL(file);
+		setIdPreview(preview);
+		setIdUploadError(undefined);
+		setIdUploadProgress(0);
+
 		try {
 			setIsUploadingId(true);
-			const response = await communityService.uploadMedia(file);
-			if (response.data) {
+			setIdUploadProgress(10);
+
+			// Simulate progress (Cloudinary doesn't provide upload progress via API)
+			const progressInterval = setInterval(() => {
+				setIdUploadProgress((prev) => {
+					if (prev < 90) {
+						return Math.min(prev + 10, 90);
+					}
+					return prev;
+				});
+			}, 200);
+
+			// Use uploadDocument for PDF/DOC files, uploadMedia for images
+			const isImage = file.type.startsWith('image/');
+			const response = isImage
+				? await communityService.uploadMedia(file)
+				: await communityService.uploadDocument(file);
+			clearInterval(progressInterval);
+
+			if (response.data?.url) {
 				setIdDocumentUrl(response.data.url);
+				setIdUploadProgress(100);
+				// Clean up preview URL
+				if (idPreview) {
+					URL.revokeObjectURL(idPreview);
+					setIdPreview(null);
+				}
 				alert.success('ID document uploaded successfully');
 			}
 		} catch (error: any) {
 			logger.error('Error uploading ID document:', error);
-			alert.error('Failed to upload ID document');
+			const errorMessage = error.response?.data?.message || 'Failed to upload ID document';
+			setIdUploadError(errorMessage);
+			setIdUploadProgress(0);
+			// Clean up preview URL on error
+			if (idPreview) {
+				URL.revokeObjectURL(idPreview);
+				setIdPreview(null);
+			}
+			alert.error(errorMessage);
 		} finally {
 			setIsUploadingId(false);
 		}
@@ -82,16 +141,50 @@ export default function IdentityVerificationStep({
 			return;
 		}
 
+		// Create preview URL for immediate display
+		const preview = URL.createObjectURL(file);
+		setSelfiePreview(preview);
+		setSelfieUploadError(undefined);
+		setSelfieUploadProgress(0);
+
 		try {
 			setIsUploadingSelfie(true);
+			setSelfieUploadProgress(10);
+
+			// Simulate progress (Cloudinary doesn't provide upload progress via API)
+			const progressInterval = setInterval(() => {
+				setSelfieUploadProgress((prev) => {
+					if (prev < 90) {
+						return Math.min(prev + 10, 90);
+					}
+					return prev;
+				});
+			}, 200);
+
 			const response = await communityService.uploadMedia(file);
-			if (response.data) {
+			clearInterval(progressInterval);
+
+			if (response.data?.url) {
 				setSelfieUrl(response.data.url);
+				setSelfieUploadProgress(100);
+				// Clean up preview URL
+				if (selfiePreview) {
+					URL.revokeObjectURL(selfiePreview);
+					setSelfiePreview(null);
+				}
 				alert.success('Selfie uploaded successfully');
 			}
 		} catch (error: any) {
 			logger.error('Error uploading selfie:', error);
-			alert.error('Failed to upload selfie');
+			const errorMessage = error.response?.data?.message || 'Failed to upload selfie';
+			setSelfieUploadError(errorMessage);
+			setSelfieUploadProgress(0);
+			// Clean up preview URL on error
+			if (selfiePreview) {
+				URL.revokeObjectURL(selfiePreview);
+				setSelfiePreview(null);
+			}
+			alert.error(errorMessage);
 		} finally {
 			setIsUploadingSelfie(false);
 		}
@@ -126,11 +219,7 @@ export default function IdentityVerificationStep({
 			/>
 
 			<div className="space-y-4 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-3">
-				<CountrySelector
-					value={idCountry}
-					onChange={setIdCountry}
-					label="Country"
-				/>
+				<CountrySelector value={idCountry} onChange={setIdCountry} label="Country" />
 				<div>
 					<label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
 						Region/State
@@ -140,7 +229,7 @@ export default function IdentityVerificationStep({
 						value={idRegion}
 						onChange={(e) => setIdRegion(e.target.value)}
 						placeholder="Region/State"
-						className="w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:focus:ring-primary-400/20 focus:border-primary-500 dark:focus:border-primary-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/20 dark:focus-visible:ring-primary-400/20 focus-visible:border-primary-500 dark:focus-visible:border-primary-400"
+						className="w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:focus:ring-primary-400/20 focus:border-primary-500 dark:focus:border-primary-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/20 dark:focus-visible:ring-primary-400/20 focus-visible:border-primary-500 dark:focus-visible:border-primary-400 transition-all shadow-sm hover:shadow-md focus:shadow-lg hover:border-slate-300 dark:hover:border-slate-600"
 					/>
 				</div>
 			</div>
@@ -154,38 +243,68 @@ export default function IdentityVerificationStep({
 					type="file"
 					ref={idFileInputRef}
 					onChange={handleIdUpload}
-					accept="image/*"
+					accept="image/*,.pdf,.doc,.docx"
 					className="hidden"
 				/>
 				<button
 					type="button"
 					onClick={() => idFileInputRef.current?.click()}
 					disabled={isUploadingId}
-					className="w-full p-6 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl hover:border-primary-500 dark:hover:border-primary-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+					className="w-full p-6 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl hover:border-primary-500 dark:hover:border-primary-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden"
 				>
-					{idDocumentUrl ? (
+					{idDocumentUrl || idPreview ? (
 						<div className="space-y-2">
-							<img
-								src={idDocumentUrl}
-								alt="ID Document"
-								className="w-full h-48 object-contain rounded-lg"
-							/>
+							{idDocumentUrl && idDocumentUrl.endsWith('.pdf') ? (
+								<div className="w-full h-48 bg-slate-100 dark:bg-slate-700 rounded-lg flex items-center justify-center">
+									<DocumentTextIcon className="w-16 h-16 text-slate-400" />
+								</div>
+							) : (
+								<img
+									src={idDocumentUrl || idPreview || ''}
+									alt="ID Document"
+									className="w-full h-48 object-contain rounded-lg"
+								/>
+							)}
+							{isUploadingId && (
+								<div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 mt-2">
+									<div
+										className="bg-primary-500 h-2 rounded-full transition-all duration-300"
+										style={{ width: `${idUploadProgress}%` }}
+									/>
+								</div>
+							)}
 							<p className="text-sm text-slate-600 dark:text-slate-400">
-								Click to change
+								{isUploadingId
+									? `Uploading... ${idUploadProgress}%`
+									: 'Click to change'}
 							</p>
 						</div>
 					) : (
 						<div className="flex flex-col items-center gap-2">
 							{isUploadingId ? (
-								<div className="w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full animate-spin" />
+								<>
+									<Loader size="lg" />
+									<div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 mt-2">
+										<div
+											className="bg-primary-500 h-2 rounded-full transition-all duration-300"
+											style={{ width: `${idUploadProgress}%` }}
+										/>
+									</div>
+									<p className="text-sm text-slate-600 dark:text-slate-400">
+										Uploading... {idUploadProgress}%
+									</p>
+								</>
 							) : (
-								<PhotoIcon className="w-12 h-12 text-slate-400" />
+								<>
+									<PhotoIcon className="w-12 h-12 text-slate-400" />
+									<p className="text-sm text-slate-600 dark:text-slate-400">
+										Upload ID Document
+									</p>
+								</>
 							)}
-							<p className="text-sm text-slate-600 dark:text-slate-400">
-								{isUploadingId ? 'Uploading...' : 'Upload ID Document'}
-							</p>
 						</div>
 					)}
+					{idUploadError && <p className="text-xs text-red-500 mt-2">{idUploadError}</p>}
 				</button>
 			</div>
 
@@ -206,30 +325,56 @@ export default function IdentityVerificationStep({
 					type="button"
 					onClick={() => selfieFileInputRef.current?.click()}
 					disabled={isUploadingSelfie}
-					className="w-full p-6 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl hover:border-primary-500 dark:hover:border-primary-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+					className="w-full p-6 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl hover:border-primary-500 dark:hover:border-primary-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden"
 				>
-					{selfieUrl ? (
+					{selfieUrl || selfiePreview ? (
 						<div className="space-y-2">
 							<img
-								src={selfieUrl}
+								src={selfieUrl || selfiePreview || ''}
 								alt="Selfie"
 								className="w-full h-48 object-contain rounded-lg"
 							/>
+							{isUploadingSelfie && (
+								<div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 mt-2">
+									<div
+										className="bg-primary-500 h-2 rounded-full transition-all duration-300"
+										style={{ width: `${selfieUploadProgress}%` }}
+									/>
+								</div>
+							)}
 							<p className="text-sm text-slate-600 dark:text-slate-400">
-								Click to change
+								{isUploadingSelfie
+									? `Uploading... ${selfieUploadProgress}%`
+									: 'Click to change'}
 							</p>
 						</div>
 					) : (
 						<div className="flex flex-col items-center gap-2">
 							{isUploadingSelfie ? (
-								<div className="w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full animate-spin" />
+								<>
+									<Loader size="lg" />
+									<div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 mt-2">
+										<div
+											className="bg-primary-500 h-2 rounded-full transition-all duration-300"
+											style={{ width: `${selfieUploadProgress}%` }}
+										/>
+									</div>
+									<p className="text-sm text-slate-600 dark:text-slate-400">
+										Uploading... {selfieUploadProgress}%
+									</p>
+								</>
 							) : (
-								<CameraIcon className="w-12 h-12 text-slate-400" />
+								<>
+									<CameraIcon className="w-12 h-12 text-slate-400" />
+									<p className="text-sm text-slate-600 dark:text-slate-400">
+										Take or Upload Selfie
+									</p>
+								</>
 							)}
-							<p className="text-sm text-slate-600 dark:text-slate-400">
-								{isUploadingSelfie ? 'Uploading...' : 'Take or Upload Selfie'}
-							</p>
 						</div>
+					)}
+					{selfieUploadError && (
+						<p className="text-xs text-red-500 mt-2">{selfieUploadError}</p>
 					)}
 				</button>
 			</div>
@@ -254,4 +399,3 @@ export default function IdentityVerificationStep({
 		</div>
 	);
 }
-

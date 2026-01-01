@@ -4,6 +4,7 @@ import { alert } from '../../../store/alertStore';
 import { logger } from '../../../utils/logger';
 import type { BankDetails } from '../../../types/zakaat.types';
 import Select from '../../ui/Select';
+import Loader from '../../ui/Loader';
 import { paystackService, type PaystackBank } from '../../../services/paystackService';
 
 interface BankDetailsStepProps {
@@ -136,11 +137,11 @@ export default function BankDetailsStep({
 						}}
 						placeholder="Enter 10-digit account number"
 						maxLength={10}
-						className="w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:focus:ring-primary-400/20 focus:border-primary-500 dark:focus:border-primary-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/20 dark:focus-visible:ring-primary-400/20 focus-visible:border-primary-500 dark:focus-visible:border-primary-400"
+						className="w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:focus:ring-primary-400/20 focus:border-primary-500 dark:focus:border-primary-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/20 dark:focus-visible:ring-primary-400/20 focus-visible:border-primary-500 dark:focus-visible:border-primary-400 transition-all shadow-sm hover:shadow-md focus:shadow-lg hover:border-slate-300 dark:hover:border-slate-600"
 					/>
 					{isResolving && (
 						<div className="absolute right-4 top-1/2 -translate-y-1/2">
-							<div className="w-5 h-5 border-2 border-primary-500/30 dark:border-primary-400/30 border-t-primary-500 dark:border-t-primary-400 rounded-full animate-spin shadow-sm" />
+							<Loader size="sm" className="gap-0" />
 						</div>
 					)}
 				</div>
@@ -161,10 +162,10 @@ export default function BankDetailsStep({
 					onChange={(e) => setAccountName(e.target.value)}
 					placeholder="Account name will be resolved automatically"
 					readOnly={!!(selectedBankCode && accountNumber.length === 10)}
-					className={`w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:focus:ring-primary-400/20 focus:border-primary-500 dark:focus:border-primary-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/20 dark:focus-visible:ring-primary-400/20 focus-visible:border-primary-500 dark:focus-visible:border-primary-400 ${
+					className={`w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:focus:ring-primary-400/20 focus:border-primary-500 dark:focus:border-primary-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/20 dark:focus-visible:ring-primary-400/20 focus-visible:border-primary-500 dark:focus-visible:border-primary-400 transition-all shadow-sm hover:shadow-md focus:shadow-lg ${
 						selectedBankCode && accountNumber.length === 10
-							? 'bg-slate-50 dark:bg-slate-900/50 cursor-not-allowed'
-							: ''
+							? 'bg-slate-50 dark:bg-slate-900/50 cursor-not-allowed hover:shadow-sm'
+							: 'hover:border-slate-300 dark:hover:border-slate-600'
 					}`}
 				/>
 			</div>

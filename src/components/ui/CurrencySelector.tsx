@@ -42,11 +42,29 @@ export default function CurrencySelector({
 	useEffect(() => {
 		if (isOpen && buttonRef.current) {
 			const rect = buttonRef.current.getBoundingClientRect();
-			setDropdownPosition({
-				top: rect.bottom + window.scrollY + 8,
-				left: rect.left + window.scrollX,
-				width: rect.width,
-			});
+			const viewportHeight = window.innerHeight;
+			const dropdownHeight = 256; // max-h-64 = 256px
+			const spaceBelow = viewportHeight - rect.bottom;
+			const spaceAbove = rect.top;
+			
+			// Determine if dropdown should open above or below the button
+			const openAbove = spaceBelow < dropdownHeight && spaceAbove > spaceBelow;
+			
+			if (openAbove) {
+				// Position above the button
+				setDropdownPosition({
+					top: rect.top + window.scrollY - dropdownHeight - 8,
+					left: rect.left + window.scrollX,
+					width: rect.width,
+				});
+			} else {
+				// Position below the button (default)
+				setDropdownPosition({
+					top: rect.bottom + window.scrollY + 8,
+					left: rect.left + window.scrollX,
+					width: rect.width,
+				});
+			}
 		}
 	}, [isOpen]);
 
@@ -143,7 +161,7 @@ export default function CurrencySelector({
 								animate={{ opacity: 1, y: 0, scale: 1 }}
 								exit={{ opacity: 0, y: -10, scale: 0.95 }}
 								transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-								className="fixed z-[9998] bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl max-h-64 overflow-hidden flex flex-col"
+								className="fixed z-[10000] bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl max-h-[60vh] overflow-hidden flex flex-col"
 								style={{
 									top: `${dropdownPosition.top}px`,
 									left: `${dropdownPosition.left}px`,

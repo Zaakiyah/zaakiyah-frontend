@@ -6,6 +6,7 @@ import { alert } from '../../../store/alertStore';
 import { logger } from '../../../utils/logger';
 import type { IntendedUse } from '../../../types/zakaat.types';
 import Select from '../../ui/Select';
+import Loader from '../../ui/Loader';
 
 interface Category {
 	id: string;
@@ -172,7 +173,7 @@ export default function IntendedUseStep({
 					onChange={(e) => setDescription(e.target.value)}
 					placeholder="Describe how you intend to use the funds..."
 					rows={5}
-					className="w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:focus:ring-primary-400/20 focus:border-primary-500 dark:focus:border-primary-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/20 dark:focus-visible:ring-primary-400/20 focus-visible:border-primary-500 dark:focus-visible:border-primary-400 resize-none"
+					className="w-full px-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:focus:ring-primary-400/20 focus:border-primary-500 dark:focus:border-primary-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/20 dark:focus-visible:ring-primary-400/20 focus-visible:border-primary-500 dark:focus-visible:border-primary-400 resize-none transition-all shadow-sm hover:shadow-md focus:shadow-lg hover:border-slate-300 dark:hover:border-slate-600"
 				/>
 			</div>
 
@@ -197,7 +198,7 @@ export default function IntendedUseStep({
 					className="w-full p-4 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl hover:border-primary-500 dark:hover:border-primary-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
 				>
 					{isUploading ? (
-						<div className="w-5 h-5 border-4 border-primary-500 border-t-transparent rounded-full animate-spin" />
+						<Loader size="sm" className="gap-0" />
 					) : (
 						<PhotoIcon className="w-5 h-5 text-slate-400" />
 					)}

@@ -11,7 +11,6 @@ import {
 	ChartBarIcon,
 	ArrowTrendingUpIcon,
 	ArrowTrendingDownIcon,
-	DocumentDuplicateIcon,
 	CheckIcon,
 } from '@heroicons/react/24/outline';
 import PageHeader from '../components/layout/PageHeader';
@@ -454,7 +453,11 @@ export default function NisaabHistoryPage() {
 				? parseFloat(item.silverNisaabValue)
 				: item.silverNisaabValue;
 
-		const prevItem = index !== undefined && index > 0 ? filteredHistory[index - 1] : null;
+		// Array is sorted newest first, so index+1 is the previous (older) day
+		const prevItem =
+			index !== undefined && index < filteredHistory.length - 1
+				? filteredHistory[index + 1]
+				: null;
 		const prevGold = prevItem
 			? typeof prevItem.goldNisaabValue === 'string'
 				? parseFloat(prevItem.goldNisaabValue)
@@ -466,6 +469,8 @@ export default function NisaabHistoryPage() {
 				: prevItem.silverNisaabValue
 			: null;
 
+		// Compare current value with previous (older) day
+		// If current > previous, trend is up (increased)
 		const goldTrend =
 			prevGold && goldValue
 				? goldValue > prevGold
@@ -536,48 +541,39 @@ export default function NisaabHistoryPage() {
 				{/* Values Grid */}
 				<div className="grid grid-cols-2 gap-3 relative z-10">
 					{/* Gold Card */}
-					<div className="relative group/gold overflow-hidden rounded-xl bg-gradient-to-br from-amber-50 via-yellow-50 to-amber-100/50 dark:from-amber-900/20 dark:via-yellow-900/10 dark:to-amber-800/10 p-3 border border-amber-200/50 dark:border-amber-800/30 hover:border-amber-300 dark:hover:border-amber-700 transition-all duration-300">
+					<button
+						onClick={() => copyValue(item.goldNisaabValue, 'gold')}
+						className="relative group/gold overflow-hidden rounded-xl bg-gradient-to-br from-amber-50 via-yellow-50 to-amber-100/50 dark:from-amber-900/20 dark:via-yellow-900/10 dark:to-amber-800/10 p-3 border border-amber-200/50 dark:border-amber-800/30 hover:border-amber-300 dark:hover:border-amber-700 transition-all duration-300 active:scale-[0.98] w-full text-left cursor-pointer"
+						title="Click to copy gold value"
+					>
 						<div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-amber-400/20 to-yellow-400/20 rounded-full blur-2xl" />
 						<div className="flex items-start gap-3 relative z-10">
 							<div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-yellow-600 rounded-xl flex items-center justify-center shadow-lg shadow-amber-500/30 flex-shrink-0">
 								<SparklesIcon className="w-6 h-6 text-white" />
 							</div>
 							<div className="flex-1 min-w-0">
-								<div className="flex items-center justify-between mb-1">
-									<div className="flex items-center gap-1.5">
-										<p className="text-[10px] font-semibold text-amber-700 dark:text-amber-300 uppercase tracking-wider">
-											Gold
-										</p>
-										{goldTrend && goldTrend !== 'same' && (
-											<div
-												className={`flex items-center flex-shrink-0 ${
-													goldTrend === 'up'
-														? 'text-green-600 dark:text-green-400'
-														: 'text-red-600 dark:text-red-400'
-												}`}
-											>
-												{goldTrend === 'up' ? (
-													<ArrowTrendingUpIcon className="w-3 h-3" />
-												) : (
-													<ArrowTrendingDownIcon className="w-3 h-3" />
-												)}
-											</div>
-										)}
-									</div>
-									<button
-										onClick={(e) => {
-											e.stopPropagation();
-											copyValue(item.goldNisaabValue, 'gold');
-										}}
-										className="p-1 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-900/30 text-amber-600 dark:text-amber-400 transition-all active:scale-95 flex-shrink-0"
-										title="Copy gold value"
-									>
-										{copiedValue?.startsWith('gold') ? (
-											<CheckIcon className="w-3.5 h-3.5" />
-										) : (
-											<DocumentDuplicateIcon className="w-3.5 h-3.5" />
-										)}
-									</button>
+								<div className="flex items-center gap-1.5 mb-1">
+									<p className="text-[10px] font-semibold text-amber-700 dark:text-amber-300 uppercase tracking-wider">
+										Gold
+									</p>
+									{goldTrend && goldTrend !== 'same' && (
+										<div
+											className={`flex items-center flex-shrink-0 ${
+												goldTrend === 'up'
+													? 'text-green-600 dark:text-green-400'
+													: 'text-red-600 dark:text-red-400'
+											}`}
+										>
+											{goldTrend === 'up' ? (
+												<ArrowTrendingUpIcon className="w-3 h-3" />
+											) : (
+												<ArrowTrendingDownIcon className="w-3 h-3" />
+											)}
+										</div>
+									)}
+									{copiedValue?.startsWith('gold') && (
+										<CheckIcon className="w-3.5 h-3.5 text-green-600 dark:text-green-400 flex-shrink-0 ml-auto" />
+									)}
 								</div>
 								<p
 									className={`text-[10px] sm:text-xs md:text-sm lg:text-base font-bold whitespace-nowrap overflow-hidden text-ellipsis ${
@@ -592,51 +588,42 @@ export default function NisaabHistoryPage() {
 								</p>
 							</div>
 						</div>
-					</div>
+					</button>
 
 					{/* Silver Card */}
-					<div className="relative group/silver overflow-hidden rounded-xl bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100/50 dark:from-slate-700/30 dark:via-gray-800/20 dark:to-slate-700/20 p-3 border-2 border-slate-200/50 dark:border-slate-600/30 hover:border-slate-300 dark:hover:border-slate-500 transition-all duration-300">
+					<button
+						onClick={() => copyValue(item.silverNisaabValue, 'silver')}
+						className="relative group/silver overflow-hidden rounded-xl bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100/50 dark:from-slate-700/30 dark:via-gray-800/20 dark:to-slate-700/20 p-3 border-2 border-slate-200/50 dark:border-slate-600/30 hover:border-slate-300 dark:hover:border-slate-500 transition-all duration-300 active:scale-[0.98] w-full text-left cursor-pointer"
+						title="Click to copy silver value"
+					>
 						<div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-slate-400/20 to-gray-400/20 rounded-full blur-2xl" />
 						<div className="flex items-start gap-3 relative z-10">
 							<div className="w-12 h-12 bg-gradient-to-br from-slate-500 to-gray-600 rounded-xl flex items-center justify-center shadow-lg shadow-slate-500/30 flex-shrink-0">
 								<CurrencyDollarIcon className="w-6 h-6 text-white" />
 							</div>
 							<div className="flex-1 min-w-0">
-								<div className="flex items-center justify-between mb-1">
-									<div className="flex items-center gap-1.5">
-										<p className="text-[10px] font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-											Silver
-										</p>
-										{silverTrend && silverTrend !== 'same' && (
-											<div
-												className={`flex items-center flex-shrink-0 ${
-													silverTrend === 'up'
-														? 'text-green-600 dark:text-green-400'
-														: 'text-red-600 dark:text-red-400'
-												}`}
-											>
-												{silverTrend === 'up' ? (
-													<ArrowTrendingUpIcon className="w-3 h-3" />
-												) : (
-													<ArrowTrendingDownIcon className="w-3 h-3" />
-												)}
-											</div>
-										)}
-									</div>
-									<button
-										onClick={(e) => {
-											e.stopPropagation();
-											copyValue(item.silverNisaabValue, 'silver');
-										}}
-										className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 transition-all active:scale-95 flex-shrink-0"
-										title="Copy silver value"
-									>
-										{copiedValue?.startsWith('silver') ? (
-											<CheckIcon className="w-3.5 h-3.5" />
-										) : (
-											<DocumentDuplicateIcon className="w-3.5 h-3.5" />
-										)}
-									</button>
+								<div className="flex items-center gap-1.5 mb-1">
+									<p className="text-[10px] font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+										Silver
+									</p>
+									{silverTrend && silverTrend !== 'same' && (
+										<div
+											className={`flex items-center flex-shrink-0 ${
+												silverTrend === 'up'
+													? 'text-green-600 dark:text-green-400'
+													: 'text-red-600 dark:text-red-400'
+											}`}
+										>
+											{silverTrend === 'up' ? (
+												<ArrowTrendingUpIcon className="w-3 h-3" />
+											) : (
+												<ArrowTrendingDownIcon className="w-3 h-3" />
+											)}
+										</div>
+									)}
+									{copiedValue?.startsWith('silver') && (
+										<CheckIcon className="w-3.5 h-3.5 text-green-600 dark:text-green-400 flex-shrink-0 ml-auto" />
+									)}
 								</div>
 								<p
 									className={`text-[10px] sm:text-xs md:text-sm lg:text-base font-bold whitespace-nowrap overflow-hidden text-ellipsis ${
@@ -651,7 +638,7 @@ export default function NisaabHistoryPage() {
 								</p>
 							</div>
 						</div>
-					</div>
+					</button>
 				</div>
 			</motion.div>
 		);

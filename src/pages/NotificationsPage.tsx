@@ -12,12 +12,18 @@ import {
 	ChatBubbleOvalLeftIcon,
 	UserPlusIcon,
 	ArrowRightIcon,
+	CurrencyDollarIcon,
+	CheckCircleIcon,
+	XCircleIcon,
+	BeakerIcon,
 } from '@heroicons/react/24/outline';
 import { CheckIcon as CheckIconSolid } from '@heroicons/react/24/solid';
 import PageHeader from '../components/layout/PageHeader';
 import BottomNavigation from '../components/layout/BottomNavigation';
 import { useTheme } from '../hooks/useTheme';
 import { notificationService, type Notification } from '../services/notificationService';
+import { alert } from '../store/alertStore';
+import { logger } from '../utils/logger';
 
 export default function NotificationsPage() {
 	useTheme();
@@ -30,6 +36,7 @@ export default function NotificationsPage() {
 	const [onlyUnread, setOnlyUnread] = useState(false);
 	const [searchQuery, setSearchQuery] = useState('');
 	const [isMarkingAllRead, setIsMarkingAllRead] = useState(false);
+	const [isTestingPush, setIsTestingPush] = useState(false);
 	const observerTarget = useRef<HTMLDivElement>(null);
 	const isFetchingRef = useRef(false);
 
@@ -143,6 +150,29 @@ export default function NotificationsPage() {
 		setCurrentPage(1);
 	};
 
+	const handleTestPush = async () => {
+		try {
+			setIsTestingPush(true);
+			const response = await notificationService.testPushNotification();
+			if (response.data) {
+				if (response.data.deviceCount === 0) {
+					alert.warning(
+						'No active device tokens found. Please make sure you have registered a device for push notifications.'
+					);
+				} else {
+					alert.success(
+						`Test push notification sent to ${response.data.deviceCount} device(s)! Check your device for the notification.`
+					);
+				}
+			}
+		} catch (error: any) {
+			logger.error('Error testing push notification:', error);
+			alert.error(error.response?.data?.message || 'Failed to send test push notification');
+		} finally {
+			setIsTestingPush(false);
+		}
+	};
+
 	// Refetch when filters change
 	useEffect(() => {
 		fetchNotifications(1, true);
@@ -179,7 +209,7 @@ export default function NotificationsPage() {
 			return null;
 		}
 
-		const { type, postId, followerId } = notification.metadata;
+		const { type, postId, followerId, donationId, applicationId } = notification.metadata;
 
 		switch (type) {
 			case 'post_liked':
@@ -192,6 +222,14 @@ export default function NotificationsPage() {
 				return postId ? `/community/posts/${postId}` : null;
 			case 'user_followed':
 				return followerId ? `/community/members/${followerId}` : null;
+			case 'donation_received':
+				// Navigate to donation history or specific donation if donationId is available
+				return donationId ? `/zakaat/donation/history` : `/zakaat/donation/history`;
+			case 'application_approved':
+			case 'application_rejected':
+			case 'application_completed':
+				// Navigate to the application detail page
+				return applicationId ? `/zakaat/applications/${applicationId}` : null;
 			default:
 				return null;
 		}
@@ -238,6 +276,13 @@ export default function NotificationsPage() {
 				return ChatBubbleOvalLeftIcon;
 			case 'user_followed':
 				return UserPlusIcon;
+			case 'donation_received':
+				return CurrencyDollarIcon;
+			case 'application_approved':
+			case 'application_completed':
+				return CheckCircleIcon;
+			case 'application_rejected':
+				return XCircleIcon;
 			default:
 				return BellIcon;
 		}
@@ -255,6 +300,13 @@ export default function NotificationsPage() {
 				return 'from-primary-500 to-primary-600';
 			case 'user_followed':
 				return 'from-blue-500 to-cyan-600';
+			case 'donation_received':
+				return 'from-green-500 to-emerald-600';
+			case 'application_approved':
+			case 'application_completed':
+				return 'from-green-500 to-emerald-600';
+			case 'application_rejected':
+				return 'from-red-500 to-rose-600';
 			default:
 				return 'from-slate-500 to-slate-600';
 		}
@@ -266,15 +318,26 @@ export default function NotificationsPage() {
 				title="Notifications"
 				showBack
 				rightAction={
-					hasUnreadNotifications && (
+					<div className="flex items-center gap-2">
 						<button
-							onClick={handleMarkAllAsRead}
-							disabled={isMarkingAllRead}
-							className="px-3 py-1.5 text-xs font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors bg-primary-50 dark:bg-primary-900/20 rounded-lg"
+							onClick={handleTestPush}
+							disabled={isTestingPush}
+							className="px-3 py-1.5 text-xs font-semibold text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors bg-amber-50 dark:bg-amber-900/20 rounded-lg flex items-center gap-1.5"
+							title="Test push notification"
 						>
-							{isMarkingAllRead ? 'Marking...' : 'Mark all read'}
+							<BeakerIcon className="w-4 h-4" />
+							{isTestingPush ? 'Sending...' : 'Test Push'}
 						</button>
-					)
+						{hasUnreadNotifications && (
+							<button
+								onClick={handleMarkAllAsRead}
+								disabled={isMarkingAllRead}
+								className="px-3 py-1.5 text-xs font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors bg-primary-50 dark:bg-primary-900/20 rounded-lg"
+							>
+								{isMarkingAllRead ? 'Marking...' : 'Mark all read'}
+							</button>
+						)}
+					</div>
 				}
 			/>
 
@@ -289,14 +352,16 @@ export default function NotificationsPage() {
 						{/* Decorative elements */}
 						<div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full blur-3xl" />
 						<div className="absolute bottom-0 left-0 w-32 h-32 bg-secondary-500/20 rounded-full blur-2xl" />
-						
+
 						<div className="relative z-10 flex items-center gap-4">
 							<div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
 								<BellIcon className="w-8 h-8 text-white" />
 							</div>
 							<div className="flex-1">
 								<p className="text-xs text-white/80 mb-1">Unread Notifications</p>
-								<p className="text-3xl font-bold text-white">{unreadNotificationsCount}</p>
+								<p className="text-3xl font-bold text-white">
+									{unreadNotificationsCount}
+								</p>
 							</div>
 							{hasUnreadNotifications && (
 								<button
@@ -402,16 +467,16 @@ export default function NotificationsPage() {
 								const hasNavigation = getNotificationPath(notification) !== null;
 								const NotificationIcon = getNotificationIcon(notification);
 								const iconColor = getNotificationColor(notification);
-								
+
 								return (
 									<motion.div
 										key={notification.id}
 										initial={{ opacity: 0, y: 20, scale: 0.95 }}
 										animate={{ opacity: 1, y: 0, scale: 1 }}
-										transition={{ 
+										transition={{
 											delay: index * 0.03,
-											type: "spring",
-											stiffness: 100
+											type: 'spring',
+											stiffness: 100,
 										}}
 										whileHover={hasNavigation ? { scale: 1.02, y: -2 } : {}}
 										className={`group relative overflow-hidden rounded-2xl p-4 shadow-lg border transition-all duration-300 ${
@@ -419,16 +484,20 @@ export default function NotificationsPage() {
 												? 'bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 border-slate-200/60 dark:border-slate-700/60 opacity-80'
 												: 'bg-gradient-to-br from-primary-50/50 via-white to-slate-50 dark:from-primary-900/20 dark:via-slate-800 dark:to-slate-900 border-primary-200/60 dark:border-primary-800/60 shadow-primary-500/10'
 										} ${hasNavigation ? 'cursor-pointer hover:shadow-xl' : ''}`}
-										onClick={() => hasNavigation && handleNotificationClick(notification)}
+										onClick={() =>
+											hasNavigation && handleNotificationClick(notification)
+										}
 									>
 										{/* Decorative gradient overlay for unread */}
 										{!notification.isRead && (
 											<div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-primary-500/10 to-secondary-500/10 rounded-full blur-2xl -z-0" />
 										)}
-										
+
 										<div className="flex items-start gap-4 relative z-10">
 											{/* Icon */}
-											<div className={`w-12 h-12 bg-gradient-to-br ${iconColor} rounded-xl flex items-center justify-center shadow-lg flex-shrink-0`}>
+											<div
+												className={`w-12 h-12 bg-gradient-to-br ${iconColor} rounded-xl flex items-center justify-center shadow-lg flex-shrink-0`}
+											>
 												<NotificationIcon className="w-6 h-6 text-white" />
 											</div>
 

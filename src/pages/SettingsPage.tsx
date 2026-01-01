@@ -65,7 +65,7 @@ export default function SettingsPage() {
 				>
 					{/* Decorative gradient overlay */}
 					<div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary-500/5 via-secondary-500/5 to-primary-400/5 rounded-full blur-2xl -z-0" />
-					
+
 					<div className="flex items-start gap-3 mb-4 relative z-10">
 						<div className="w-12 h-12 bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/20 rounded-xl flex items-center justify-center shrink-0 shadow-sm">
 							<CurrencyDollarIcon className="w-6 h-6 text-primary-600 dark:text-primary-400" />
@@ -104,7 +104,7 @@ export default function SettingsPage() {
 				>
 					{/* Decorative gradient overlay */}
 					<div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary-500/5 via-secondary-500/5 to-primary-400/5 rounded-full blur-2xl -z-0" />
-					
+
 					<div className="flex items-start gap-3 mb-4 relative z-10">
 						<div className="w-12 h-12 bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/20 rounded-xl flex items-center justify-center shrink-0 shadow-sm">
 							<BellIcon className="w-6 h-6 text-primary-600 dark:text-primary-400" />
@@ -114,7 +114,8 @@ export default function SettingsPage() {
 								Notification Preferences
 							</h2>
 							<p className="text-xs text-slate-600 dark:text-slate-400">
-								Manage how and when you receive notifications. These settings will be used as defaults for new calculations.
+								Manage how and when you receive notifications. These settings will
+								be used as defaults for new calculations.
 							</p>
 						</div>
 					</div>
@@ -129,7 +130,7 @@ export default function SettingsPage() {
 				>
 					{/* Decorative gradient overlay */}
 					<div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-slate-500/5 via-slate-400/5 to-slate-300/5 rounded-full blur-2xl -z-0" />
-					
+
 					<div className="flex items-start gap-3 mb-4 relative z-10">
 						<div className="w-12 h-12 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 rounded-xl flex items-center justify-center shrink-0 shadow-sm">
 							<LanguageIcon className="w-6 h-6 text-slate-600 dark:text-slate-400" />
@@ -154,7 +155,7 @@ export default function SettingsPage() {
 				>
 					{/* Decorative gradient overlay */}
 					<div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-slate-500/5 via-slate-400/5 to-slate-300/5 rounded-full blur-2xl -z-0" />
-					
+
 					<div className="flex items-start gap-3 mb-4 relative z-10">
 						<div className="w-12 h-12 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 rounded-xl flex items-center justify-center shrink-0 shadow-sm">
 							<MoonIcon className="w-6 h-6 text-slate-600 dark:text-slate-400" />

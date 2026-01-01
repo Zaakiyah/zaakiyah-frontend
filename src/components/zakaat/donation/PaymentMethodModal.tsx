@@ -42,7 +42,7 @@ export default function PaymentMethodModal({
 }: PaymentMethodModalProps) {
 	return (
 		<BottomSheet isOpen={isOpen} onClose={onClose} title="Choose your payment method">
-			<div className="space-y-3">
+			<div className="space-y-3 pb-6">
 				{paymentMethods.map((method) => (
 					<button
 						key={method.id}

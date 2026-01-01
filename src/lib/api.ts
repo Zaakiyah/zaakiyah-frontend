@@ -1,140 +1,137 @@
-import axios from 'axios'
-import { deviceService } from '../services/deviceService'
-import { useAuthStore } from '../store/authStore'
-import { logger } from '../utils/logger'
+import axios from 'axios';
+import { deviceService } from '../services/deviceService';
+import { useAuthStore } from '../store/authStore';
+import { logger } from '../utils/logger';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3010';
 
 export const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  withCredentials: true, // Important for cookies (refresh token)
-})
+	baseURL: API_BASE_URL,
+	headers: {
+		'Content-Type': 'application/json',
+	},
+	withCredentials: true, // Important for cookies (refresh token)
+});
 
 // Request interceptor to add access token and device info
 api.interceptors.request.use(
-  async (config) => {
-    const token = localStorage.getItem('accessToken')
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
+	async (config) => {
+		const token = localStorage.getItem('accessToken');
+		if (token) {
+			config.headers.Authorization = `Bearer ${token}`;
+		}
 
-    // Don't override Content-Type for FormData (let browser set it with boundary)
-    if (config.data instanceof FormData) {
-      delete config.headers['Content-Type']
-    }
+		// Don't override Content-Type for FormData (let browser set it with boundary)
+		if (config.data instanceof FormData) {
+			delete config.headers['Content-Type'];
+		}
 
-    // Add device info to headers for auth endpoints
-    const isAuthEndpoint = config.url?.includes('/auth/')
-    if (isAuthEndpoint) {
-      try {
-        const deviceInfo = await deviceService.getDeviceInfo()
-        if (deviceInfo.deviceToken) {
-          config.headers['x-device-token'] = deviceInfo.deviceToken
-        }
-        if (deviceInfo.deviceType) {
-          config.headers['x-device-type'] = deviceInfo.deviceType
-        }
-        if (deviceInfo.deviceId) {
-          config.headers['x-device-id'] = deviceInfo.deviceId
-        }
-      } catch (error) {
-        // Silently fail - device info is optional
-        logger.warn('Failed to get device info:', error)
-      }
-    }
+		// Add device info to headers for auth endpoints
+		const isAuthEndpoint = config.url?.includes('/auth/');
+		if (isAuthEndpoint) {
+			try {
+				const deviceInfo = await deviceService.getDeviceInfo();
+				if (deviceInfo.deviceToken) {
+					config.headers['x-device-token'] = deviceInfo.deviceToken;
+				}
+				if (deviceInfo.deviceType) {
+					config.headers['x-device-type'] = deviceInfo.deviceType;
+				}
+				if (deviceInfo.deviceId) {
+					config.headers['x-device-id'] = deviceInfo.deviceId;
+				}
+			} catch (error) {
+				// Silently fail - device info is optional
+				logger.warn('Failed to get device info:', error);
+			}
+		}
 
-    return config
-  },
-  (error) => {
-    return Promise.reject(error)
-  }
-)
+		return config;
+	},
+	(error) => {
+		return Promise.reject(error);
+	}
+);
 
 // Response interceptor to handle token refresh and deleted accounts
 api.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config
-    const errorMessage = error.response?.data?.message || ''
+	(response) => response,
+	async (error) => {
+		const originalRequest = error.config;
+		const errorMessage = error.response?.data?.message || '';
 
-    // Check if account has been deleted
-    const isAccountDeleted = 
-      error.response?.status === 401 &&
-      (errorMessage.toLowerCase().includes('account has been deleted') ||
-       errorMessage.toLowerCase().includes('deleted'))
+		// Check if account has been deleted
+		const isAccountDeleted =
+			error.response?.status === 401 &&
+			(errorMessage.toLowerCase().includes('account has been deleted') ||
+				errorMessage.toLowerCase().includes('deleted'));
 
-    // If account is deleted, immediately clear auth and redirect (before token refresh logic)
-    if (isAccountDeleted) {
-      // Clear auth store and localStorage synchronously
-      const store = useAuthStore.getState()
-      store.clearAuth()
-      
-      // Manually clear all auth-related storage to ensure it's gone
-      localStorage.removeItem('auth-storage')
-      localStorage.removeItem('accessToken')
-      
-      // Clear device info
-      try {
-        deviceService.clearDeviceInfo()
-      } catch (e) {
-        // Ignore errors clearing device info
-      }
-      
-      // Use window.location.replace to avoid back button issues and ensure fresh load
-      // This will cause a full page reload, so the Zustand store will reload from cleared localStorage
-      if (!window.location.pathname.includes('/login')) {
-        window.location.replace('/login')
-      }
-      return Promise.reject(error)
-    }
+		// If account is deleted, immediately clear auth and redirect (before token refresh logic)
+		if (isAccountDeleted) {
+			// Clear auth store and localStorage synchronously
+			const store = useAuthStore.getState();
+			store.clearAuth();
 
-    // Don't try to refresh token on auth endpoints (login, signup, etc.)
-    const isAuthEndpoint = originalRequest?.url?.includes('/auth/')
-    const shouldRefreshToken =
-      error.response?.status === 401 &&
-      !originalRequest._retry &&
-      !isAuthEndpoint
+			// Manually clear all auth-related storage to ensure it's gone
+			localStorage.removeItem('auth-storage');
+			localStorage.removeItem('accessToken');
 
-    if (shouldRefreshToken) {
-      originalRequest._retry = true
+			// Clear device info
+			try {
+				deviceService.clearDeviceInfo();
+			} catch (e) {
+				// Ignore errors clearing device info
+			}
 
-      try {
-        const response = await axios.post(
-          `${API_BASE_URL}/auth/refresh-token`,
-          {},
-          { withCredentials: true }
-        )
+			// Use window.location.replace to avoid back button issues and ensure fresh load
+			// This will cause a full page reload, so the Zustand store will reload from cleared localStorage
+			if (!window.location.pathname.includes('/login')) {
+				window.location.replace('/login');
+			}
+			return Promise.reject(error);
+		}
 
-        const { accessToken } = response.data.data
-        localStorage.setItem('accessToken', accessToken)
-        originalRequest.headers.Authorization = `Bearer ${accessToken}`
+		// Don't try to refresh token on auth endpoints (login, signup, etc.)
+		const isAuthEndpoint = originalRequest?.url?.includes('/auth/');
+		const shouldRefreshToken =
+			error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint;
 
-        return api(originalRequest)
-      } catch (refreshError) {
-        // Clear auth state and redirect to login
-        const store = useAuthStore.getState()
-        store.clearAuth()
-        localStorage.removeItem('auth-storage')
-        localStorage.removeItem('accessToken')
-        try {
-          deviceService.clearDeviceInfo()
-        } catch (e) {
-          // Ignore errors
-        }
-        // Only redirect if not already on login page
-        if (!window.location.pathname.includes('/login')) {
-          window.location.replace('/login')
-        }
-        return Promise.reject(refreshError)
-      }
-    }
+		if (shouldRefreshToken) {
+			originalRequest._retry = true;
 
-    return Promise.reject(error)
-  }
-)
+			try {
+				const response = await axios.post(
+					`${API_BASE_URL}/auth/refresh-token`,
+					{},
+					{ withCredentials: true }
+				);
 
-export default api
+				const { accessToken } = response.data.data;
+				localStorage.setItem('accessToken', accessToken);
+				originalRequest.headers.Authorization = `Bearer ${accessToken}`;
 
+				return api(originalRequest);
+			} catch (refreshError) {
+				// Clear auth state and redirect to login
+				const store = useAuthStore.getState();
+				store.clearAuth();
+				localStorage.removeItem('auth-storage');
+				localStorage.removeItem('accessToken');
+				try {
+					deviceService.clearDeviceInfo();
+				} catch (e) {
+					// Ignore errors
+				}
+				// Only redirect if not already on login page
+				if (!window.location.pathname.includes('/login')) {
+					window.location.replace('/login');
+				}
+				return Promise.reject(refreshError);
+			}
+		}
+
+		return Promise.reject(error);
+	}
+);
+
+export default api;

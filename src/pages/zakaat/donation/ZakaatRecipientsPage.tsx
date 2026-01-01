@@ -2,8 +2,10 @@ import { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../../../hooks/useTheme';
 import { useDonationStore } from '../../../store/donationStore';
+import { useAuthStore } from '../../../store/authStore';
 import { donationService } from '../../../services/donationService';
 import { alert } from '../../../store/alertStore';
+import BottomNavigation from '../../../components/layout/BottomNavigation';
 import RecipientCard from '../../../components/zakaat/donation/RecipientCard';
 import {
 	MagnifyingGlassIcon,
@@ -14,161 +16,10 @@ import {
 import { HeartIcon as HeartIconSolid } from '@heroicons/react/24/solid';
 import type { Recipient } from '../../../types/donation.types';
 
-// Mock data for UI development
-const mockRecipients: Recipient[] = [
-	{
-		id: '1',
-		userId: 'user1',
-		applicationId: 'app1',
-		name: 'Ahmad Musa',
-		firstName: 'Ahmad',
-		lastName: 'Musa',
-		location: 'Abuja, Nigeria',
-		applicationType: 'individual',
-		status: 'ready',
-		requestedAmount: 50000,
-		approvedAmount: 50000,
-		disbursedAmount: 0,
-		totalDonations: 2500,
-		shortfall: 47500, // requestedAmount - disbursedAmount - totalDonations
-		whyTheyNeedHelp:
-			'Ahmad is a student in need of financial assistance to complete his education. He has been accepted into a university program but lacks the funds for tuition and living expenses.',
-		supportingDocuments: [
-			{ id: '1', name: 'Admission Letter', type: 'pdf', url: '/documents/admission.pdf' },
-			{ id: '2', name: 'School ID Card', type: 'image', url: '/documents/id.jpg' },
-		],
-		campaignImageUrl: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=400',
-		category: 'education',
-		createdAt: new Date().toISOString(),
-		updatedAt: new Date().toISOString(),
-	},
-	{
-		id: '2',
-		userId: 'user2',
-		applicationId: 'app2',
-		name: 'Fatima Bello',
-		firstName: 'Fatima',
-		lastName: 'Bello',
-		location: 'Lagos, Nigeria',
-		applicationType: 'individual',
-		status: 'ready',
-		requestedAmount: 75000,
-		approvedAmount: 75000,
-		disbursedAmount: 0,
-		totalDonations: 5000,
-		shortfall: 70000,
-		whyTheyNeedHelp:
-			'Fatima requires medical assistance for her ongoing treatment. She has been diagnosed with a condition that requires regular medication and medical check-ups.',
-		supportingDocuments: [
-			{ id: '3', name: 'Medical Report', type: 'pdf', url: '/documents/medical.pdf' },
-			{ id: '4', name: 'Utility Bill', type: 'image', url: '/documents/bill.jpg' },
-		],
-		campaignImageUrl: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=400',
-		category: 'medical',
-		createdAt: new Date().toISOString(),
-		updatedAt: new Date().toISOString(),
-	},
-	{
-		id: '3',
-		userId: 'user3',
-		applicationId: 'app3',
-		name: 'Aminu Sani',
-		firstName: 'Aminu',
-		lastName: 'Sani',
-		location: 'Kano, Nigeria',
-		applicationType: 'individual',
-		status: 'ready',
-		requestedAmount: 100000,
-		approvedAmount: 100000,
-		disbursedAmount: 0,
-		totalDonations: 10000,
-		shortfall: 90000,
-		whyTheyNeedHelp:
-			'Aminu is starting a small business to support his family. He needs capital to purchase equipment and initial inventory for his shop.',
-		supportingDocuments: [
-			{ id: '5', name: 'Business Plan', type: 'pdf', url: '/documents/business.pdf' },
-		],
-		category: 'business',
-		createdAt: new Date().toISOString(),
-		updatedAt: new Date().toISOString(),
-	},
-	{
-		id: '4',
-		userId: 'user4',
-		applicationId: 'app4',
-		name: 'Hassan Umar',
-		firstName: 'Hassan',
-		lastName: 'Umar',
-		location: 'Kaduna, Nigeria',
-		applicationType: 'individual',
-		status: 'ready',
-		requestedAmount: 30000,
-		approvedAmount: 30000,
-		disbursedAmount: 0,
-		totalDonations: 15000,
-		shortfall: 15000,
-		whyTheyNeedHelp:
-			'Hassan needs assistance with housing expenses. He is currently unable to afford rent and is at risk of eviction.',
-		supportingDocuments: [
-			{ id: '6', name: 'Rent Agreement', type: 'pdf', url: '/documents/rent.pdf' },
-		],
-		category: 'education', // Could be housing, but using education for demo
-		createdAt: new Date().toISOString(),
-		updatedAt: new Date().toISOString(),
-	},
-	{
-		id: '5',
-		userId: 'user5',
-		applicationId: 'app5',
-		name: 'Maryam Adamu',
-		firstName: 'Maryam',
-		lastName: 'Adamu',
-		location: 'Port Harcourt, Nigeria',
-		applicationType: 'individual',
-		status: 'ready',
-		requestedAmount: 60000,
-		approvedAmount: 60000,
-		disbursedAmount: 0,
-		totalDonations: 20000,
-		shortfall: 40000,
-		whyTheyNeedHelp:
-			"Maryam is a single mother struggling to provide for her children. She needs support for basic necessities and children's education.",
-		supportingDocuments: [
-			{ id: '7', name: 'Birth Certificates', type: 'pdf', url: '/documents/birth.pdf' },
-		],
-		category: 'education',
-		createdAt: new Date().toISOString(),
-		updatedAt: new Date().toISOString(),
-	},
-	{
-		id: '6',
-		userId: 'user6',
-		applicationId: 'app6',
-		name: 'Usman Abubakar',
-		firstName: 'Usman',
-		lastName: 'Abubakar',
-		location: 'Ibadan, Nigeria',
-		applicationType: 'individual',
-		status: 'ready',
-		requestedAmount: 40000,
-		approvedAmount: 40000,
-		disbursedAmount: 0,
-		totalDonations: 35000,
-		shortfall: 5000,
-		whyTheyNeedHelp:
-			'Usman requires assistance with debt repayment. He has accumulated debts due to medical expenses and needs help to clear them.',
-		supportingDocuments: [
-			{ id: '8', name: 'Debt Statement', type: 'pdf', url: '/documents/debt.pdf' },
-		],
-		category: 'medical',
-		createdAt: new Date().toISOString(),
-		updatedAt: new Date().toISOString(),
-	},
-];
-
 export default function ZakaatRecipientsPage() {
 	useTheme();
 	const navigate = useNavigate();
+	const { user } = useAuthStore();
 	const { basket, watchlist } = useDonationStore();
 
 	const [searchQuery, setSearchQuery] = useState('');
@@ -190,16 +41,19 @@ export default function ZakaatRecipientsPage() {
 			setIsLoading(true);
 			const response = await donationService.getRecipients({ page, limit: 20 });
 			if (response.data) {
+				// Filter out current user's own applications (prevent self-donation)
+				const filtered = response.data.items.filter(
+					(r: Recipient) => r.userId !== user?.id
+				);
 				if (page === 1) {
-					setRecipients(response.data.items);
+					setRecipients(filtered);
 				} else {
-					setRecipients((prev) => [...prev, ...response.data.items]);
+					setRecipients((prev) => [...prev, ...filtered]);
 				}
 			}
 		} catch (error: any) {
 			alert.error(error.response?.data?.message || 'Failed to fetch recipients');
-			// Fallback to mock data for development
-			setRecipients(mockRecipients.filter((r) => r.status === 'ready'));
+			setRecipients([]);
 		} finally {
 			setIsLoading(false);
 		}
@@ -363,21 +217,26 @@ export default function ZakaatRecipientsPage() {
 				)}
 			</main>
 
-			{/* Continue Button (if basket has items) */}
+			{/* Continue Button (if basket has items) - positioned above bottom nav */}
 			{basketItemCount > 0 && (
 				<div
-					className="fixed bottom-0 left-0 right-0 px-4 pt-3 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-t-2 border-primary-500/20 dark:border-primary-400/20 shadow-lg z-40"
+					className="fixed bottom-24 left-0 right-0 px-4 z-40"
 					style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom, 0))' }}
 				>
-					<button
-						onClick={() => navigate('/zakaat/donation/basket')}
-						className="w-full py-3.5 bg-gradient-to-r from-primary-500 via-primary-600 to-primary-700 text-white font-semibold rounded-xl hover:from-primary-600 hover:via-primary-700 hover:to-primary-800 transition-all active:scale-95 shadow-lg shadow-primary-500/30 mb-3"
-					>
-						Continue ({basketItemCount}{' '}
-						{basketItemCount === 1 ? 'recipient' : 'recipients'})
-					</button>
+					<div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-t-2 border-primary-500/20 dark:border-primary-400/20 shadow-lg rounded-t-2xl pt-3 pb-2">
+						<button
+							onClick={() => navigate('/zakaat/donation/basket')}
+							className="w-full py-3.5 bg-gradient-to-r from-primary-500 via-primary-600 to-primary-700 text-white font-semibold rounded-xl hover:from-primary-600 hover:via-primary-700 hover:to-primary-800 transition-all active:scale-95 shadow-lg shadow-primary-500/30"
+						>
+							Continue ({basketItemCount}{' '}
+							{basketItemCount === 1 ? 'recipient' : 'recipients'})
+						</button>
+					</div>
 				</div>
 			)}
+
+			{/* Bottom Navigation */}
+			<BottomNavigation />
 		</div>
 	);
 }

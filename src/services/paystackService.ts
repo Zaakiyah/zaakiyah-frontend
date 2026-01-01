@@ -3,6 +3,10 @@ import { logger } from '../utils/logger';
 
 const PAYSTACK_BASE_URL = 'https://api.paystack.co';
 
+// Cache for account resolution (cache key: bankCode-accountNumber)
+const accountResolutionCache = new Map<string, { data: PaystackAccountResolution; timestamp: number }>();
+const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
+
 export interface PaystackBank {
 	code: string;
 	name: string;
@@ -41,11 +45,20 @@ export const paystackService = {
 	/**
 	 * Resolve account number to account name
 	 * Note: This requires a backend endpoint with Paystack secret key
+	 * Results are cached for 24 hours to avoid repeated API calls
 	 */
 	async resolveAccount(
 		bankCode: string,
 		accountNumber: string
 	): Promise<PaystackAccountResolution | null> {
+		// Check cache first
+		const cacheKey = `${bankCode}-${accountNumber}`;
+		const cached = accountResolutionCache.get(cacheKey);
+		if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+			logger.debug('Returning cached account resolution');
+			return cached.data;
+		}
+
 		try {
 			const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 			const token = localStorage.getItem('accessToken');
@@ -64,6 +77,11 @@ export const paystackService = {
 				}
 			);
 			if (response.data.data) {
+				// Cache the result
+				accountResolutionCache.set(cacheKey, {
+					data: response.data.data,
+					timestamp: Date.now(),
+				});
 				return response.data.data;
 			}
 			return null;

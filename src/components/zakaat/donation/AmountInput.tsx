@@ -51,7 +51,7 @@ export default function AmountInput({
 
 	return (
 		<BottomSheet isOpen={isOpen} onClose={onClose} title={title}>
-			<div className="flex flex-col">
+			<div className="flex flex-col pb-6">
 				{/* Amount Display */}
 				<div className="text-center mb-6">
 					<p className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">

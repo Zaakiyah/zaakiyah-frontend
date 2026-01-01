@@ -28,6 +28,7 @@ const NisaabHistoryPage = lazy(() => import('./pages/NisaabHistoryPage'));
 const NotificationsPage = lazy(() => import('./pages/NotificationsPage'));
 const SecurityPage = lazy(() => import('./pages/SecurityPage'));
 const SettingsPage = lazy(() => import('./pages/SettingsPage'));
+const BugReportPage = lazy(() => import('./pages/BugReportPage'));
 const ComingSoonPage = lazy(() => import('./pages/ComingSoonPage'));
 const WealthCalculationPage = lazy(() => import('./pages/WealthCalculationPage'));
 const CalculationsPage = lazy(() => import('./pages/CalculationsPage'));
@@ -358,6 +359,14 @@ function App() {
 							element={
 								<ProtectedRoute>
 									<SettingsPage />
+								</ProtectedRoute>
+							}
+						/>
+						<Route
+							path="/bug-report"
+							element={
+								<ProtectedRoute>
+									<BugReportPage />
 								</ProtectedRoute>
 							}
 						/>

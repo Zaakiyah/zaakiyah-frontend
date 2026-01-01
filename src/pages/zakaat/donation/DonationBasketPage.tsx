@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useTheme } from '../../../hooks/useTheme';
 import { useDonationStore } from '../../../store/donationStore';
 import BasketItem from '../../../components/zakaat/donation/BasketItem';
@@ -13,11 +13,24 @@ import {
 export default function DonationBasketPage() {
 	useTheme();
 	const navigate = useNavigate();
+	const location = useLocation();
 	const { basket, clearBasket, getBasketTotal, distributeEqually, setDistributionMethod } = useDonationStore();
 	
 	const [showDistributionModal, setShowDistributionModal] = useState(false);
 	const totalAmount = getBasketTotal();
 	const hasItems = basket.items.length > 0;
+	
+	// Check if coming from dashboard with wealth calculation
+	const zakaatAmount = location.state?.zakaatAmount;
+	
+	// Auto-distribute equally if coming from dashboard with amount
+	useEffect(() => {
+		if (zakaatAmount && hasItems && basket.distributionMethod !== 'equal') {
+			// Auto-select equal distribution and distribute the amount
+			distributeEqually(zakaatAmount);
+			setDistributionMethod('equal');
+		}
+	}, [zakaatAmount, hasItems, basket.distributionMethod, distributeEqually, setDistributionMethod]);
 
 	const handleContinue = () => {
 		if (!hasItems) return;
@@ -25,10 +38,13 @@ export default function DonationBasketPage() {
 		setShowDistributionModal(true);
 	};
 	
-	const handleSelectEqual = () => {
-		// Distribute equally based on total amount
-		distributeEqually(totalAmount);
-		navigate('/zakaat/donation/allocate');
+	const handleSelectEqual = (amount?: number) => {
+		// Distribute equally based on selected calculation, zakaat amount from dashboard, or total amount
+		const amountToDistribute = amount || zakaatAmount || totalAmount;
+		distributeEqually(amountToDistribute);
+		navigate('/zakaat/donation/allocate', {
+			state: location.state, // Preserve state if coming from dashboard
+		});
 	};
 	
 	const handleSelectManual = () => {
@@ -148,6 +164,7 @@ export default function DonationBasketPage() {
 				onClose={() => setShowDistributionModal(false)}
 				onSelectEqual={handleSelectEqual}
 				onSelectManual={handleSelectManual}
+				zakaatAmount={zakaatAmount}
 			/>
 		</div>
 	);

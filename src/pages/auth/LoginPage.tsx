@@ -90,7 +90,9 @@ export default function LoginPage() {
 									animate={{ opacity: 1, y: 0 }}
 									className="mb-4 p-4 bg-gradient-to-r from-red-50 to-red-100 dark:from-red-900/30 dark:to-red-800/20 border-2 border-red-200 dark:border-red-800/30 rounded-xl relative z-10"
 								>
-									<p className="text-sm font-medium text-red-600 dark:text-red-400">{error}</p>
+									<p className="text-sm font-medium text-red-600 dark:text-red-400">
+										{error}
+									</p>
 								</motion.div>
 							)}
 
@@ -144,12 +146,17 @@ export default function LoginPage() {
 									animate={{ opacity: 1, y: 0 }}
 									className="mb-4 p-4 bg-gradient-to-r from-red-50 to-red-100 dark:from-red-900/30 dark:to-red-800/20 border-2 border-red-200 dark:border-red-800/30 rounded-xl relative z-10"
 								>
-									<p className="text-sm font-medium text-red-600 dark:text-red-400">{error}</p>
+									<p className="text-sm font-medium text-red-600 dark:text-red-400">
+										{error}
+									</p>
 								</motion.div>
 							)}
 
 							{/* Login Form */}
-							<form onSubmit={handleSubmit(handleLogin)} className="space-y-5 relative z-10">
+							<form
+								onSubmit={handleSubmit(handleLogin)}
+								className="space-y-5 relative z-10"
+							>
 								<Input
 									label="Email"
 									type="email"
@@ -214,7 +221,7 @@ export default function LoginPage() {
 										onClick={() => {
 											window.location.href = `${
 												import.meta.env.VITE_API_URL ||
-												'http://localhost:3001'
+												'http://localhost:3010'
 											}/auth/google`;
 										}}
 									>

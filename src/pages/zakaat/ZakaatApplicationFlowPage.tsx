@@ -7,6 +7,7 @@ import { zakaatService } from '../../services/zakaatService';
 import { alert } from '../../store/alertStore';
 import { logger } from '../../utils/logger';
 import ZakaatApplicationProgress from '../../components/zakaat/ZakaatApplicationProgress';
+import Loader from '../../components/ui/Loader';
 import WelcomeStep from '../../components/zakaat/steps/WelcomeStep';
 import ApplicationTypeStep from '../../components/zakaat/steps/ApplicationTypeStep';
 import EligibilityCheckStep from '../../components/zakaat/steps/EligibilityCheckStep';
@@ -25,7 +26,6 @@ import type {
 	BankDetails,
 	EligibilityCheckRequest,
 } from '../../types/zakaat.types';
-import { ApplicationStatus } from '../../types/zakaat.types';
 
 export interface ApplicationFormData {
 	applicationType: ApplicationType | null;
@@ -69,32 +69,16 @@ export default function ZakaatApplicationFlowPage() {
 		supportingDocuments: [],
 	});
 
-	// Load existing application if editing, or check for draft if no ID
+	// Load existing application if editing, or redirect to applications list if no ID
 	useEffect(() => {
 		if (applicationId) {
 			loadApplication();
 		} else if (!isNewApplication) {
-			// Check for existing draft application only if not explicitly creating new
-			checkForDraft();
+			// If no ID and not explicitly creating new, redirect to applications list
+			// Users can then choose which application to continue with
+			navigate('/zakaat/applications', { replace: true });
 		}
-	}, [applicationId, isNewApplication]);
-
-	const checkForDraft = async () => {
-		try {
-			const response = await zakaatService.getApplications({
-				status: ApplicationStatus.DRAFT,
-				limit: 1,
-			});
-			if (response.data && response.data.items.length > 0) {
-				const draft = response.data.items[0];
-				// Navigate to the draft application
-				navigate(`/zakaat/apply/${draft.id}`, { replace: true });
-			}
-		} catch (error: any) {
-			logger.error('Error checking for draft:', error);
-			// Silently fail - user can start fresh
-		}
-	};
+	}, [applicationId, isNewApplication, navigate]);
 
 	const loadApplication = async () => {
 		if (!applicationId) return;
@@ -123,7 +107,10 @@ export default function ZakaatApplicationFlowPage() {
 					intendedUse: app.intendedUse
 						? {
 								...(app.intendedUse as IntendedUse),
-								supportingDocuments: app.supportingDocuments || (app.intendedUse as any).supportingDocuments || [],
+								supportingDocuments:
+									app.supportingDocuments ||
+									(app.intendedUse as any).supportingDocuments ||
+									[],
 						  }
 						: null,
 					bankDetails: app.bankName
@@ -222,11 +209,23 @@ export default function ZakaatApplicationFlowPage() {
 				}
 			}
 			if (stepData.identityVerification) {
-				updateData.idDocumentUrl = stepData.identityVerification.idDocumentUrl;
-				updateData.selfieUrl = stepData.identityVerification.selfieUrl;
-				updateData.idCountry = stepData.identityVerification.idCountry;
-				updateData.idRegion = stepData.identityVerification.idRegion;
-				updateData.idType = stepData.identityVerification.idType;
+				// Always save ID information when identity verification step is completed
+				// Save all fields, using null for empty optional fields
+				if (stepData.identityVerification.idType !== undefined) {
+					updateData.idType = stepData.identityVerification.idType || null;
+				}
+				if (stepData.identityVerification.idCountry !== undefined) {
+					updateData.idCountry = stepData.identityVerification.idCountry || null;
+				}
+				if (stepData.identityVerification.idRegion !== undefined) {
+					updateData.idRegion = stepData.identityVerification.idRegion || null;
+				}
+				if (stepData.identityVerification.idDocumentUrl !== undefined) {
+					updateData.idDocumentUrl = stepData.identityVerification.idDocumentUrl || null;
+				}
+				if (stepData.identityVerification.selfieUrl !== undefined) {
+					updateData.selfieUrl = stepData.identityVerification.selfieUrl || null;
+				}
 			}
 			if (stepData.financialInfo) updateData.financialInfo = stepData.financialInfo;
 			if (stepData.intendedUse) updateData.intendedUse = stepData.intendedUse;
@@ -266,13 +265,8 @@ export default function ZakaatApplicationFlowPage() {
 	};
 
 	const handleCancel = () => {
-		if (applicationId) {
-			// If there's a draft, go to applications page
-			navigate('/zakaat/applications');
-		} else {
-			// If no draft, go to dashboard
-			navigate('/dashboard');
-		}
+		// Always allow navigation to applications page - don't require canceling
+		navigate('/zakaat/applications');
 	};
 
 	const handleSubmit = async () => {
@@ -314,6 +308,11 @@ export default function ZakaatApplicationFlowPage() {
 
 		try {
 			setIsLoading(true);
+
+			// Save all form data one final time before submitting to ensure everything is persisted
+			await saveApplication(formData);
+
+			// Now submit the application
 			await zakaatService.submitApplication(applicationId);
 			alert.success('Application submitted successfully!');
 			navigate('/zakaat/applications');
@@ -477,10 +476,7 @@ export default function ZakaatApplicationFlowPage() {
 	if (isLoading && !formData.applicationType) {
 		return (
 			<div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 flex items-center justify-center">
-				<div className="text-center">
-					<div className="w-8 h-8 border-4 border-primary-500/30 dark:border-primary-400/30 border-t-primary-500 dark:border-t-primary-400 rounded-full animate-spin mx-auto mb-4 shadow-lg shadow-primary-500/20" />
-					<p className="text-slate-600 dark:text-slate-400">Loading application...</p>
-				</div>
+				<Loader size="lg" text="Loading application..." />
 			</div>
 		);
 	}
@@ -493,8 +489,8 @@ export default function ZakaatApplicationFlowPage() {
 					<div className="flex items-center justify-between gap-3">
 						<div className="flex items-center gap-3">
 							<button
-							onClick={handlePrevious}
-							className="p-2 rounded-xl hover:bg-gradient-to-r hover:from-slate-100 hover:to-slate-50 dark:hover:from-slate-700 dark:hover:to-slate-800 transition-all active:scale-95"
+								onClick={handlePrevious}
+								className="p-2 rounded-xl hover:bg-gradient-to-r hover:from-slate-100 hover:to-slate-50 dark:hover:from-slate-700 dark:hover:to-slate-800 transition-all active:scale-95"
 								aria-label="Go back"
 								type="button"
 							>
@@ -547,10 +543,15 @@ export default function ZakaatApplicationFlowPage() {
 					<AnimatePresence mode="wait">
 						<motion.div
 							key={currentStep}
-						initial={{ opacity: 0, x: 20, scale: 0.95 }}
-						animate={{ opacity: 1, x: 0, scale: 1 }}
-						exit={{ opacity: 0, x: -20, scale: 0.95 }}
-						transition={{ duration: 0.2, ease: 'easeInOut', type: 'spring', stiffness: 100 }}
+							initial={{ opacity: 0, x: 20, scale: 0.95 }}
+							animate={{ opacity: 1, x: 0, scale: 1 }}
+							exit={{ opacity: 0, x: -20, scale: 0.95 }}
+							transition={{
+								duration: 0.2,
+								ease: 'easeInOut',
+								type: 'spring',
+								stiffness: 100,
+							}}
 							className="relative bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl p-6 shadow-lg border-2 border-slate-200/60 dark:border-slate-700/60 overflow-visible"
 						>
 							{/* Decorative gradient overlay */}
@@ -569,8 +570,29 @@ export default function ZakaatApplicationFlowPage() {
 						animate={{ opacity: 1, y: 0 }}
 						className="max-w-md mx-auto bg-gradient-to-br from-primary-500 via-primary-600 to-primary-700 text-white px-4 py-3 sm:py-2.5 rounded-xl shadow-lg shadow-primary-500/30 flex items-center gap-2 sm:gap-3"
 					>
-						<div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white/30 border-t-white rounded-full animate-spin shrink-0" />
-						<span className="text-xs sm:text-sm font-medium">Saving your progress...</span>
+						<svg
+							className="animate-spin h-4 w-4 sm:h-5 sm:w-5 text-white shrink-0"
+							xmlns="http://www.w3.org/2000/svg"
+							fill="none"
+							viewBox="0 0 24 24"
+						>
+							<circle
+								className="opacity-25"
+								cx="12"
+								cy="12"
+								r="10"
+								stroke="currentColor"
+								strokeWidth="4"
+							></circle>
+							<path
+								className="opacity-75"
+								fill="currentColor"
+								d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+							></path>
+						</svg>
+						<span className="text-xs sm:text-sm font-medium">
+							Saving your progress...
+						</span>
 					</motion.div>
 				</div>
 			)}

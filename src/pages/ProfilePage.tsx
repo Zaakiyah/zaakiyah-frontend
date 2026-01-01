@@ -22,6 +22,7 @@ import {
 	DocumentTextIcon,
 	ArrowRightIcon,
 	UserGroupIcon,
+	BugAntIcon,
 } from '@heroicons/react/24/outline';
 import { CheckBadgeIcon } from '@heroicons/react/24/solid';
 
@@ -81,6 +82,11 @@ export default function ProfilePage() {
 			icon: Cog6ToothIcon,
 			label: 'Settings',
 			onClick: () => navigate('/settings'),
+		},
+		{
+			icon: BugAntIcon,
+			label: 'Report a Bug',
+			onClick: () => navigate('/bug-report'),
 		},
 		{
 			icon: QuestionMarkCircleIcon,

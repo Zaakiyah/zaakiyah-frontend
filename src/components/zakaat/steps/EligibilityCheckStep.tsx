@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ArrowLeftIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import { motion } from 'framer-motion';
 import { CheckCircleIcon as CheckCircleIconSolid } from '@heroicons/react/24/solid';
@@ -6,7 +6,7 @@ import { alert } from '../../../store/alertStore';
 import type { EligibilityCheckRequest } from '../../../types/zakaat.types';
 import { useCurrencyStore } from '../../../store/currencyStore';
 import { useCurrencyConversion } from '../../../hooks/useCurrencyConversion';
-import { formatCurrency } from '../../../utils/currency';
+import CurrencyInput from '../../wealth/inputs/CurrencyInput';
 
 interface EligibilityCheckStepProps {
 	initialValue?: EligibilityCheckRequest | null;
@@ -19,29 +19,59 @@ export default function EligibilityCheckStep({
 	onComplete,
 	onBack,
 }: EligibilityCheckStepProps) {
-	const [requestedAmount, setRequestedAmount] = useState<string>(
-		initialValue?.requestedAmount?.toString() || ''
+	const { preferredCurrency } = useCurrencyStore();
+	const [requestedAmount, setRequestedAmount] = useState<number>(
+		initialValue?.requestedAmount || 0
 	);
+	const [requestedCurrency, setRequestedCurrency] = useState<string>(preferredCurrency || 'NGN');
+	const [convertedNairaAmount, setConvertedNairaAmount] = useState<number | null>(null);
 	const [isEligible] = useState<boolean | null>(null);
 	const [eligibilityMessage] = useState('');
-	const { preferredCurrency } = useCurrencyStore();
-	const amountNum = requestedAmount ? parseFloat(requestedAmount) : 0;
-	const { convertedAmount: nairaAmount, isLoading: isConverting } = useCurrencyConversion(
-		amountNum,
-		preferredCurrency,
+
+	// Initialize currency from preferredCurrency when it changes
+	useEffect(() => {
+		if (preferredCurrency && !initialValue) {
+			setRequestedCurrency(preferredCurrency);
+		}
+	}, [preferredCurrency, initialValue]);
+
+	// Initialize converted amount if currency is NGN
+	useEffect(() => {
+		if (requestedCurrency === 'NGN' && requestedAmount > 0) {
+			setConvertedNairaAmount(requestedAmount);
+		}
+	}, [requestedCurrency, requestedAmount]);
+	const { convertedAmount: nairaAmount } = useCurrencyConversion(
+		requestedAmount,
+		requestedCurrency,
 		'NGN',
-		amountNum > 0 && preferredCurrency !== 'NGN'
+		requestedAmount > 0 && requestedCurrency !== 'NGN'
 	);
 
+	// Update converted Naira amount when conversion completes
+	useEffect(() => {
+		if (requestedCurrency === 'NGN') {
+			setConvertedNairaAmount(requestedAmount);
+		} else if (nairaAmount !== null && nairaAmount !== undefined) {
+			setConvertedNairaAmount(nairaAmount);
+		}
+	}, [requestedCurrency, requestedAmount, nairaAmount]);
+
 	const handleContinue = () => {
-		if (!requestedAmount) {
+		if (!requestedAmount || requestedAmount <= 0) {
 			alert.error('Please enter the amount you need');
 			return;
 		}
 
+		// Use converted Naira amount if currency is not NGN, otherwise use the entered amount
+		const finalAmount =
+			requestedCurrency === 'NGN'
+				? requestedAmount
+				: convertedNairaAmount || nairaAmount || requestedAmount;
+
 		onComplete({
 			eligibility: {
-				requestedAmount: parseFloat(requestedAmount),
+				requestedAmount: finalAmount, // Store the Naira value
 			},
 		});
 	};
@@ -58,36 +88,34 @@ export default function EligibilityCheckStep({
 			</div>
 
 			{/* Amount */}
-			<div>
-				<label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-					Amount Needed <span className="text-red-500">*</span>
-				</label>
-				<div className="relative">
-					<span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400">
-						{formatCurrency(0, preferredCurrency, { showSymbol: true }).charAt(0)}
-					</span>
-					<input
-						type="number"
-						value={requestedAmount}
-						onChange={(e) => setRequestedAmount(e.target.value)}
-						placeholder="0.00"
-						min="0"
-						step="0.01"
-						className="w-full pl-8 pr-4 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:focus:ring-primary-400/20 focus:border-primary-500 dark:focus:border-primary-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/20 dark:focus-visible:ring-primary-400/20 focus-visible:border-primary-500 dark:focus-visible:border-primary-400"
-					/>
-				</div>
-				{requestedAmount && amountNum > 0 && preferredCurrency !== 'NGN' && (
-					<div className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-						{isConverting ? (
-							<span>Converting...</span>
-						) : nairaAmount ? (
-							<span>
-								≈ {formatCurrency(nairaAmount, 'NGN', { showSymbol: true })} (NGN)
-							</span>
-						) : null}
-					</div>
-				)}
-			</div>
+			<CurrencyInput
+				label="Amount Needed"
+				value={requestedAmount}
+				currency={requestedCurrency}
+				onAmountChange={(amount) => {
+					setRequestedAmount(amount);
+					// Reset converted amount when amount changes
+					if (requestedCurrency === 'NGN') {
+						setConvertedNairaAmount(amount);
+					}
+				}}
+				onCurrencyChange={(currency) => {
+					setRequestedCurrency(currency);
+					// Reset converted amount when currency changes
+					if (currency === 'NGN') {
+						setConvertedNairaAmount(requestedAmount);
+					}
+				}}
+				onConversionComplete={(converted) => {
+					// Store the converted Naira amount
+					if (converted !== null && converted !== undefined) {
+						setConvertedNairaAmount(converted);
+					} else if (requestedCurrency === 'NGN') {
+						setConvertedNairaAmount(requestedAmount);
+					}
+				}}
+				showConversion={true}
+			/>
 
 			{/* Eligibility Result */}
 			{isEligible !== null && (

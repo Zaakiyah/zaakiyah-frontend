@@ -3,7 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../../../hooks/useTheme';
 import { donationService } from '../../../services/donationService';
 import { alert } from '../../../store/alertStore';
-import BottomSheet from '../../../components/ui/BottomSheet';
+import { logger } from '../../../utils/logger';
+import Modal from '../../../components/ui/Modal';
+import Loader from '../../../components/ui/Loader';
+import BottomNavigation from '../../../components/layout/BottomNavigation';
 import {
 	ArrowLeftIcon,
 	MagnifyingGlassIcon,
@@ -13,69 +16,7 @@ import {
 	DocumentTextIcon,
 } from '@heroicons/react/24/outline';
 import { CheckCircleIcon as CheckCircleIconSolid } from '@heroicons/react/24/solid';
-import type { Donation, DonationRecipientDetail } from '../../../types/donation.types';
-
-// Mock data for UI development
-const mockDonations: Donation[] = [
-	{
-		id: '1',
-		userId: 'user1',
-		recipients: [
-			{ applicationId: 'app1', recipientId: '1', recipientName: 'Ahmad Musa', amount: 2500 },
-			{
-				applicationId: 'app2',
-				recipientId: '2',
-				recipientName: 'Fatima Bello',
-				amount: 2500,
-			},
-			{ applicationId: 'app3', recipientId: '3', recipientName: 'Aminu Sani', amount: 2500 },
-			{ applicationId: 'app4', recipientId: '4', recipientName: 'Hassan Umar', amount: 2500 },
-			{
-				applicationId: 'app5',
-				recipientId: '5',
-				recipientName: 'Maryam Adamu',
-				amount: 2500,
-			},
-			{
-				applicationId: 'app6',
-				recipientId: '6',
-				recipientName: 'Usman Abubakar',
-				amount: 2500,
-			},
-		],
-		totalAmount: 15000,
-		zaakiyahAmount: 0,
-		paymentMethod: 'paystack',
-		paymentReference: 'PAY-123456',
-		paymentStatus: 'completed',
-		distributionMethod: 'equal',
-		isAnonymous: false,
-		createdAt: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
-		completedAt: new Date(Date.now() - 86400000).toISOString(),
-	},
-	{
-		id: '2',
-		userId: 'user1',
-		recipients: [
-			{ applicationId: 'app1', recipientId: '1', recipientName: 'Ahmad Musa', amount: 5000 },
-			{
-				applicationId: 'app2',
-				recipientId: '2',
-				recipientName: 'Fatima Bello',
-				amount: 3000,
-			},
-		],
-		totalAmount: 8000,
-		zaakiyahAmount: 1000,
-		paymentMethod: 'paystack',
-		paymentReference: 'PAY-123457',
-		paymentStatus: 'completed',
-		distributionMethod: 'manual',
-		isAnonymous: true,
-		createdAt: new Date(Date.now() - 172800000).toISOString(), // 2 days ago
-		completedAt: new Date(Date.now() - 172800000).toISOString(),
-	},
-];
+import type { Donation, DonationRecipientDetail, Recipient } from '../../../types/donation.types';
 
 export default function DonationHistoryPage() {
 	useTheme();
@@ -103,8 +44,7 @@ export default function DonationHistoryPage() {
 			}
 		} catch (error: any) {
 			alert.error(error.response?.data?.message || 'Failed to fetch donation history');
-			// Fallback to mock data for development
-			setDonations(mockDonations);
+			setDonations([]);
 		} finally {
 			setIsLoading(false);
 		}
@@ -131,40 +71,73 @@ export default function DonationHistoryPage() {
 	};
 
 	const handleViewRecipient = async (donation: Donation, recipientId: string) => {
-		// Mock: In real implementation, fetch recipient details from API
 		const recipient = donation.recipients.find((r) => r.recipientId === recipientId);
 		if (!recipient) return;
 
-		// Mock recipient detail - will be replaced with API call
-		const recipientDetail: DonationRecipientDetail = {
-			applicationId: recipientId,
-			recipientName: recipient.recipientName,
-			recipientLocation: 'Abuja, Nigeria', // From application
-			applicationType: 'individual',
-			requestedAmount: 50000,
-			approvedAmount: 50000,
-			disbursedAmount: 0,
-			totalDonations: 2500,
-			shortfall: 47500,
-			donationAmount: recipient.amount,
-			progress: 5, // (totalDonations / requestedAmount) * 100
-			status: 'approved',
-			updates: [
-				{
-					id: '1',
-					applicationId: recipientId,
-					title: 'Thank you for your support',
-					description:
-						'I am grateful for the donation. It will help me complete my education.',
-					createdAt: new Date(Date.now() - 86400000).toISOString(),
-					createdBy: recipientId,
-				},
-			],
-		};
+		// Fetch recipient details from API
+		try {
+			const recipientsResponse = await donationService.getRecipients({ page: 1, limit: 100 });
+			const fullRecipient = recipientsResponse.data?.items.find(
+				(r: Recipient) =>
+					r.id === recipientId || r.applicationId === recipient.applicationId
+			);
 
-		setSelectedDonation(donation);
-		setSelectedRecipient(recipientDetail);
-		setShowRecipientDetail(true);
+			if (fullRecipient) {
+				const requestedAmount = fullRecipient.requestedAmount || 0;
+				const approvedAmount = fullRecipient.approvedAmount || requestedAmount;
+				const disbursedAmount = fullRecipient.disbursedAmount || 0;
+				const totalDonations = fullRecipient.totalDonations || 0;
+				const totalReceived = disbursedAmount + totalDonations;
+				const progress =
+					approvedAmount > 0
+						? Math.min(100, Math.round((totalReceived / approvedAmount) * 100))
+						: 0;
+				const shortfall = Math.max(0, approvedAmount - totalReceived);
+
+				const recipientDetail: DonationRecipientDetail = {
+					applicationId: recipient.applicationId,
+					recipientName: fullRecipient.name || recipient.recipientName,
+					recipientLocation: fullRecipient.location || 'Nigeria',
+					applicationType: fullRecipient.applicationType,
+					requestedAmount,
+					approvedAmount,
+					disbursedAmount,
+					totalDonations,
+					shortfall,
+					donationAmount: recipient.amount,
+					progress,
+					status: fullRecipient.status,
+					updates: [], // Updates can be fetched separately if needed
+				};
+
+				setSelectedDonation(donation);
+				setSelectedRecipient(recipientDetail);
+				setShowRecipientDetail(true);
+			} else {
+				// Fallback if recipient not found
+				const recipientDetail: DonationRecipientDetail = {
+					applicationId: recipient.applicationId,
+					recipientName: recipient.recipientName,
+					recipientLocation: 'Nigeria',
+					applicationType: 'individual',
+					requestedAmount: 0,
+					approvedAmount: 0,
+					disbursedAmount: 0,
+					totalDonations: 0,
+					shortfall: 0,
+					donationAmount: recipient.amount,
+					progress: 0,
+					status: 'approved',
+					updates: [],
+				};
+				setSelectedDonation(donation);
+				setSelectedRecipient(recipientDetail);
+				setShowRecipientDetail(true);
+			}
+		} catch (error: any) {
+			alert.error('Failed to load recipient details');
+			logger.error('Error fetching recipient details:', error);
+		}
 	};
 
 	return (
@@ -203,8 +176,7 @@ export default function DonationHistoryPage() {
 			<main className="px-4 py-4">
 				{isLoading ? (
 					<div className="text-center py-12">
-						<div className="inline-block w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full animate-spin mb-4" />
-						<p className="text-slate-500 dark:text-slate-400">Loading donations...</p>
+						<Loader size="lg" text="Loading donations..." />
 					</div>
 				) : filteredDonations.length === 0 ? (
 					<div className="text-center py-12">
@@ -267,10 +239,10 @@ export default function DonationHistoryPage() {
 											className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors group"
 										>
 											<div className="flex items-center gap-2 flex-1 min-w-0">
-												<span className="text-sm font-medium text-slate-700 dark:text-slate-300 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
-													{recipient.recipientName}
+												<span className="text-sm font-medium text-slate-700 dark:text-slate-300 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors truncate">
+													{recipient.recipientName || 'Unknown Recipient'}
 												</span>
-												<EyeIcon className="w-4 h-4 text-slate-400 dark:text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+												<EyeIcon className="w-4 h-4 text-slate-400 dark:text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
 											</div>
 											<span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
 												₦
@@ -319,14 +291,15 @@ export default function DonationHistoryPage() {
 
 			{/* Recipient Detail Modal */}
 			{showRecipientDetail && selectedRecipient && (
-				<BottomSheet
+				<Modal
 					isOpen={showRecipientDetail}
 					onClose={() => {
 						setShowRecipientDetail(false);
 						setSelectedRecipient(null);
 						setSelectedDonation(null);
 					}}
-					title={selectedRecipient.recipientName}
+					title={selectedRecipient.recipientName || 'Recipient Details'}
+					size="md"
 				>
 					<div className="space-y-4">
 						{/* Progress Bar */}
@@ -454,8 +427,11 @@ export default function DonationHistoryPage() {
 							View Full Application
 						</button>
 					</div>
-				</BottomSheet>
+				</Modal>
 			)}
+
+			{/* Bottom Navigation */}
+			<BottomNavigation />
 		</div>
 	);
 }

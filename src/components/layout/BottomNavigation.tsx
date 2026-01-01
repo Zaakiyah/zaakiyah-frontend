@@ -30,7 +30,7 @@ const navItems: NavItem[] = [
 		iconActive: HomeIcon,
 	},
 	{
-		path: '/donations',
+		path: '/zakaat/donation/recipients',
 		label: 'Donations',
 		icon: HeartIconOutline,
 		iconActive: HeartIcon,

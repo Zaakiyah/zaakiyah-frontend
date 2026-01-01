@@ -364,7 +364,20 @@ export default function DashboardPage() {
 		{
 			icon: HeartIcon,
 			label: 'Give',
-			onClick: () => navigate('/zakaat/donation/recipients'),
+			onClick: () => {
+				// Pass wealth calculation data if available
+				if (zakaatCalculation && zakaatCalculation.amount > 0) {
+					navigate('/zakaat/donation/recipients', {
+						state: {
+							fromDashboard: true,
+							zakaatAmount: convertedAmount || zakaatCalculation.amount,
+							currency: preferredCurrency || user?.preferredCurrency || 'NGN',
+						},
+					});
+				} else {
+					navigate('/zakaat/donation/recipients');
+				}
+			},
 		},
 		{
 			icon: HandRaisedIcon,
@@ -374,7 +387,7 @@ export default function DashboardPage() {
 		{
 			icon: DocumentTextIcon,
 			label: 'Apply',
-			onClick: () => navigate('/zakaat/apply'),
+			onClick: () => navigate('/zakaat/applications'),
 		},
 	];
 
@@ -382,7 +395,7 @@ export default function DashboardPage() {
 		{
 			icon: ChartBarIcon,
 			label: 'History',
-			onClick: () => navigate('/donations/history'),
+			onClick: () => navigate('/zakaat/donation/history'),
 		},
 		{
 			icon: BookOpenIcon,

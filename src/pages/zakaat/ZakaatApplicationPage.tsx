@@ -191,10 +191,13 @@ export default function ZakaatApplicationPage() {
 									key={application.id}
 									initial={{ opacity: 0, y: 20 }}
 									animate={{ opacity: 1, y: 0 }}
-									className="relative bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl overflow-hidden shadow-lg border-2 border-slate-200/60 dark:border-slate-700/60 hover:shadow-xl transition-all"
+									onClick={() =>
+										navigate(`/zakaat/applications/${application.id}`)
+									}
+									className="relative bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl overflow-hidden shadow-lg border-2 border-slate-200/60 dark:border-slate-700/60 hover:shadow-xl transition-all cursor-pointer"
 								>
 									{/* Decorative gradient overlay */}
-									<div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary-500/5 via-secondary-500/5 to-primary-400/5 rounded-full blur-2xl -z-0" />
+									<div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary-500/5 via-secondary-500/5 to-primary-400/5 rounded-full blur-2xl pointer-events-none" />
 									{/* Campaign Image */}
 									{application.campaignImageUrl && (
 										<div className="w-full h-48 overflow-hidden">
@@ -255,12 +258,16 @@ export default function ZakaatApplicationPage() {
 														{withdrawingId === application.id ? (
 															<>
 																<div className="w-3 h-3 border-2 border-amber-600/30 dark:border-amber-500/30 border-t-amber-600 dark:border-t-amber-500 rounded-full animate-spin" />
-																<span className="hidden sm:inline">Withdrawing...</span>
+																<span className="hidden sm:inline">
+																	Withdrawing...
+																</span>
 															</>
 														) : (
 															<>
 																<ArrowPathIcon className="w-3.5 h-3.5" />
-																<span className="hidden sm:inline">Withdraw</span>
+																<span className="hidden sm:inline">
+																	Withdraw
+																</span>
 															</>
 														)}
 													</button>

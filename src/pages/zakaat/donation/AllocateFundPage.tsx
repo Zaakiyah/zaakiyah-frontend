@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../../../hooks/useTheme';
 import { useDonationStore } from '../../../store/donationStore';
@@ -6,32 +6,46 @@ import AmountInput from '../../../components/zakaat/donation/AmountInput';
 import DonationSummary from '../../../components/zakaat/donation/DonationSummary';
 import Avatar from '../../../components/ui/Avatar';
 import Checkbox from '../../../components/ui/Checkbox';
-import {
-	ArrowLeftIcon,
-} from '@heroicons/react/24/outline';
+import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import type { BasketItem } from '../../../types/donation.types';
 
 export default function AllocateFundPage() {
 	useTheme();
 	const navigate = useNavigate();
-	const { basket, updateBasketItemAmount, setSupportZaakiyah, setIsAnonymous, getBasketTotal } = useDonationStore();
-	
+	const { basket, updateBasketItemAmount, setSupportZaakiyah, setIsAnonymous, getBasketTotal } =
+		useDonationStore();
+	const hasInitializedZaakiyah = useRef(false);
+
 	const [editingItemId, setEditingItemId] = useState<string | null>(null);
 	const [showAmountInput, setShowAmountInput] = useState(false);
 	const [showSummary, setShowSummary] = useState(false);
 	const [totalDonation, setTotalDonation] = useState(0);
-	
+
 	useEffect(() => {
 		// Calculate total from all items
 		const total = basket.items.reduce((sum, item) => sum + item.amount, 0);
 		setTotalDonation(total);
-	}, [basket.items]);
-	
+
+		// Initialize Support Zaakiyah on first load when items are available
+		// Only run once when items are first added
+		if (
+			!hasInitializedZaakiyah.current &&
+			!basket.supportZaakiyah &&
+			total > 0 &&
+			basket.items.length > 0
+		) {
+			// 5% of total donation or minimum 5000 Naira
+			const zaakiyahAmount = Math.max(5000, Math.floor(total * 0.05));
+			setSupportZaakiyah(true, zaakiyahAmount);
+			hasInitializedZaakiyah.current = true;
+		}
+	}, [basket.items, basket.supportZaakiyah, setSupportZaakiyah]);
+
 	const handleAmountClick = (itemId: string) => {
 		setEditingItemId(itemId);
 		setShowAmountInput(true);
 	};
-	
+
 	const handleAmountConfirm = (amount: number) => {
 		if (editingItemId) {
 			updateBasketItemAmount(editingItemId, amount);
@@ -39,18 +53,18 @@ export default function AllocateFundPage() {
 		setShowAmountInput(false);
 		setEditingItemId(null);
 	};
-	
+
 	const handleConfirm = () => {
 		setShowSummary(true);
 	};
-	
+
 	const handleProceedToPayment = () => {
 		// Navigate to payment page
 		navigate('/zakaat/donation/payment');
 	};
-	
-	const currentEditingItem = editingItemId 
-		? basket.items.find(item => item.recipientId === editingItemId)
+
+	const currentEditingItem = editingItemId
+		? basket.items.find((item) => item.recipientId === editingItemId)
 		: null;
 
 	return (
@@ -99,10 +113,19 @@ export default function AllocateFundPage() {
 						<Checkbox
 							checked={basket.supportZaakiyah}
 							onChange={(checked) => {
-								setSupportZaakiyah(checked);
-								if (checked && basket.zaakiyahAmount === 0) {
-									setSupportZaakiyah(true, 1000); // Default amount
-								} else if (!checked) {
+								if (checked) {
+									// Calculate 5% of total or minimum 5000 Naira when manually checking
+									const total = basket.items.reduce(
+										(sum, item) => sum + item.amount,
+										0
+									);
+									const zaakiyahAmount =
+										basket.zaakiyahAmount === 0 ||
+										basket.zaakiyahAmount === 1000
+											? Math.max(5000, Math.floor(total * 0.05)) // 5% or minimum 5000
+											: basket.zaakiyahAmount; // Keep existing amount if user has customized it
+									setSupportZaakiyah(true, zaakiyahAmount);
+								} else {
 									setSupportZaakiyah(false, 0);
 								}
 							}}
@@ -124,7 +147,11 @@ export default function AllocateFundPage() {
 									onClick={() => handleAmountClick('zaakiyah')}
 									className="w-full px-4 py-2.5 text-sm font-semibold text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/30 rounded-xl hover:bg-primary-100 dark:hover:bg-primary-900/50 transition-colors"
 								>
-									₦{basket.zaakiyahAmount.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+									₦
+									{basket.zaakiyahAmount.toLocaleString('en-NG', {
+										minimumFractionDigits: 2,
+										maximumFractionDigits: 2,
+									})}
 								</button>
 							</div>
 						)}
@@ -154,7 +181,8 @@ export default function AllocateFundPage() {
 				</main>
 
 				{/* Confirm Button */}
-				<div className="fixed bottom-0 left-0 right-0 px-4 pt-3 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-t-2 border-primary-500/20 dark:border-primary-400/20 shadow-lg z-40"
+				<div
+					className="fixed bottom-0 left-0 right-0 px-4 pt-3 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-t-2 border-primary-500/20 dark:border-primary-400/20 shadow-lg z-40"
 					style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom, 0))' }}
 				>
 					<button
@@ -170,7 +198,11 @@ export default function AllocateFundPage() {
 			{/* Amount Input Modal */}
 			{showAmountInput && (
 				<AmountInput
-					initialAmount={editingItemId === 'zaakiyah' ? basket.zaakiyahAmount : currentEditingItem?.amount || 0}
+					initialAmount={
+						editingItemId === 'zaakiyah'
+							? basket.zaakiyahAmount
+							: currentEditingItem?.amount || 0
+					}
 					isOpen={showAmountInput}
 					onClose={() => {
 						setShowAmountInput(false);
@@ -183,7 +215,11 @@ export default function AllocateFundPage() {
 							handleAmountConfirm(amount);
 						}
 					}}
-					title={editingItemId === 'zaakiyah' ? 'Support Zaakiyah Amount' : `Amount for ${currentEditingItem?.recipient.name || ''}`}
+					title={
+						editingItemId === 'zaakiyah'
+							? 'Support Zaakiyah Amount'
+							: `Amount for ${currentEditingItem?.recipient.name || ''}`
+					}
 				/>
 			)}
 
@@ -209,7 +245,7 @@ interface RecipientAllocationItemProps {
 
 function RecipientAllocationItem({ item, onAmountClick }: RecipientAllocationItemProps) {
 	const { recipient, amount } = item;
-	
+
 	return (
 		<div className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl border-2 border-slate-200/60 dark:border-slate-700/60 p-4 shadow-sm">
 			<div className="flex items-center gap-3">
@@ -231,10 +267,13 @@ function RecipientAllocationItem({ item, onAmountClick }: RecipientAllocationIte
 					onClick={onAmountClick}
 					className="px-4 py-2.5 text-base font-semibold text-slate-900 dark:text-slate-100 bg-slate-100 dark:bg-slate-700 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors min-w-[120px]"
 				>
-					₦{amount.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+					₦
+					{amount.toLocaleString('en-NG', {
+						minimumFractionDigits: 2,
+						maximumFractionDigits: 2,
+					})}
 				</button>
 			</div>
 		</div>
 	);
 }
-

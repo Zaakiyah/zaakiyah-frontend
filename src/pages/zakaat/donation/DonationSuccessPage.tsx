@@ -1,5 +1,6 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTheme } from '../../../hooks/useTheme';
+import BottomNavigation from '../../../components/layout/BottomNavigation';
 import {
 	CheckCircleIcon,
 } from '@heroicons/react/24/solid';
@@ -13,7 +14,7 @@ export default function DonationSuccessPage() {
 	const totalAmount = location.state?.totalAmount || 0;
 
 	return (
-		<div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 flex items-center justify-center px-4">
+		<div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 flex items-center justify-center px-4 pb-24">
 			<div className="w-full max-w-md">
 				<div className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-3xl border-2 border-slate-200/60 dark:border-slate-700/60 p-8 shadow-2xl text-center">
 					{/* Success Icon */}
@@ -56,6 +57,9 @@ export default function DonationSuccessPage() {
 					</div>
 				</div>
 			</div>
+			
+			{/* Bottom Navigation */}
+			<BottomNavigation />
 		</div>
 	);
 }

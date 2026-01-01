@@ -21,14 +21,6 @@ export enum VettingStage {
 	DISBURSEMENT = 'disbursement',
 }
 
-export enum CollateralType {
-	CAR = 'car',
-	MACHINE = 'machine',
-	PROPERTY = 'property',
-	GOLD = 'gold',
-	OTHER = 'other',
-}
-
 export interface PersonalInfo {
 	firstName: string;
 	lastName: string;

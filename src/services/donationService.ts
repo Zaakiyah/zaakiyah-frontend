@@ -60,13 +60,17 @@ export const donationService = {
 	 * Verify payment after Paystack redirect
 	 */
 	async verifyPayment(
-		donationId: string,
+		donationId: string | null,
 		reference: string
 	): Promise<ApiResponse<{ status: string; donation: Donation }>> {
 		try {
+			const payload: { reference: string; donationId?: string } = { reference };
+			if (donationId) {
+				payload.donationId = donationId;
+			}
 			const response = await api.post<ApiResponse<{ status: string; donation: Donation }>>(
 				'/donations/verify-payment',
-				{ donationId, reference }
+				payload
 			);
 			return response.data;
 		} catch (error: any) {
