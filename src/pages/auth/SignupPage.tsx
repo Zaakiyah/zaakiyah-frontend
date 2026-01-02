@@ -45,6 +45,7 @@ export default function SignupPage() {
 		formState: { errors },
 		setValue,
 		watch,
+		trigger,
 	} = useForm<SignupFormData>({
 		resolver: zodResolver(signupSchema),
 		defaultValues: {
@@ -63,22 +64,44 @@ export default function SignupPage() {
 		setFormData((prev) => ({ ...prev, ...watchedData }));
 	}, [watchedData]);
 
+	// Sync preferences to form state when they change
+	useEffect(() => {
+		if (step === 'preferences') {
+			setValue('preferences', selectedPreferences, { shouldValidate: true });
+		}
+	}, [selectedPreferences, step, setValue]);
+
 	useEffect(() => {
 		if (step === 'basicInfo' && !email) {
 			setError('Email is required. Please go back and verify your email.');
 		}
 	}, [step, email, setError]);
 
-	const handleBasicInfoNext = () => {
+	const handleBasicInfoNext = async () => {
 		const data = watch();
-		if (!data.firstName || !data.lastName || !data.password || !data.confirmPassword) {
-			setError('Please fill in all required fields');
+
+		// Validate all basic info fields
+		const isValid = await trigger(['firstName', 'lastName', 'password', 'confirmPassword']);
+
+		if (!isValid) {
+			// Get the first error message
+			const firstError =
+				errors.firstName?.message ||
+				errors.lastName?.message ||
+				errors.password?.message ||
+				errors.confirmPassword?.message;
+			setError(firstError || 'Please fill in all required fields correctly');
 			return;
 		}
+
+		// Additional check for password match (this is validated by the schema refine, but trigger it explicitly)
 		if (data.password !== data.confirmPassword) {
 			setError("Passwords don't match");
+			// Trigger validation on confirmPassword to show the error
+			await trigger('confirmPassword');
 			return;
 		}
+
 		setFormData((prev) => ({ ...prev, ...data }));
 		setError(null);
 		setStep('avatar');
@@ -95,12 +118,17 @@ export default function SignupPage() {
 		setStep('pin');
 	};
 
-	const handlePinNext = () => {
-		const pin = watch('loginPin');
-		if (!pin || pin.length !== 4) {
-			setError('Please enter a 4-digit PIN');
+	const handlePinNext = async () => {
+		// Validate PIN field
+		const isValid = await trigger('loginPin');
+
+		if (!isValid) {
+			const errorMessage = errors.loginPin?.message || 'Please enter a valid 4-digit PIN';
+			setError(errorMessage);
 			return;
 		}
+
+		const pin = watch('loginPin');
 		setFormData((prev) => ({ ...prev, loginPin: pin }));
 		setError(null);
 		setStep('preferences');
@@ -133,12 +161,14 @@ export default function SignupPage() {
 				{/* Decorative gradient overlay */}
 				<div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-primary-500/10 via-secondary-500/10 to-primary-400/5 rounded-full blur-3xl -z-0" />
 				<div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-secondary-500/10 to-transparent rounded-full blur-2xl -z-0" />
-				
+
 				<div className="text-center mb-6 relative z-10">
 					<h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">
 						Create Your Account
 					</h1>
-					<p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">Join Zaakiyah and start your journey</p>
+					<p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+						Join Zaakiyah and start your journey
+					</p>
 				</div>
 
 				<div className="relative z-10 mb-6">
@@ -152,7 +182,9 @@ export default function SignupPage() {
 							exit={{ opacity: 0 }}
 							className="mb-4 p-4 bg-gradient-to-r from-red-50 to-red-100 dark:from-red-900/30 dark:to-red-800/20 border-2 border-red-200 dark:border-red-800/30 rounded-xl relative z-10"
 						>
-							<p className="text-sm font-medium text-red-600 dark:text-red-400">{error}</p>
+							<p className="text-sm font-medium text-red-600 dark:text-red-400">
+								{error}
+							</p>
 						</motion.div>
 					)}
 				</AnimatePresence>
@@ -199,7 +231,9 @@ export default function SignupPage() {
 							<div>
 								<p className="text-base sm:text-sm text-slate-600 dark:text-slate-400 mb-8 sm:mb-6 text-center">
 									We've sent a 6-digit code to{' '}
-									<strong className="text-slate-900 dark:text-slate-100">{email}</strong>
+									<strong className="text-slate-900 dark:text-slate-100">
+										{email}
+									</strong>
 								</p>
 								<OtpInput
 									length={6}
@@ -432,7 +466,20 @@ export default function SignupPage() {
 							animate={{ opacity: 1, x: 0 }}
 							exit={{ opacity: 0, x: 20 }}
 							onSubmit={handleSubmit(onSubmit, (errors) => {
-								if (Object.keys(errors).length > 0) {
+								// Only show error for fields on this step
+								if (errors.preferences || errors.acceptTerms) {
+									if (errors.preferences) {
+										setError(
+											errors.preferences.message ||
+												'Please select at least one preference'
+										);
+									} else if (errors.acceptTerms) {
+										setError(
+											errors.acceptTerms.message ||
+												'You must accept the terms and conditions'
+										);
+									}
+								} else {
 									setError('Please fill in all required fields correctly');
 								}
 							})}
@@ -462,7 +509,9 @@ export default function SignupPage() {
 								}
 							/>
 							{errors.acceptTerms && (
-								<p className="text-sm text-error-600 dark:text-error-400">{errors.acceptTerms.message}</p>
+								<p className="text-sm text-error-600 dark:text-error-400">
+									{errors.acceptTerms.message}
+								</p>
 							)}
 
 							<div className="flex gap-4">
