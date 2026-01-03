@@ -92,9 +92,15 @@ api.interceptors.response.use(
 		}
 
 		// Don't try to refresh token on auth endpoints (login, signup, etc.)
+		// Also don't redirect for public endpoints (nisaab, currency, public calculation, recipients)
 		const isAuthEndpoint = originalRequest?.url?.includes('/auth/');
+		const isPublicEndpoint = 
+			originalRequest?.url?.includes('/nisaab/') ||
+			originalRequest?.url?.includes('/currency/') ||
+			originalRequest?.url?.includes('/wealth/calculate/public') ||
+			originalRequest?.url?.includes('/donations/recipients');
 		const shouldRefreshToken =
-			error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint;
+			error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint && !isPublicEndpoint;
 
 		if (shouldRefreshToken) {
 			originalRequest._retry = true;
@@ -112,19 +118,21 @@ api.interceptors.response.use(
 
 				return api(originalRequest);
 			} catch (refreshError) {
-				// Clear auth state and redirect to login
-				const store = useAuthStore.getState();
-				store.clearAuth();
-				localStorage.removeItem('auth-storage');
-				localStorage.removeItem('accessToken');
-				try {
-					deviceService.clearDeviceInfo();
-				} catch (e) {
-					// Ignore errors
-				}
-				// Only redirect if not already on login page
-				if (!window.location.pathname.includes('/login')) {
-					window.location.replace('/login');
+				// Clear auth state and redirect to login (but not for public endpoints)
+				if (!isPublicEndpoint) {
+					const store = useAuthStore.getState();
+					store.clearAuth();
+					localStorage.removeItem('auth-storage');
+					localStorage.removeItem('accessToken');
+					try {
+						deviceService.clearDeviceInfo();
+					} catch (e) {
+						// Ignore errors
+					}
+					// Only redirect if not already on login page
+					if (!window.location.pathname.includes('/login')) {
+						window.location.replace('/login');
+					}
 				}
 				return Promise.reject(refreshError);
 			}
