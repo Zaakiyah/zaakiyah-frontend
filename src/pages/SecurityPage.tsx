@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { twoFactorService, TwoFactorMethod } from '../services/twoFactorService';
-import BottomNavigation from '../components/layout/BottomNavigation';
 import PageHeader from '../components/layout/PageHeader';
 import { useTheme } from '../hooks/useTheme';
 import { alert } from '../store/alertStore';
@@ -269,8 +268,6 @@ export default function SecurityPage() {
 					</Button>
 				</motion.div>
 			</main>
-
-			<BottomNavigation />
 
 			{/* Change Password Sheet */}
 			<ChangePasswordSheet

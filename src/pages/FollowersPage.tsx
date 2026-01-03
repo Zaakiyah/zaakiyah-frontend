@@ -4,7 +4,6 @@ import { useTheme } from '../hooks/useTheme';
 import { useAuthStore } from '../store/authStore';
 import { communityService } from '../services/communityService';
 import { logger } from '../utils/logger';
-import BottomNavigation from '../components/layout/BottomNavigation';
 import FollowButton from '../components/community/FollowButton';
 import LoadingSkeleton from '../components/wealth/LoadingSkeleton';
 import EmptyState from '../components/wealth/EmptyState';
@@ -186,9 +185,6 @@ export default function FollowersPage() {
 					</div>
 				)}
 			</main>
-
-			{/* Bottom Navigation */}
-			<BottomNavigation />
 		</div>
 	);
 }

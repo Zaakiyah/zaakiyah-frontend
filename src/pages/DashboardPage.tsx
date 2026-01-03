@@ -19,7 +19,6 @@ import { currencyService } from '../services/currencyService';
 import { communityService } from '../services/communityService';
 import { formatDistanceToNow } from 'date-fns';
 import PostPreviewCard from '../components/dashboard/PostPreviewCard';
-import BottomNavigation from '../components/layout/BottomNavigation';
 import NotificationIcon from '../components/ui/NotificationIcon';
 import Avatar from '../components/ui/Avatar';
 import { WEBSITE_PAGES } from '../config/website';
@@ -1205,8 +1204,6 @@ export default function DashboardPage() {
 				</motion.div>
 			</main>
 
-			{/* Bottom Navigation */}
-			<BottomNavigation />
 		</div>
 	);
 }

@@ -14,7 +14,6 @@ import {
 	CheckIcon,
 } from '@heroicons/react/24/outline';
 import PageHeader from '../components/layout/PageHeader';
-import BottomNavigation from '../components/layout/BottomNavigation';
 import DateRangePicker from '../components/ui/DateRangePicker';
 import { useAuthStore } from '../store/authStore';
 import { useCurrencyStore } from '../store/currencyStore';
@@ -999,8 +998,6 @@ export default function NisaabHistoryPage() {
 					)
 				)}
 			</main>
-
-			<BottomNavigation />
 		</div>
 	);
 }

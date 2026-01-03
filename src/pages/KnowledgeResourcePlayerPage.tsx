@@ -4,7 +4,6 @@ import { useTheme } from '../hooks/useTheme';
 import { communityService } from '../services/communityService';
 import { alert } from '../store/alertStore';
 import { logger } from '../utils/logger';
-import BottomNavigation from '../components/layout/BottomNavigation';
 import LoadingSkeleton from '../components/wealth/LoadingSkeleton';
 import EmptyState from '../components/wealth/EmptyState';
 import { ArrowLeftIcon, HeartIcon, EyeIcon, ClockIcon } from '@heroicons/react/24/outline';
@@ -430,9 +429,6 @@ export default function KnowledgeResourcePlayerPage() {
 					</button>
 				</div>
 			</main>
-
-			{/* Bottom Navigation */}
-			<BottomNavigation />
 		</div>
 	);
 }

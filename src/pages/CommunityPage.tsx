@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../hooks/useTheme';
-import BottomNavigation from '../components/layout/BottomNavigation';
 import NotificationIcon from '../components/ui/NotificationIcon';
 import { PlusIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import CommunityFeed from '../components/community/CommunityFeed';
@@ -155,9 +154,6 @@ export default function CommunityPage() {
 					</motion.div>
 				)}
 			</main>
-
-			{/* Bottom Navigation */}
-			<BottomNavigation />
 		</div>
 	);
 }

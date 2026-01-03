@@ -10,7 +10,6 @@ import {
 } from '@heroicons/react/24/outline';
 import { CheckCircleIcon as CheckCircleIconSolid } from '@heroicons/react/24/solid';
 import PageHeader from '../../components/layout/PageHeader';
-import BottomNavigation from '../../components/layout/BottomNavigation';
 import ConfirmDialog from '../../components/ui/ConfirmDialog';
 import { useTheme } from '../../hooks/useTheme';
 import { zakaatService } from '../../services/zakaatService';
@@ -302,8 +301,6 @@ export default function ZakaatApplicationPage() {
 					</div>
 				)}
 			</main>
-
-			<BottomNavigation />
 
 			{/* Withdraw Confirmation Dialog */}
 			<ConfirmDialog

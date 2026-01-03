@@ -6,7 +6,6 @@ import { alert } from '../../../store/alertStore';
 import { logger } from '../../../utils/logger';
 import Modal from '../../../components/ui/Modal';
 import Loader from '../../../components/ui/Loader';
-import BottomNavigation from '../../../components/layout/BottomNavigation';
 import {
 	ArrowLeftIcon,
 	MagnifyingGlassIcon,
@@ -429,9 +428,6 @@ export default function DonationHistoryPage() {
 					</div>
 				</Modal>
 			)}
-
-			{/* Bottom Navigation */}
-			<BottomNavigation />
 		</div>
 	);
 }

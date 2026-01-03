@@ -1,6 +1,5 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTheme } from '../../../hooks/useTheme';
-import BottomNavigation from '../../../components/layout/BottomNavigation';
 import {
 	CheckCircleIcon,
 } from '@heroicons/react/24/solid';
@@ -57,9 +56,6 @@ export default function DonationSuccessPage() {
 					</div>
 				</div>
 			</div>
-			
-			{/* Bottom Navigation */}
-			<BottomNavigation />
 		</div>
 	);
 }

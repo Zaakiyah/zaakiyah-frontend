@@ -154,8 +154,11 @@ export default function DateRangePicker({
 	];
 
 	const handleDateSelect = (day: number) => {
-		const date = new Date(currentMonth.year, currentMonth.month, day);
-		const dateString = date.toISOString().split('T')[0];
+		// Format date string directly to avoid timezone issues
+		const year = currentMonth.year;
+		const month = String(currentMonth.month + 1).padStart(2, '0');
+		const dayStr = String(day).padStart(2, '0');
+		const dateString = `${year}-${month}-${dayStr}`;
 
 		// Check constraints
 		if (maxDate && dateString > maxDate) return;
@@ -188,30 +191,33 @@ export default function DateRangePicker({
 		}
 	};
 
+	const formatDateString = (day: number): string => {
+		const year = currentMonth.year;
+		const month = String(currentMonth.month + 1).padStart(2, '0');
+		const dayStr = String(day).padStart(2, '0');
+		return `${year}-${month}-${dayStr}`;
+	};
+
 	const isDateInRange = (day: number): boolean => {
 		if (!startDate || !endDate) return false;
-		const date = new Date(currentMonth.year, currentMonth.month, day);
-		const dateString = date.toISOString().split('T')[0];
+		const dateString = formatDateString(day);
 		return dateString >= startDate && dateString <= endDate;
 	};
 
 	const isDateStart = (day: number): boolean => {
 		if (!startDate) return false;
-		const date = new Date(currentMonth.year, currentMonth.month, day);
-		const dateString = date.toISOString().split('T')[0];
+		const dateString = formatDateString(day);
 		return dateString === startDate;
 	};
 
 	const isDateEnd = (day: number): boolean => {
 		if (!endDate) return false;
-		const date = new Date(currentMonth.year, currentMonth.month, day);
-		const dateString = date.toISOString().split('T')[0];
+		const dateString = formatDateString(day);
 		return dateString === endDate;
 	};
 
 	const isDateDisabled = (day: number): boolean => {
-		const date = new Date(currentMonth.year, currentMonth.month, day);
-		const dateString = date.toISOString().split('T')[0];
+		const dateString = formatDateString(day);
 
 		if (maxDate && dateString > maxDate) return true;
 		if (minDate && dateString < minDate) return true;

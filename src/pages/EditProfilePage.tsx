@@ -7,7 +7,6 @@ import { z } from 'zod';
 import { useAuthStore } from '../store/authStore';
 import { authService } from '../services/authService';
 import PageHeader from '../components/layout/PageHeader';
-import BottomNavigation from '../components/layout/BottomNavigation';
 import { useTheme } from '../hooks/useTheme';
 import { useScrollToError } from '../hooks/useScrollToError';
 import Input from '../components/ui/Input';
@@ -145,7 +144,6 @@ export default function EditProfilePage() {
 						))}
 					</div>
 				</main>
-				<BottomNavigation />
 			</div>
 		);
 	}
@@ -232,8 +230,6 @@ export default function EditProfilePage() {
 					</form>
 				</motion.div>
 			</main>
-
-			<BottomNavigation />
 		</div>
 	);
 }
