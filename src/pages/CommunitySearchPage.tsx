@@ -3,7 +3,6 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useTheme } from '../hooks/useTheme';
 import { communityService } from '../services/communityService';
 import { logger } from '../utils/logger';
-import BottomNavigation from '../components/layout/BottomNavigation';
 import PostCard from '../components/community/PostCard';
 import CommentCard from '../components/community/CommentCard';
 import CommentBottomSheet from '../components/community/CommentBottomSheet';
@@ -361,9 +360,6 @@ export default function CommunitySearchPage() {
 					onCommentAdded={handleCommentAdded}
 				/>
 			)}
-
-			{/* Bottom Navigation */}
-			<BottomNavigation />
 		</div>
 	);
 }

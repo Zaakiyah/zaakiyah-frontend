@@ -5,7 +5,6 @@ import { useTheme } from '../hooks/useTheme';
 import { useAuthStore } from '../store/authStore';
 import { communityService } from '../services/communityService';
 import { logger } from '../utils/logger';
-import BottomNavigation from '../components/layout/BottomNavigation';
 import PostCard from '../components/community/PostCard';
 import CommentCard from '../components/community/CommentCard';
 import CommentBottomSheet from '../components/community/CommentBottomSheet';
@@ -486,8 +485,6 @@ export default function MemberProfilePage() {
 				/>
 			)}
 
-			{/* Bottom Navigation */}
-			<BottomNavigation />
 		</div>
 	);
 }

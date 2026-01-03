@@ -1,5 +1,5 @@
 import { Routes, Route, useLocation } from 'react-router-dom';
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useMemo } from 'react';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import AuthRoute from './components/auth/AuthRoute';
 import RootRedirect from './components/auth/RootRedirect';
@@ -10,6 +10,7 @@ import ThemeProvider from './components/layout/ThemeProvider';
 import AlertProvider from './components/layout/AlertProvider';
 import InstallPrompt from './components/layout/InstallPrompt';
 import ServiceWorkerUpdate from './components/layout/ServiceWorkerUpdate';
+import BottomNavigation from './components/layout/BottomNavigation';
 import ErrorBoundary from './components/ErrorBoundary';
 import LoadingSkeleton from './components/wealth/LoadingSkeleton';
 
@@ -63,6 +64,23 @@ function App() {
 	const isChatOpen = useAiChatStore((state) => state.isOpen);
 	const closeChat = useAiChatStore((state) => state.closeChat);
 	const location = useLocation();
+
+	// Determine if bottom navigation should be shown
+	// Hide on auth pages, onboarding, OAuth callback, and pages with fixed bottom elements
+	const shouldShowBottomNav = useMemo(() => {
+		const path = location.pathname;
+		const hiddenPaths = [
+			'/login',
+			'/signup',
+			'/forgot-password',
+			'/reset-password',
+			'/auth/callback',
+			'/onboarding',
+		];
+		// Also hide on PostEditorPage and PostDetailPage (they have fixed bottom elements)
+		const hasFixedBottom = path.startsWith('/community/posts/');
+		return !hiddenPaths.some((hiddenPath) => path.startsWith(hiddenPath)) && !hasFixedBottom;
+	}, [location.pathname]);
 
 	return (
 		<ErrorBoundary>
@@ -187,9 +205,15 @@ function App() {
 						/>
 						{/* Zakaat Donation Routes */}
 						{/* Public: Browse recipients */}
-						<Route path="/zakaat/donation/recipients" element={<ZakaatRecipientsPage />} />
+						<Route
+							path="/zakaat/donation/recipients"
+							element={<ZakaatRecipientsPage />}
+						/>
 						{/* Public: View recipient details (browsing) */}
-						<Route path="/zakaat/donation/recipients/:id" element={<RecipientDetailPage />} />
+						<Route
+							path="/zakaat/donation/recipients/:id"
+							element={<RecipientDetailPage />}
+						/>
 						<Route
 							path="/zakaat/donation/basket"
 							element={
@@ -379,6 +403,8 @@ function App() {
 						/>
 					</Routes>
 				</Suspense>
+				{/* Global Bottom Navigation - shown on all pages except auth/onboarding */}
+				{shouldShowBottomNav && <BottomNavigation />}
 			</ThemeProvider>
 		</ErrorBoundary>
 	);

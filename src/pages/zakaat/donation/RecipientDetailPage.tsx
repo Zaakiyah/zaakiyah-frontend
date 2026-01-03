@@ -9,7 +9,6 @@ import { logger } from '../../../utils/logger';
 import Avatar from '../../../components/ui/Avatar';
 import Loader from '../../../components/ui/Loader';
 import ProgressTracker from '../../../components/zakaat/donation/ProgressTracker';
-import BottomNavigation from '../../../components/layout/BottomNavigation';
 import {
 	ArrowLeftIcon,
 	HeartIcon,
@@ -360,9 +359,6 @@ export default function RecipientDetailPage() {
 					</div>
 				</div>
 			</div>
-
-			{/* Bottom Navigation */}
-			<BottomNavigation />
 
 			{/* Document Viewer Modal */}
 			{showDocumentViewer && selectedDocument && (

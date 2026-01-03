@@ -7,7 +7,6 @@ import { communityService } from '../services/communityService';
 import { alert } from '../store/alertStore';
 import { logger } from '../utils/logger';
 import PageHeader from '../components/layout/PageHeader';
-import BottomNavigation from '../components/layout/BottomNavigation';
 import Loader from '../components/ui/Loader';
 import {
 	BugAntIcon,
@@ -600,8 +599,6 @@ export default function BugReportPage() {
 					</motion.div>
 				</form>
 			</main>
-
-			<BottomNavigation />
 		</div>
 	);
 }

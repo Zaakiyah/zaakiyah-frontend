@@ -5,7 +5,6 @@ import { useDonationStore } from '../../../store/donationStore';
 import { useAuthStore } from '../../../store/authStore';
 import { donationService } from '../../../services/donationService';
 import { alert } from '../../../store/alertStore';
-import BottomNavigation from '../../../components/layout/BottomNavigation';
 import RecipientCard from '../../../components/zakaat/donation/RecipientCard';
 import {
 	MagnifyingGlassIcon,
@@ -234,9 +233,6 @@ export default function ZakaatRecipientsPage() {
 					</div>
 				</div>
 			)}
-
-			{/* Bottom Navigation */}
-			<BottomNavigation />
 		</div>
 	);
 }

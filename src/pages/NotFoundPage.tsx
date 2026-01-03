@@ -3,7 +3,6 @@ import { HomeIcon, ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { motion } from 'framer-motion';
 import { useTheme } from '../hooks/useTheme';
 import PageHeader from '../components/layout/PageHeader';
-import BottomNavigation from '../components/layout/BottomNavigation';
 
 export default function NotFoundPage() {
 	useTheme();
@@ -58,8 +57,6 @@ export default function NotFoundPage() {
 					</div>
 				</motion.div>
 			</main>
-
-			<BottomNavigation />
 		</div>
 	);
 }

@@ -6,7 +6,6 @@ import { useTheme } from '../hooks/useTheme';
 import { authService } from '../services/authService';
 import { deviceService } from '../services/deviceService';
 import { appService } from '../services/appService';
-import BottomNavigation from '../components/layout/BottomNavigation';
 import EditProfileSheet from '../components/profile/EditProfileSheet';
 import AvatarEditSheet from '../components/profile/AvatarEditSheet';
 import ConfirmDialog from '../components/ui/ConfirmDialog';
@@ -340,9 +339,6 @@ export default function ProfilePage() {
 					<p className="text-xs text-slate-400 dark:text-slate-500">Zaakiyah v{appVersion}</p>
 				</div>
 			</main>
-
-			{/* Bottom Navigation */}
-			<BottomNavigation />
 
 			{/* Edit Profile Sheet */}
 			<EditProfileSheet isOpen={isEditSheetOpen} onClose={() => setIsEditSheetOpen(false)} />

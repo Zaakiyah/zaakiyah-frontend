@@ -19,7 +19,6 @@ import {
 } from '@heroicons/react/24/outline';
 import { CheckIcon as CheckIconSolid } from '@heroicons/react/24/solid';
 import PageHeader from '../components/layout/PageHeader';
-import BottomNavigation from '../components/layout/BottomNavigation';
 import { useTheme } from '../hooks/useTheme';
 import { notificationService, type Notification } from '../services/notificationService';
 import { alert } from '../store/alertStore';
@@ -575,8 +574,6 @@ export default function NotificationsPage() {
 					</>
 				)}
 			</main>
-
-			<BottomNavigation />
 		</div>
 	);
 }

@@ -6,7 +6,6 @@ import { useCurrencyStore } from '../store/currencyStore';
 import { wealthCalculationService } from '../services/wealthCalculationService';
 import { alert } from '../store/alertStore';
 import { logger } from '../utils/logger';
-import BottomNavigation from '../components/layout/BottomNavigation';
 import ConfirmDialog from '../components/ui/ConfirmDialog';
 import LoadingSkeleton from '../components/wealth/LoadingSkeleton';
 import EmptyState from '../components/wealth/EmptyState';
@@ -417,8 +416,6 @@ export default function CalculationsPage() {
 				confirmText="Delete"
 				confirmVariant="danger"
 			/>
-
-			<BottomNavigation />
 		</div>
 	);
 }

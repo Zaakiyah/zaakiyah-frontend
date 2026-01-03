@@ -4,7 +4,6 @@ import { useAuthStore } from '../store/authStore';
 import { useCurrencyStore } from '../store/currencyStore';
 import { useTheme } from '../hooks/useTheme';
 import { authService } from '../services/authService';
-import BottomNavigation from '../components/layout/BottomNavigation';
 import PageHeader from '../components/layout/PageHeader';
 import CurrencySelector from '../components/ui/CurrencySelector';
 import { CurrencyDollarIcon, BellIcon, LanguageIcon, MoonIcon } from '@heroicons/react/24/outline';
@@ -173,8 +172,6 @@ export default function SettingsPage() {
 					<ThemeSelector />
 				</motion.div>
 			</main>
-
-			<BottomNavigation />
 		</div>
 	);
 }

@@ -6,7 +6,6 @@ import { useCurrencyStore } from '../store/currencyStore';
 import { wealthCalculationService } from '../services/wealthCalculationService';
 import { alert } from '../store/alertStore';
 import { logger } from '../utils/logger';
-import BottomNavigation from '../components/layout/BottomNavigation';
 import Button from '../components/ui/Button';
 import LoadingSkeleton from '../components/wealth/LoadingSkeleton';
 import CurrencyDisplay from '../components/wealth/CurrencyDisplay';
@@ -402,8 +401,6 @@ export default function CalculationDetailsPage() {
 					</Button>
 				</motion.div>
 			</main>
-
-			<BottomNavigation />
 		</div>
 	);
 }
