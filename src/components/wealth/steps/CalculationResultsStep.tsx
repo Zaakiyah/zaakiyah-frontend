@@ -12,6 +12,8 @@ import {
 import Button from '../../ui/Button';
 import { useWealthCalculationStore } from '../../../store/wealthCalculationStore';
 import { useCurrencyStore } from '../../../store/currencyStore';
+import { useAuthStore } from '../../../store/authStore';
+import { useNavigate } from 'react-router-dom';
 import { formatCurrency } from '../../../utils/currency';
 
 interface CalculationResultsStepProps {
@@ -22,6 +24,17 @@ interface CalculationResultsStepProps {
 export default function CalculationResultsStep({ onNext, onBack }: CalculationResultsStepProps) {
 	const { calculationResult, formState } = useWealthCalculationStore();
 	const { preferredCurrency } = useCurrencyStore();
+	const { isAuthenticated } = useAuthStore();
+	const navigate = useNavigate();
+
+	const handleSaveClick = () => {
+		if (!isAuthenticated) {
+			// Redirect to signup with return URL
+			navigate('/signup', { state: { returnTo: '/calculate', message: 'Sign up to save your calculation and track your Zakaat' } });
+		} else {
+			onNext();
+		}
+	};
 
 	if (!calculationResult) {
 		return (
@@ -314,13 +327,40 @@ export default function CalculationResultsStep({ onNext, onBack }: CalculationRe
 				</div>
 			)}
 
+			{/* Save Prompt for Guest Users */}
+			{!isAuthenticated && (
+				<motion.div
+					initial={{ opacity: 0, y: 10 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ delay: 0.4 }}
+					className="relative overflow-hidden p-5 bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/30 dark:to-primary-800/20 rounded-2xl border-2 border-primary-200/50 dark:border-primary-800/50 shadow-sm"
+				>
+					<div className="absolute top-0 right-0 w-24 h-24 bg-primary-200/20 dark:bg-primary-800/20 rounded-full blur-2xl -mr-12 -mt-12" />
+					<div className="relative flex items-start gap-3">
+						<InformationCircleIcon className="w-5 h-5 text-primary-600 dark:text-primary-400 flex-shrink-0 mt-0.5" />
+						<div className="flex-1">
+							<p className="text-sm font-semibold text-primary-900 dark:text-primary-100 mb-1">
+								Sign up to save your calculation
+							</p>
+							<p className="text-sm text-primary-800 dark:text-primary-200 leading-relaxed">
+								Create a free account to save this calculation, track your Zakaat over time, and receive personalized reminders.
+							</p>
+						</div>
+					</div>
+				</motion.div>
+			)}
+
 			{/* Navigation */}
 			<div className="flex gap-3 pt-4">
 				<Button variant="outline" onClick={onBack} className="flex-1">
 					Back
 				</Button>
-				<Button variant="primary" onClick={onNext} className="flex-1">
-					{meetsNisaab ? 'Save & Set Reminders' : 'Save Calculation'}
+				<Button variant="primary" onClick={handleSaveClick} className="flex-1">
+					{isAuthenticated
+						? meetsNisaab
+							? 'Save & Set Reminders'
+							: 'Save Calculation'
+						: 'Sign Up to Save'}
 				</Button>
 			</div>
 		</motion.div>

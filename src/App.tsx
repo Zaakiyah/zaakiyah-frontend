@@ -186,22 +186,10 @@ function App() {
 							}
 						/>
 						{/* Zakaat Donation Routes */}
-						<Route
-							path="/zakaat/donation/recipients"
-							element={
-								<ProtectedRoute>
-									<ZakaatRecipientsPage />
-								</ProtectedRoute>
-							}
-						/>
-						<Route
-							path="/zakaat/donation/recipients/:id"
-							element={
-								<ProtectedRoute>
-									<RecipientDetailPage />
-								</ProtectedRoute>
-							}
-						/>
+						{/* Public: Browse recipients */}
+						<Route path="/zakaat/donation/recipients" element={<ZakaatRecipientsPage />} />
+						{/* Public: View recipient details (browsing) */}
+						<Route path="/zakaat/donation/recipients/:id" element={<RecipientDetailPage />} />
 						<Route
 							path="/zakaat/donation/basket"
 							element={
@@ -330,14 +318,7 @@ function App() {
 								</ProtectedRoute>
 							}
 						/>
-						<Route
-							path="/nisaab/history"
-							element={
-								<ProtectedRoute>
-									<NisaabHistoryPage />
-								</ProtectedRoute>
-							}
-						/>
+						<Route path="/nisaab/history" element={<NisaabHistoryPage />} />
 						<Route
 							path="/notifications"
 							element={
@@ -370,14 +351,7 @@ function App() {
 								</ProtectedRoute>
 							}
 						/>
-						<Route
-							path="/calculate"
-							element={
-								<ProtectedRoute>
-									<WealthCalculationPage />
-								</ProtectedRoute>
-							}
-						/>
+						<Route path="/calculate" element={<WealthCalculationPage />} />
 						<Route
 							path="/calculations"
 							element={

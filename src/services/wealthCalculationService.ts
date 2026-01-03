@@ -92,6 +92,70 @@ export const wealthCalculationService = {
 	},
 
 	/**
+	 * Calculate wealth publicly (no saving, for guest users)
+	 */
+	async calculatePublic(
+		calculation: Omit<WealthCalculation, 'id' | 'createdAt' | 'updatedAt'>
+	): Promise<ApiResponse<WealthCalculation>> {
+		try {
+			// Helper function to sanitize numeric values
+			const sanitizeNumber = (value: any): number => {
+				const num = typeof value === 'number' ? value : Number(value);
+				return isNaN(num) || num < 0 ? 0 : num;
+			};
+
+			// Sanitize assets: ensure amounts are valid numbers >= 0
+			const sanitizedAssets = calculation.assets.map((asset: any) => ({
+				...asset,
+				amount: sanitizeNumber(asset.amount),
+				convertedAmount:
+					asset.convertedAmount !== undefined
+						? sanitizeNumber(asset.convertedAmount)
+						: undefined,
+				weight: asset.weight !== undefined ? sanitizeNumber(asset.weight) : undefined,
+				pricePerGram:
+					asset.pricePerGram !== undefined
+						? sanitizeNumber(asset.pricePerGram)
+						: undefined,
+				count:
+					asset.count !== undefined
+						? Math.max(0, Math.floor(sanitizeNumber(asset.count)))
+						: undefined,
+			}));
+
+			// Sanitize liabilities: ensure amounts are valid numbers >= 0
+			const sanitizedLiabilities = calculation.liabilities.map((liability: any) => ({
+				...liability,
+				amount: sanitizeNumber(liability.amount),
+				convertedAmount:
+					liability.convertedAmount !== undefined
+						? sanitizeNumber(liability.convertedAmount)
+						: undefined,
+			}));
+
+			const response = await api.post<ApiResponse<WealthCalculation>>(
+				'/wealth/calculate/public',
+				{
+					assets: sanitizedAssets,
+					liabilities: sanitizedLiabilities,
+					nisaabBase: calculation.nisaabBase,
+					name: calculation.name,
+				},
+				{
+					params: {
+						currency: calculation.currency,
+					},
+				}
+			);
+
+			return response.data;
+		} catch (error: any) {
+			logger.error('Error calculating (public):', error);
+			throw error;
+		}
+	},
+
+	/**
 	 * Save calculation with preferences
 	 */
 	async saveCalculation(

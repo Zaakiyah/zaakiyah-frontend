@@ -19,9 +19,11 @@ import DateRangePicker from '../components/ui/DateRangePicker';
 import { useAuthStore } from '../store/authStore';
 import { useCurrencyStore } from '../store/currencyStore';
 import { useTheme } from '../hooks/useTheme';
+import { useNavigate } from 'react-router-dom';
 import { alert } from '../store/alertStore';
 import { nisaabService, type NisaabData } from '../services/nisaabService';
 import { formatCurrency } from '../utils/currency';
+import { InformationCircleIcon } from '@heroicons/react/24/outline';
 
 interface Filters {
 	month: string;
@@ -29,8 +31,9 @@ interface Filters {
 }
 
 export default function NisaabHistoryPage() {
-	const { user } = useAuthStore();
+	const { user, isAuthenticated } = useAuthStore();
 	const { preferredCurrency, syncWithUserProfile, fetchSupportedCurrencies } = useCurrencyStore();
+	const navigate = useNavigate();
 	useTheme();
 	const [history, setHistory] = useState<NisaabData[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
@@ -664,6 +667,34 @@ export default function NisaabHistoryPage() {
 			/>
 
 			<main className="px-4 py-4">
+				{/* Sign Up Prompt for Guest Users */}
+				{!isAuthenticated && (
+					<motion.div
+						initial={{ opacity: 0, y: -10 }}
+						animate={{ opacity: 1, y: 0 }}
+						className="mb-4 relative overflow-hidden p-5 bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/30 dark:to-primary-800/20 rounded-2xl border-2 border-primary-200/50 dark:border-primary-800/50 shadow-sm"
+					>
+						<div className="absolute top-0 right-0 w-24 h-24 bg-primary-200/20 dark:bg-primary-800/20 rounded-full blur-2xl -mr-12 -mt-12" />
+						<div className="relative flex items-start gap-3">
+							<InformationCircleIcon className="w-5 h-5 text-primary-600 dark:text-primary-400 flex-shrink-0 mt-0.5" />
+							<div className="flex-1">
+								<p className="text-sm font-semibold text-primary-900 dark:text-primary-100 mb-1">
+									Get personalized Nisaab updates
+								</p>
+								<p className="text-sm text-primary-800 dark:text-primary-200 leading-relaxed mb-3">
+									Sign up for free to receive notifications when Nisaab values change and track your Zakaat calculations.
+								</p>
+								<button
+									onClick={() => navigate('/signup', { state: { returnTo: '/nisaab/history', message: 'Sign up to get personalized Nisaab updates' } })}
+									className="px-4 py-2 bg-primary-600 dark:bg-primary-500 text-white text-sm font-semibold rounded-xl hover:bg-primary-700 dark:hover:bg-primary-600 transition-colors active:scale-95"
+								>
+									Sign Up Free
+								</button>
+							</div>
+						</div>
+					</motion.div>
+				)}
+
 				{/* Hero Stats Section */}
 				{stats && !searchResult && (
 					<motion.div
