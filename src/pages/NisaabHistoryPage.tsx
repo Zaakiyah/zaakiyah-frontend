@@ -15,6 +15,7 @@ import {
 } from '@heroicons/react/24/outline';
 import PageHeader from '../components/layout/PageHeader';
 import DateRangePicker from '../components/ui/DateRangePicker';
+import CurrencySelector from '../components/ui/CurrencySelector';
 import { useAuthStore } from '../store/authStore';
 import { useCurrencyStore } from '../store/currencyStore';
 import { useTheme } from '../hooks/useTheme';
@@ -31,7 +32,7 @@ interface Filters {
 
 export default function NisaabHistoryPage() {
 	const { user, isAuthenticated } = useAuthStore();
-	const { preferredCurrency, syncWithUserProfile, fetchSupportedCurrencies } = useCurrencyStore();
+	const { preferredCurrency, syncWithUserProfile, fetchSupportedCurrencies, supportedCurrencies } = useCurrencyStore();
 	const navigate = useNavigate();
 	useTheme();
 	const [history, setHistory] = useState<NisaabData[]>([]);
@@ -52,6 +53,15 @@ export default function NisaabHistoryPage() {
 	const [copiedValue, setCopiedValue] = useState<string | null>(null);
 	const observerTarget = useRef<HTMLDivElement>(null);
 	const isFetchingRef = useRef(false);
+	
+	// Local currency state for this page (works for both authenticated and guest users)
+	const [selectedCurrency, setSelectedCurrency] = useState<string>(() => {
+		// Try to get from localStorage first (for guest users)
+		const savedCurrency = localStorage.getItem('zaakiyah-nisaab-history-currency');
+		if (savedCurrency) return savedCurrency;
+		// Fall back to preferredCurrency or user's preferredCurrency
+		return preferredCurrency || user?.preferredCurrency || 'USD';
+	});
 
 	const fetchHistory = useCallback(
 		async (page: number, reset = false) => {
@@ -65,7 +75,7 @@ export default function NisaabHistoryPage() {
 			}
 
 			try {
-				const currency = preferredCurrency || user?.preferredCurrency || 'USD';
+				const currency = selectedCurrency || preferredCurrency || user?.preferredCurrency || 'USD';
 				const response = await nisaabService.getNisaabHistory(
 					page,
 					30,
@@ -94,14 +104,34 @@ export default function NisaabHistoryPage() {
 				isFetchingRef.current = false;
 			}
 		},
-		[preferredCurrency, user?.preferredCurrency, startDate, endDate]
+		[selectedCurrency, preferredCurrency, user?.preferredCurrency, startDate, endDate]
 	);
 
-	// Sync currency with user profile on mount
+	// Sync currency with user profile on mount (for authenticated users)
 	useEffect(() => {
-		syncWithUserProfile();
+		if (isAuthenticated) {
+			syncWithUserProfile();
+		}
 		fetchSupportedCurrencies();
-	}, [syncWithUserProfile, fetchSupportedCurrencies]);
+	}, [syncWithUserProfile, fetchSupportedCurrencies, isAuthenticated]);
+
+	// Initialize currency from user profile or localStorage
+	useEffect(() => {
+		if (isAuthenticated && preferredCurrency && !localStorage.getItem('zaakiyah-nisaab-history-currency')) {
+			setSelectedCurrency(preferredCurrency);
+		}
+	}, [isAuthenticated, preferredCurrency]);
+
+	// Handle currency change
+	const handleCurrencyChange = (currency: string) => {
+		setSelectedCurrency(currency);
+		// Save to localStorage for guest users
+		localStorage.setItem('zaakiyah-nisaab-history-currency', currency);
+		// For authenticated users, also update the store (optional - can be removed if you want page-specific currency)
+		if (isAuthenticated) {
+			// Optionally update user's preferred currency
+		}
+	};
 
 	// Refetch history when currency changes
 	useEffect(() => {
@@ -112,7 +142,7 @@ export default function NisaabHistoryPage() {
 		if (searchResult && (startDate || endDate)) {
 			const refetchSearchResult = async () => {
 				try {
-					const currency = preferredCurrency || user?.preferredCurrency || 'USD';
+					const currency = selectedCurrency || preferredCurrency || user?.preferredCurrency || 'USD';
 					// If both dates are the same, search for that specific date
 					if (startDate && endDate && startDate === endDate) {
 						const response = await nisaabService.getNisaabByDate(startDate, currency);
@@ -131,7 +161,7 @@ export default function NisaabHistoryPage() {
 			fetchHistory(1, true);
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [preferredCurrency, user?.preferredCurrency]);
+	}, [selectedCurrency, preferredCurrency, user?.preferredCurrency]);
 
 	useEffect(() => {
 		// Check if there's a date parameter in the URL (for backward compatibility)
@@ -145,7 +175,7 @@ export default function NisaabHistoryPage() {
 				setSearchResult(null);
 
 				try {
-					const currency = preferredCurrency || user?.preferredCurrency || 'USD';
+					const currency = selectedCurrency || preferredCurrency || user?.preferredCurrency || 'USD';
 					const response = await nisaabService.getNisaabByDate(urlDate, currency);
 					if (response.data) {
 						setSearchResult(response.data);
@@ -162,7 +192,7 @@ export default function NisaabHistoryPage() {
 		} else {
 			fetchHistory(1, true);
 		}
-	}, [fetchHistory, searchParams, preferredCurrency, user?.preferredCurrency]);
+	}, [fetchHistory, searchParams, selectedCurrency, preferredCurrency, user?.preferredCurrency]);
 
 	// Infinite scroll observer
 	useEffect(() => {
@@ -652,16 +682,27 @@ export default function NisaabHistoryPage() {
 				title="Nisaab History"
 				showBack
 				rightAction={
-					<button
-						onClick={() => setShowFilters(!showFilters)}
-						className={`p-1.5 rounded-lg transition-all active:scale-95 ${
-							hasActiveFilters
-								? 'bg-primary-100 text-primary-600'
-								: 'hover:bg-slate-100 text-slate-700'
-						}`}
-					>
-						<FunnelIcon className="w-5 h-5" />
-					</button>
+					<div className="flex items-center gap-2">
+						{supportedCurrencies.length > 0 && (
+							<div className="hidden sm:block">
+								<CurrencySelector
+									value={selectedCurrency}
+									onChange={handleCurrencyChange}
+									className="min-w-[100px]"
+								/>
+							</div>
+						)}
+						<button
+							onClick={() => setShowFilters(!showFilters)}
+							className={`p-1.5 rounded-lg transition-all active:scale-95 ${
+								hasActiveFilters
+									? 'bg-primary-100 text-primary-600'
+									: 'hover:bg-slate-100 text-slate-700'
+							}`}
+						>
+							<FunnelIcon className="w-5 h-5" />
+						</button>
+					</div>
 				}
 			/>
 
@@ -740,6 +781,22 @@ export default function NisaabHistoryPage() {
 							</div>
 						</div>
 					</motion.div>
+				)}
+
+				{/* Currency Selector for Mobile */}
+				{supportedCurrencies.length > 0 && (
+					<div className="mb-4 sm:hidden">
+						<div className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl p-4 shadow-lg border-2 border-slate-200/60 dark:border-slate-700/60">
+							<label className="block text-sm font-semibold text-slate-900 dark:text-slate-100 mb-2">
+								Currency
+							</label>
+							<CurrencySelector
+								value={selectedCurrency}
+								onChange={handleCurrencyChange}
+								className="w-full"
+							/>
+						</div>
+					</div>
 				)}
 
 				{/* Date Range Filter */}
