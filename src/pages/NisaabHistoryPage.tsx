@@ -32,7 +32,12 @@ interface Filters {
 
 export default function NisaabHistoryPage() {
 	const { user, isAuthenticated } = useAuthStore();
-	const { preferredCurrency, syncWithUserProfile, fetchSupportedCurrencies, supportedCurrencies } = useCurrencyStore();
+	const {
+		preferredCurrency,
+		syncWithUserProfile,
+		fetchSupportedCurrencies,
+		supportedCurrencies,
+	} = useCurrencyStore();
 	const navigate = useNavigate();
 	useTheme();
 	const [history, setHistory] = useState<NisaabData[]>([]);
@@ -53,7 +58,7 @@ export default function NisaabHistoryPage() {
 	const [copiedValue, setCopiedValue] = useState<string | null>(null);
 	const observerTarget = useRef<HTMLDivElement>(null);
 	const isFetchingRef = useRef(false);
-	
+
 	// Local currency state for this page (works for both authenticated and guest users)
 	const [selectedCurrency, setSelectedCurrency] = useState<string>(() => {
 		// Try to get from localStorage first (for guest users)
@@ -75,7 +80,8 @@ export default function NisaabHistoryPage() {
 			}
 
 			try {
-				const currency = selectedCurrency || preferredCurrency || user?.preferredCurrency || 'USD';
+				const currency =
+					selectedCurrency || preferredCurrency || user?.preferredCurrency || 'USD';
 				const response = await nisaabService.getNisaabHistory(
 					page,
 					30,
@@ -117,7 +123,11 @@ export default function NisaabHistoryPage() {
 
 	// Initialize currency from user profile or localStorage
 	useEffect(() => {
-		if (isAuthenticated && preferredCurrency && !localStorage.getItem('zaakiyah-nisaab-history-currency')) {
+		if (
+			isAuthenticated &&
+			preferredCurrency &&
+			!localStorage.getItem('zaakiyah-nisaab-history-currency')
+		) {
 			setSelectedCurrency(preferredCurrency);
 		}
 	}, [isAuthenticated, preferredCurrency]);
@@ -142,7 +152,8 @@ export default function NisaabHistoryPage() {
 		if (searchResult && (startDate || endDate)) {
 			const refetchSearchResult = async () => {
 				try {
-					const currency = selectedCurrency || preferredCurrency || user?.preferredCurrency || 'USD';
+					const currency =
+						selectedCurrency || preferredCurrency || user?.preferredCurrency || 'USD';
 					// If both dates are the same, search for that specific date
 					if (startDate && endDate && startDate === endDate) {
 						const response = await nisaabService.getNisaabByDate(startDate, currency);
@@ -175,7 +186,8 @@ export default function NisaabHistoryPage() {
 				setSearchResult(null);
 
 				try {
-					const currency = selectedCurrency || preferredCurrency || user?.preferredCurrency || 'USD';
+					const currency =
+						selectedCurrency || preferredCurrency || user?.preferredCurrency || 'USD';
 					const response = await nisaabService.getNisaabByDate(urlDate, currency);
 					if (response.data) {
 						setSearchResult(response.data);
@@ -284,8 +296,8 @@ export default function NisaabHistoryPage() {
 			year: 'numeric',
 		});
 
-		const goldValue = formatCurrencyWithFallback(nisaab.goldNisaabValue);
-		const silverValue = formatCurrencyWithFallback(nisaab.silverNisaabValue);
+		const goldValue = formatCurrencyWithFallback(nisaab.goldNisaabValue, selectedCurrency);
+		const silverValue = formatCurrencyWithFallback(nisaab.silverNisaabValue, selectedCurrency);
 
 		const text = `📊 Today's Nisaab (${formattedDate})\n\n💰 Gold: ${goldValue}\n💰 Silver: ${silverValue}\n\nCheck out Zaakiyah for Zakaat calculations and more!`;
 		const url = `${window.location.origin}/nisaab/history?date=${nisaab.gregorianDate}`;
@@ -329,7 +341,7 @@ export default function NisaabHistoryPage() {
 	const copyValue = async (value: string | number | null, type: 'gold' | 'silver') => {
 		if (!value || value === 0 || value === '0') return;
 
-		const formattedValue = formatCurrencyWithFallback(value);
+		const formattedValue = formatCurrencyWithFallback(value, selectedCurrency);
 		if (formattedValue === 'Not Available') return;
 
 		const copyText = formattedValue;
@@ -358,11 +370,14 @@ export default function NisaabHistoryPage() {
 	};
 
 	// Format currency with "Not Available" fallback
-	const formatCurrencyWithFallback = (value: string | number | null | undefined): string => {
+	const formatCurrencyWithFallback = (
+		value: string | number | null | undefined,
+		currency?: string
+	): string => {
 		if (!value || value === 0 || value === '0') return 'Not Available';
 		const numValue = typeof value === 'string' ? parseFloat(value) : value;
 		if (isNaN(numValue) || numValue === 0) return 'Not Available';
-		return formatCurrency(numValue);
+		return formatCurrency(numValue, currency || selectedCurrency);
 	};
 
 	const formatDate = (dateString: string): string => {
@@ -609,14 +624,22 @@ export default function NisaabHistoryPage() {
 								</div>
 								<p
 									className={`text-[10px] sm:text-xs md:text-sm lg:text-base font-bold whitespace-nowrap overflow-hidden text-ellipsis ${
-										formatCurrencyWithFallback(item.goldNisaabValue) ===
-										'Not Available'
+										formatCurrencyWithFallback(
+											item.goldNisaabValue,
+											selectedCurrency
+										) === 'Not Available'
 											? 'text-slate-400 dark:text-slate-500'
 											: 'text-slate-900 dark:text-slate-100'
 									}`}
-									title={formatCurrencyWithFallback(item.goldNisaabValue)}
+									title={formatCurrencyWithFallback(
+										item.goldNisaabValue,
+										selectedCurrency
+									)}
 								>
-									{formatCurrencyWithFallback(item.goldNisaabValue)}
+									{formatCurrencyWithFallback(
+										item.goldNisaabValue,
+										selectedCurrency
+									)}
 								</p>
 							</div>
 						</div>
@@ -659,14 +682,22 @@ export default function NisaabHistoryPage() {
 								</div>
 								<p
 									className={`text-[10px] sm:text-xs md:text-sm lg:text-base font-bold whitespace-nowrap overflow-hidden text-ellipsis ${
-										formatCurrencyWithFallback(item.silverNisaabValue) ===
-										'Not Available'
+										formatCurrencyWithFallback(
+											item.silverNisaabValue,
+											selectedCurrency
+										) === 'Not Available'
 											? 'text-slate-400 dark:text-slate-500'
 											: 'text-slate-900 dark:text-slate-100'
 									}`}
-									title={formatCurrencyWithFallback(item.silverNisaabValue)}
+									title={formatCurrencyWithFallback(
+										item.silverNisaabValue,
+										selectedCurrency
+									)}
 								>
-									{formatCurrencyWithFallback(item.silverNisaabValue)}
+									{formatCurrencyWithFallback(
+										item.silverNisaabValue,
+										selectedCurrency
+									)}
 								</p>
 							</div>
 						</div>
@@ -722,10 +753,19 @@ export default function NisaabHistoryPage() {
 									Get personalized Nisaab updates
 								</p>
 								<p className="text-sm text-primary-800 dark:text-primary-200 leading-relaxed mb-3">
-									Sign up for free to receive notifications when Nisaab values change and track your Zakaat calculations.
+									Sign up for free to receive notifications when Nisaab values
+									change and track your Zakaat calculations.
 								</p>
 								<button
-									onClick={() => navigate('/signup', { state: { returnTo: '/nisaab/history', message: 'Sign up to get personalized Nisaab updates' } })}
+									onClick={() =>
+										navigate('/signup', {
+											state: {
+												returnTo: '/nisaab/history',
+												message:
+													'Sign up to get personalized Nisaab updates',
+											},
+										})
+									}
 									className="px-4 py-2 bg-primary-600 dark:bg-primary-500 text-white text-sm font-semibold rounded-xl hover:bg-primary-700 dark:hover:bg-primary-600 transition-colors active:scale-95"
 								>
 									Sign Up Free
@@ -764,18 +804,18 @@ export default function NisaabHistoryPage() {
 									<p className="text-xs text-white/80 mb-1">Avg Gold</p>
 									<p
 										className="text-[10px] sm:text-xs md:text-sm lg:text-base xl:text-lg font-bold text-white whitespace-nowrap overflow-hidden text-ellipsis"
-										title={formatCurrency(stats.avgGold)}
+										title={formatCurrency(stats.avgGold, selectedCurrency)}
 									>
-										{formatCurrency(stats.avgGold)}
+										{formatCurrency(stats.avgGold, selectedCurrency)}
 									</p>
 								</div>
 								<div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20 min-w-0">
 									<p className="text-xs text-white/80 mb-1">Avg Silver</p>
 									<p
 										className="text-[10px] sm:text-xs md:text-sm lg:text-base xl:text-lg font-bold text-white whitespace-nowrap overflow-hidden text-ellipsis"
-										title={formatCurrency(stats.avgSilver)}
+										title={formatCurrency(stats.avgSilver, selectedCurrency)}
 									>
-										{formatCurrency(stats.avgSilver)}
+										{formatCurrency(stats.avgSilver, selectedCurrency)}
 									</p>
 								</div>
 							</div>
