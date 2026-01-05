@@ -25,8 +25,8 @@ body {
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    /* Prevent pull-to-refresh on mobile */
-    overscroll-behavior-y: none;
+    /* Allow pull-to-refresh on mobile - controlled by usePullToRefresh hook */
+    /* overscroll-behavior-y: none; */
     /* Prevent text selection on mobile for better app-like experience */
     -webkit-touch-callout: none;
     -webkit-user-select: none;

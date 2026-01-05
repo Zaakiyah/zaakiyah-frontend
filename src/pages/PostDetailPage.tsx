@@ -9,6 +9,7 @@ import { renderContentWithHashtagsAndLinks } from '../utils/textUtils';
 import CommentBottomSheet from '../components/community/CommentBottomSheet';
 import CommentCard from '../components/community/CommentCard';
 import MediaViewer from '../components/community/MediaViewer';
+import PostLikesModal from '../components/community/PostLikesModal';
 import LoadingSkeleton from '../components/wealth/LoadingSkeleton';
 import EmptyState from '../components/wealth/EmptyState';
 import ConfirmDialog from '../components/ui/ConfirmDialog';
@@ -48,6 +49,7 @@ export default function PostDetailPage() {
 	const [showMediaViewer, setShowMediaViewer] = useState(false);
 	const [selectedMediaIndex, setSelectedMediaIndex] = useState(0);
 	const [isTogglingFollow, setIsTogglingFollow] = useState(false);
+	const [showLikesModal, setShowLikesModal] = useState(false);
 	const [isLiking, setIsLiking] = useState(false);
 	const [comments, setComments] = useState<Comment[]>([]);
 	const [isLoadingComments, setIsLoadingComments] = useState(false);
@@ -507,20 +509,33 @@ export default function PostDetailPage() {
 
 				{/* Engagement Metrics */}
 				<div className="flex items-center gap-6 mb-4 pt-3 border-t-2 border-slate-200/60 dark:border-slate-700/60">
-					<button
-						onClick={handleLike}
-						disabled={isLiking}
-						className="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed group"
-					>
-						{isLiking ? (
-							<div className="w-5 h-5 border-2 border-red-500 border-t-transparent rounded-full animate-spin" />
-						) : post.isLiked ? (
-							<HeartIconSolid className="w-5 h-5 text-red-500 group-hover:scale-110 transition-transform" />
+					<div className="flex items-center gap-2">
+						<button
+							onClick={handleLike}
+							disabled={isLiking}
+							className="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed group"
+						>
+							{isLiking ? (
+								<div className="w-5 h-5 border-2 border-red-500 border-t-transparent rounded-full animate-spin" />
+							) : post.isLiked ? (
+								<HeartIconSolid className="w-5 h-5 text-red-500 group-hover:scale-110 transition-transform" />
+							) : (
+								<HeartIcon className="w-5 h-5 group-hover:scale-110 transition-transform" />
+							)}
+						</button>
+						{post.likesCount > 0 ? (
+							<button
+								onClick={() => setShowLikesModal(true)}
+								className="text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+							>
+								{post.likesCount}
+							</button>
 						) : (
-							<HeartIcon className="w-5 h-5 group-hover:scale-110 transition-transform" />
+							<span className="text-sm font-semibold text-slate-600 dark:text-slate-400">
+								{post.likesCount}
+							</span>
 						)}
-						<span className="text-sm font-semibold">{post.likesCount}</span>
-					</button>
+					</div>
 					<button
 						onClick={() => {
 							const postUrl = `${window.location.origin}/community/posts/${post.id}`;
@@ -828,6 +843,16 @@ export default function PostDetailPage() {
 					</button>
 				</div>
 			</BottomSheet>
+
+			{/* Likes Modal */}
+			{post && (
+				<PostLikesModal
+					isOpen={showLikesModal}
+					onClose={() => setShowLikesModal(false)}
+					postId={post.id}
+					likesCount={post.likesCount}
+				/>
+			)}
 		</div>
 	);
 }

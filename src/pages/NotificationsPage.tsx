@@ -16,11 +16,13 @@ import {
 	CheckCircleIcon,
 	XCircleIcon,
 	BeakerIcon,
+	ChartBarIcon,
 } from '@heroicons/react/24/outline';
 import { CheckIcon as CheckIconSolid } from '@heroicons/react/24/solid';
 import PageHeader from '../components/layout/PageHeader';
 import { useTheme } from '../hooks/useTheme';
 import { notificationService, type Notification } from '../services/notificationService';
+import NisaabNotificationDetail from '../components/notifications/NisaabNotificationDetail';
 import { alert } from '../store/alertStore';
 import { logger } from '../utils/logger';
 
@@ -36,6 +38,8 @@ export default function NotificationsPage() {
 	const [searchQuery, setSearchQuery] = useState('');
 	const [isMarkingAllRead, setIsMarkingAllRead] = useState(false);
 	const [isTestingPush, setIsTestingPush] = useState(false);
+	const [selectedNisaabNotification, setSelectedNisaabNotification] =
+		useState<Notification | null>(null);
 	const observerTarget = useRef<HTMLDivElement>(null);
 	const isFetchingRef = useRef(false);
 
@@ -238,6 +242,27 @@ export default function NotificationsPage() {
 	 * Handle notification click - navigate and mark as read
 	 */
 	const handleNotificationClick = async (notification: Notification) => {
+		const notificationType = notification.metadata?.type;
+
+		// Handle Nisaab update notifications specially
+		if (notificationType === 'nisaab-update') {
+			setSelectedNisaabNotification(notification);
+			// Mark as read if unread
+			if (!notification.isRead) {
+				try {
+					await notificationService.markAsRead(notification.id);
+					setNotifications((prev) =>
+						prev.map((notif) =>
+							notif.id === notification.id ? { ...notif, isRead: true } : notif
+						)
+					);
+				} catch (error) {
+					console.error('Failed to mark notification as read:', error);
+				}
+			}
+			return;
+		}
+
 		const path = getNotificationPath(notification);
 
 		// Mark as read if unread
@@ -282,6 +307,8 @@ export default function NotificationsPage() {
 				return CheckCircleIcon;
 			case 'application_rejected':
 				return XCircleIcon;
+			case 'nisaab-update':
+				return ChartBarIcon;
 			default:
 				return BellIcon;
 		}
@@ -297,6 +324,8 @@ export default function NotificationsPage() {
 			case 'comment_created':
 			case 'comment_reply':
 				return 'from-primary-500 to-primary-600';
+			case 'nisaab-update':
+				return 'from-amber-500 to-yellow-600';
 			case 'user_followed':
 				return 'from-blue-500 to-cyan-600';
 			case 'donation_received':
@@ -464,6 +493,9 @@ export default function NotificationsPage() {
 						<div className="space-y-3">
 							{notifications.map((notification, index) => {
 								const hasNavigation = getNotificationPath(notification) !== null;
+								const notificationType = notification.metadata?.type;
+								const isNisaabUpdate = notificationType === 'nisaab-update';
+								const isClickable = hasNavigation || isNisaabUpdate;
 								const NotificationIcon = getNotificationIcon(notification);
 								const iconColor = getNotificationColor(notification);
 
@@ -477,14 +509,14 @@ export default function NotificationsPage() {
 											type: 'spring',
 											stiffness: 100,
 										}}
-										whileHover={hasNavigation ? { scale: 1.02, y: -2 } : {}}
+										whileHover={isClickable ? { scale: 1.02, y: -2 } : {}}
 										className={`group relative overflow-hidden rounded-2xl p-4 shadow-lg border transition-all duration-300 ${
 											notification.isRead
 												? 'bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 border-slate-200/60 dark:border-slate-700/60 opacity-80'
 												: 'bg-gradient-to-br from-primary-50/50 via-white to-slate-50 dark:from-primary-900/20 dark:via-slate-800 dark:to-slate-900 border-primary-200/60 dark:border-primary-800/60 shadow-primary-500/10'
-										} ${hasNavigation ? 'cursor-pointer hover:shadow-xl' : ''}`}
+										} ${isClickable ? 'cursor-pointer hover:shadow-xl' : ''}`}
 										onClick={() =>
-											hasNavigation && handleNotificationClick(notification)
+											isClickable && handleNotificationClick(notification)
 										}
 									>
 										{/* Decorative gradient overlay for unread */}
@@ -536,9 +568,11 @@ export default function NotificationsPage() {
 														{formatTimeAgo(notification.createdAt)}
 													</p>
 													<div className="flex items-center gap-2">
-														{hasNavigation && (
+														{isClickable && (
 															<span className="text-xs text-primary-600 dark:text-primary-400 font-semibold flex items-center gap-1 group-hover:gap-2 transition-all">
-																View
+																{isNisaabUpdate
+																	? 'View Details'
+																	: 'View'}
 																<ArrowRightIcon className="w-3.5 h-3.5" />
 															</span>
 														)}
@@ -574,6 +608,15 @@ export default function NotificationsPage() {
 					</>
 				)}
 			</main>
+
+			{/* Nisaab Notification Detail Modal */}
+			{selectedNisaabNotification && (
+				<NisaabNotificationDetail
+					isOpen={!!selectedNisaabNotification}
+					onClose={() => setSelectedNisaabNotification(null)}
+					notification={selectedNisaabNotification}
+				/>
+			)}
 		</div>
 	);
 }

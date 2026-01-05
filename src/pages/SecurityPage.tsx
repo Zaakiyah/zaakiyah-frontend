@@ -18,10 +18,13 @@ import {
 	LockClosedIcon,
 	KeyIcon,
 	TrashIcon,
+	DocumentTextIcon,
 } from '@heroicons/react/24/outline';
+import { useNavigate } from 'react-router-dom';
 
 export default function SecurityPage() {
 	useTheme();
+	const navigate = useNavigate();
 	const [isEmailSetupOpen, setIsEmailSetupOpen] = useState(false);
 	const [isTOTPSetupOpen, setIsTOTPSetupOpen] = useState(false);
 	const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
@@ -111,13 +114,15 @@ export default function SecurityPage() {
 				>
 					{/* Decorative gradient overlay */}
 					<div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-slate-500/5 via-slate-400/5 to-slate-300/5 rounded-full blur-2xl -z-0" />
-					
+
 					<div className="flex items-start gap-3 mb-4 relative z-10">
 						<div className="w-12 h-12 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 rounded-xl flex items-center justify-center shrink-0 shadow-sm">
 							<KeyIcon className="w-6 h-6 text-slate-600 dark:text-slate-300" />
 						</div>
 						<div className="flex-1">
-							<h2 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-1">Change Password</h2>
+							<h2 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-1">
+								Change Password
+							</h2>
 							<p className="text-xs text-slate-600 dark:text-slate-400">
 								Update your account password to keep it secure
 							</p>
@@ -142,7 +147,7 @@ export default function SecurityPage() {
 				>
 					{/* Decorative gradient overlay */}
 					<div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary-500/5 via-secondary-500/5 to-primary-400/5 rounded-full blur-2xl -z-0" />
-					
+
 					<div className="flex items-start gap-3 mb-4 relative z-10">
 						<div className="w-12 h-12 bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/20 rounded-xl flex items-center justify-center shrink-0 shadow-sm">
 							<ShieldCheckIcon className="w-6 h-6 text-primary-600 dark:text-primary-400" />
@@ -237,6 +242,39 @@ export default function SecurityPage() {
 				{/* Login Sessions Section */}
 				<LoginSessionsSection />
 
+				{/* Activity Log Section */}
+				<motion.div
+					initial={{ opacity: 0, y: 20, scale: 0.95 }}
+					animate={{ opacity: 1, y: 0, scale: 1 }}
+					transition={{ delay: 0.15, type: 'spring', stiffness: 100 }}
+					className="relative bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl p-5 shadow-lg border-2 border-slate-200/60 dark:border-slate-700/60 overflow-hidden"
+				>
+					{/* Decorative gradient overlay */}
+					<div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/5 via-indigo-500/5 to-blue-400/5 rounded-full blur-2xl -z-0" />
+
+					<div className="flex items-start gap-3 mb-4 relative z-10">
+						<div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-indigo-200 dark:from-blue-900/30 dark:to-indigo-800/20 rounded-xl flex items-center justify-center shrink-0 shadow-sm">
+							<DocumentTextIcon className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+						</div>
+						<div className="flex-1">
+							<h2 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-1">
+								Activity Log
+							</h2>
+							<p className="text-xs text-slate-600 dark:text-slate-400">
+								View your recent important activities and security events
+							</p>
+						</div>
+					</div>
+					<Button
+						variant="outline"
+						onClick={() => navigate('/audit-logs')}
+						className="w-full"
+					>
+						<DocumentTextIcon className="w-4 h-4 mr-2" />
+						View Activity Log
+					</Button>
+				</motion.div>
+
 				{/* Delete Account Section */}
 				<motion.div
 					initial={{ opacity: 0, y: 20, scale: 0.95 }}
@@ -246,13 +284,15 @@ export default function SecurityPage() {
 				>
 					{/* Decorative gradient overlay */}
 					<div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-red-500/5 via-rose-500/5 to-red-400/5 rounded-full blur-2xl -z-0" />
-					
+
 					<div className="flex items-start gap-3 mb-4 relative z-10">
 						<div className="w-12 h-12 bg-gradient-to-br from-red-100 to-rose-200 dark:from-red-900/30 dark:to-rose-800/20 rounded-xl flex items-center justify-center shrink-0 shadow-sm">
 							<TrashIcon className="w-6 h-6 text-red-600 dark:text-red-400" />
 						</div>
 						<div className="flex-1">
-							<h2 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-1">Delete Account</h2>
+							<h2 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-1">
+								Delete Account
+							</h2>
 							<p className="text-xs text-slate-600 dark:text-slate-400">
 								Permanently delete your account and all associated data
 							</p>

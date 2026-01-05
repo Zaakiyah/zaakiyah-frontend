@@ -29,6 +29,7 @@ const NisaabHistoryPage = lazy(() => import('./pages/NisaabHistoryPage'));
 const NotificationsPage = lazy(() => import('./pages/NotificationsPage'));
 const SecurityPage = lazy(() => import('./pages/SecurityPage'));
 const SettingsPage = lazy(() => import('./pages/SettingsPage'));
+const AuditLogPage = lazy(() => import('./pages/AuditLogPage'));
 const BugReportPage = lazy(() => import('./pages/BugReportPage'));
 const ComingSoonPage = lazy(() => import('./pages/ComingSoonPage'));
 const WealthCalculationPage = lazy(() => import('./pages/WealthCalculationPage'));
@@ -356,6 +357,14 @@ function App() {
 							element={
 								<ProtectedRoute>
 									<SecurityPage />
+								</ProtectedRoute>
+							}
+						/>
+						<Route
+							path="/audit-logs"
+							element={
+								<ProtectedRoute>
+									<AuditLogPage />
 								</ProtectedRoute>
 							}
 						/>

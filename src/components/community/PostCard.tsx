@@ -9,6 +9,7 @@ import ConfirmDialog from '../ui/ConfirmDialog';
 import MediaViewer from './MediaViewer';
 import BottomSheet from '../ui/BottomSheet';
 import Avatar from '../ui/Avatar';
+import PostLikesModal from './PostLikesModal';
 import {
 	HeartIcon,
 	ChatBubbleOvalLeftIcon,
@@ -48,6 +49,7 @@ export default function PostCard({
 	const [showMenu, setShowMenu] = useState(false);
 	const [showMediaViewer, setShowMediaViewer] = useState(false);
 	const [selectedMediaIndex, setSelectedMediaIndex] = useState(0);
+	const [showLikesModal, setShowLikesModal] = useState(false);
 	const [isTogglingFollow, setIsTogglingFollow] = useState(false);
 	const [visibleLines, setVisibleLines] = useState(2); // Start with 2 lines
 
@@ -354,20 +356,37 @@ export default function PostCard({
 				{/* Actions */}
 				<div className="flex items-center justify-between pt-3 border-t-2 border-slate-200/60 dark:border-slate-700/60 relative z-10">
 					<div className="flex items-center gap-6">
-						<button
-							onClick={onLike}
-							disabled={isLiking}
-							className="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-						>
-							{isLiking ? (
-								<div className="w-5 h-5 border-2 border-red-500 border-t-transparent rounded-full animate-spin" />
-							) : post.isLiked ? (
-								<HeartIconSolid className="w-5 h-5 text-red-500" />
+						<div className="flex items-center gap-2">
+							<button
+								onClick={onLike}
+								disabled={isLiking}
+								className="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+							>
+								{isLiking ? (
+									<div className="w-5 h-5 border-2 border-red-500 border-t-transparent rounded-full animate-spin" />
+								) : post.isLiked ? (
+									<HeartIconSolid className="w-5 h-5 text-red-500" />
+								) : (
+									<HeartIcon className="w-5 h-5" />
+								)}
+							</button>
+							{post.likesCount > 0 ? (
+								<button
+									onClick={(e) => {
+										e.preventDefault();
+										e.stopPropagation();
+										setShowLikesModal(true);
+									}}
+									className="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+								>
+									{post.likesCount}
+								</button>
 							) : (
-								<HeartIcon className="w-5 h-5" />
+								<span className="text-sm font-medium text-slate-600 dark:text-slate-400">
+									{post.likesCount}
+								</span>
 							)}
-							<span className="text-sm font-medium">{post.likesCount}</span>
-						</button>
+						</div>
 						<button
 							onClick={(e) => {
 								e.preventDefault();
@@ -511,6 +530,14 @@ export default function PostCard({
 					</button>
 				</div>
 			</BottomSheet>
+
+			{/* Likes Modal */}
+			<PostLikesModal
+				isOpen={showLikesModal}
+				onClose={() => setShowLikesModal(false)}
+				postId={post.id}
+				likesCount={post.likesCount}
+			/>
 		</>
 	);
 }
