@@ -31,7 +31,8 @@ export function usePullToRefresh({
 	useEffect(() => {
 		if (!enabled) return;
 
-		const container = containerRef.current || document.documentElement;
+		// Use #root as the container since that's where scrolling happens in this app
+		const container = containerRef.current || document.getElementById('root') || document.documentElement;
 
 		const handleTouchStart = (e: TouchEvent) => {
 			// Only trigger if at the top of the scrollable container (content after header is at top)
