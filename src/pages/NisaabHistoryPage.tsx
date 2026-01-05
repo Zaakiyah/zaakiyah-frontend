@@ -23,6 +23,7 @@ import { useNavigate } from 'react-router-dom';
 import { alert } from '../store/alertStore';
 import { nisaabService, type NisaabData } from '../services/nisaabService';
 import { formatCurrency } from '../utils/currency';
+import { formatDate, formatHijriDate } from '../utils/date';
 import { InformationCircleIcon } from '@heroicons/react/24/outline';
 
 interface Filters {
@@ -378,41 +379,6 @@ export default function NisaabHistoryPage() {
 		const numValue = typeof value === 'string' ? parseFloat(value) : value;
 		if (isNaN(numValue) || numValue === 0) return 'Not Available';
 		return formatCurrency(numValue, currency || selectedCurrency);
-	};
-
-	const formatDate = (dateString: string): string => {
-		const date = new Date(dateString);
-		return new Intl.DateTimeFormat('en-US', {
-			month: 'short',
-			day: 'numeric',
-		}).format(date);
-	};
-
-	const formatHijriDate = (hijriDate: string): string => {
-		if (!hijriDate) return '';
-		const parts = hijriDate.split('-');
-		if (parts.length !== 3) return hijriDate;
-
-		const day = parseInt(parts[2]);
-		const month = parseInt(parts[1]);
-		const year = parseInt(parts[0]);
-
-		const monthNames = [
-			'Muḥarram',
-			'Ṣafar',
-			'Rabīʿ al-awwal',
-			'Rabīʿ al-thānī',
-			'Jumādá al-ūlá',
-			'Jumādá al-ākhirah',
-			'Rajab',
-			'Shaʿbān',
-			'Ramaḍān',
-			'Shawwāl',
-			'Dhū al-Qaʿdah',
-			'Dhū al-Ḥijjah',
-		];
-
-		return `${day} ${monthNames[month - 1]} ${year}`;
 	};
 
 	// Generate year options (current year and past 5 years)

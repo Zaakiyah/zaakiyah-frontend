@@ -192,6 +192,28 @@ export const communityService = {
 	},
 
 	/**
+	 * Get users who liked a post
+	 */
+	async getPostLikes(
+		postId: string,
+		page: number = 1,
+		limit: number = 50
+	): Promise<ApiResponse<PaginatedResponse<UserInfo & { likedAt: string }>>> {
+		try {
+			const response = await api.get<ApiResponse<PaginatedResponse<UserInfo & { likedAt: string }>>>(
+				`/posts/${postId}/likes`,
+				{
+					params: { page, limit },
+				}
+			);
+			return response.data;
+		} catch (error: any) {
+			logger.error('Error fetching post likes:', error);
+			throw error;
+		}
+	},
+
+	/**
 	 * Create a comment
 	 */
 	async createComment(postId: string, data: CreateCommentData): Promise<ApiResponse<Comment>> {
