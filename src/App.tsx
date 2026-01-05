@@ -10,9 +10,11 @@ import ThemeProvider from './components/layout/ThemeProvider';
 import AlertProvider from './components/layout/AlertProvider';
 import InstallPrompt from './components/layout/InstallPrompt';
 import ServiceWorkerUpdate from './components/layout/ServiceWorkerUpdate';
+import GlobalPullToRefresh from './components/layout/GlobalPullToRefresh';
 import BottomNavigation from './components/layout/BottomNavigation';
 import ErrorBoundary from './components/ErrorBoundary';
 import LoadingSkeleton from './components/wealth/LoadingSkeleton';
+import { PullToRefreshProvider } from './contexts/PullToRefreshContext';
 
 // Lazy load non-critical pages for better initial load performance
 // Keep auth pages eager for faster authentication flow
@@ -86,11 +88,13 @@ function App() {
 	return (
 		<ErrorBoundary>
 			<ThemeProvider>
-				<InstallPrompt />
-				<ServiceWorkerUpdate />
-				<DeviceRegistration />
-				<AlertProvider />
-				<ZakaatAdvisorChat isOpen={isChatOpen} onClose={closeChat} />
+				<PullToRefreshProvider>
+					<InstallPrompt />
+					<ServiceWorkerUpdate />
+					<DeviceRegistration />
+					<AlertProvider />
+					<GlobalPullToRefresh />
+					<ZakaatAdvisorChat isOpen={isChatOpen} onClose={closeChat} />
 				<Suspense fallback={<PageLoader />}>
 					<Routes location={location} key={location.pathname}>
 						<Route path="/" element={<RootRedirect />} />
@@ -414,6 +418,7 @@ function App() {
 				</Suspense>
 				{/* Global Bottom Navigation - shown on all pages except auth/onboarding */}
 				{shouldShowBottomNav && <BottomNavigation />}
+				</PullToRefreshProvider>
 			</ThemeProvider>
 		</ErrorBoundary>
 	);

@@ -49,19 +49,8 @@ if (typeof window !== 'undefined') {
 		false
 	);
 
-	// Hide address bar on scroll (Android)
-	let scrollTimeout: ReturnType<typeof setTimeout>;
-	window.addEventListener('scroll', () => {
-		clearTimeout(scrollTimeout);
-		scrollTimeout = setTimeout(() => {
-			window.scrollTo(0, 1);
-		}, 100);
-	});
-
-	// Initial scroll to hide address bar
-	setTimeout(() => {
-		window.scrollTo(0, 1);
-	}, 100);
+	// Note: Removed scroll manipulation that was interfering with pull-to-refresh
+	// Native pull-to-refresh requires the document to be able to scroll naturally
 
 	// Register main service worker for PWA
 	if ('serviceWorker' in navigator) {
