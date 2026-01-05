@@ -68,8 +68,13 @@ export default function ServiceWorkerUpdate() {
 
 		navigator.serviceWorker.addEventListener('controllerchange', handleControllerChange);
 
-		// Set up service worker registration and update detection
-		navigator.serviceWorker.ready.then((registration) => {
+		// Function to set up update detection with a registration
+		const setupUpdateDetection = (registration: ServiceWorkerRegistration) => {
+			// Immediately check for updates
+			registration.update().catch(() => {
+				// Silently fail if update check fails
+			});
+
 			// Check if there's a waiting worker on initial load
 			// But only if we haven't already updated it
 			if (registration.waiting && navigator.serviceWorker.controller) {
@@ -121,10 +126,54 @@ export default function ServiceWorkerUpdate() {
 					});
 				}, UPDATE_CHECK_INTERVAL);
 			}
-		});
+		};
+
+		// Initialize update detection - try multiple approaches to ensure we get the registration
+		const initializeUpdateDetection = async () => {
+			try {
+				// First try ready (fastest if available)
+				const registration = await navigator.serviceWorker.ready;
+				setupUpdateDetection(registration);
+			} catch {
+				// If ready fails, try to get registration directly
+				try {
+					const registration = await navigator.serviceWorker.getRegistration();
+					if (registration) {
+						setupUpdateDetection(registration);
+					}
+				} catch (error) {
+					// If that also fails, wait a bit and try again (registration might still be in progress)
+					setTimeout(async () => {
+						try {
+							const registration = await navigator.serviceWorker.getRegistration();
+							if (registration) {
+								setupUpdateDetection(registration);
+							}
+						} catch (err) {
+							console.warn('[ServiceWorkerUpdate] Failed to get registration:', err);
+						}
+					}, 1000);
+				}
+			}
+		};
+
+		// Initialize immediately
+		initializeUpdateDetection();
+
+		// Also listen for when registration becomes available (if not ready yet)
+		let controllerReadyHandler: (() => void) | null = null;
+		if (!navigator.serviceWorker.controller) {
+			controllerReadyHandler = () => {
+				initializeUpdateDetection();
+			};
+			navigator.serviceWorker.addEventListener('controllerchange', controllerReadyHandler, { once: true });
+		}
 
 		return () => {
 			navigator.serviceWorker.removeEventListener('controllerchange', handleControllerChange);
+			if (controllerReadyHandler) {
+				navigator.serviceWorker.removeEventListener('controllerchange', controllerReadyHandler);
+			}
 			if (intervalRef.current) {
 				clearInterval(intervalRef.current);
 			}

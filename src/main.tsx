@@ -54,7 +54,9 @@ if (typeof window !== 'undefined') {
 
 	// Register main service worker for PWA
 	if ('serviceWorker' in navigator) {
-		window.addEventListener('load', async () => {
+		// Register immediately, don't wait for load event
+		// This ensures the service worker is available as soon as possible
+		(async () => {
 			try {
 				// Clear old service worker storage on load to prevent stale prompts
 				clearServiceWorkerStorage();
@@ -70,7 +72,14 @@ if (typeof window !== 'undefined') {
 					console.log('[PWA] Service Worker registered:', registration.scope);
 				}
 
+				// Immediately check for updates on registration
+				// This ensures we detect updates right away
+				registration.update().catch(() => {
+					// Silently fail if update check fails
+				});
+
 				// Check for updates periodically (only in production)
+				// This will trigger 'updatefound' if a new version is available
 				if (import.meta.env.PROD) {
 					setInterval(() => {
 						registration.update().catch(() => {
@@ -81,7 +90,7 @@ if (typeof window !== 'undefined') {
 			} catch (error) {
 				console.warn('[PWA] Service Worker registration failed:', error);
 			}
-		});
+		})();
 	}
 
 	// Prevent any accidental confirm() calls from old cached code
