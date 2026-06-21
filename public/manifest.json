@@ -3,16 +3,87 @@
 	"short_name": "Zaakiyah",
 	"description": "Your Zakaat Companion - Calculate, track, and manage your Zakaat obligations",
 	"start_url": "/",
+	"scope": "/",
 	"display": "standalone",
 	"background_color": "#ffffff",
 	"theme_color": "#00939d",
 	"orientation": "portrait",
+	"categories": ["finance", "lifestyle", "productivity"],
+	"lang": "en",
+	"dir": "ltr",
 	"icons": [
 		{
 			"src": "/favicon.svg",
 			"sizes": "any",
 			"type": "image/svg+xml",
 			"purpose": "any maskable"
+		},
+		{
+			"src": "/zaakiyah-logo.svg",
+			"sizes": "512x512",
+			"type": "image/svg+xml",
+			"purpose": "any"
+		},
+		{
+			"src": "/zaakiyah-logo.svg",
+			"sizes": "192x192",
+			"type": "image/svg+xml",
+			"purpose": "any"
+		},
+		{
+			"src": "/zaakiyah-logo.svg",
+			"sizes": "512x512",
+			"type": "image/svg+xml",
+			"purpose": "maskable"
 		}
-	]
+	],
+	"screenshots": [],
+	"shortcuts": [
+		{
+			"name": "Calculate Zakaat",
+			"short_name": "Calculate",
+			"description": "Calculate your Zakaat obligation",
+			"url": "/calculate",
+			"icons": [
+				{
+					"src": "/zaakiyah-logo.svg",
+					"sizes": "96x96"
+				}
+			]
+		},
+		{
+			"name": "Dashboard",
+			"short_name": "Dashboard",
+			"description": "View your dashboard",
+			"url": "/dashboard",
+			"icons": [
+				{
+					"src": "/zaakiyah-logo.svg",
+					"sizes": "96x96"
+				}
+			]
+		},
+		{
+			"name": "Community",
+			"short_name": "Community",
+			"description": "Connect with the community",
+			"url": "/community",
+			"icons": [
+				{
+					"src": "/zaakiyah-logo.svg",
+					"sizes": "96x96"
+				}
+			]
+		}
+	],
+	"share_target": {
+		"action": "/",
+		"method": "GET",
+		"enctype": "application/x-www-form-urlencoded",
+		"params": {
+			"title": "title",
+			"text": "text",
+			"url": "url"
+		}
+	}
 }

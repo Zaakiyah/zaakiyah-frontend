@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { HeartIcon, ChatBubbleLeftIcon, PlayIcon } from '@heroicons/react/24/outline';
-import { HeartIcon as HeartIconSolid } from '@heroicons/react/24/solid';
+import { HeartIcon, ChatBubbleLeftIcon, PlayIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
+import { HeartIcon as HeartIconSolid, CheckBadgeIcon } from '@heroicons/react/24/solid';
 import Avatar from '../ui/Avatar';
 
 interface PostPreviewCardProps {
@@ -25,6 +25,7 @@ interface PostPreviewCardProps {
 	onLike: (postId: string) => void;
 	renderContentWithHashtags: (text: string) => React.ReactNode;
 	formatDistanceToNow: (date: Date, options: { addSuffix: boolean }) => string;
+	isLiking?: boolean;
 }
 
 export default function PostPreviewCard({
@@ -32,8 +33,10 @@ export default function PostPreviewCard({
 	onLike,
 	renderContentWithHashtags,
 	formatDistanceToNow,
+	isLiking = false,
 }: PostPreviewCardProps) {
 	const navigate = useNavigate();
+	const [visibleLines, setVisibleLines] = useState(2); // Start with 2 lines
 	
 	// Get media URLs - support both mediaUrl (legacy) and mediaUrls (new)
 	const mediaUrls = post.mediaUrls || (post.mediaUrl ? [post.mediaUrl] : []);
@@ -41,27 +44,42 @@ export default function PostPreviewCard({
 	
 	// Check if content should be truncated (more than 2 lines or long content)
 	const contentLines = post.content ? post.content.split('\n') : [];
-	const shouldTruncate = contentLines.length > 2 || post.content.length > 120;
+	const totalLines = contentLines.length;
+	const needsTruncation = totalLines > 2 || post.content.length > 120;
+	const hasMoreContent = visibleLines < totalLines;
+	const visibleContent = hasMoreContent 
+		? contentLines.slice(0, visibleLines).join('\n')
+		: post.content;
 
 	return (
-		<div
-			onClick={() => navigate(`/community/posts/${post.id}`)}
-			className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-100 dark:border-slate-700 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-		>
+		<div className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-100 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
 			<div className="flex items-start gap-2.5 mb-2">
-				<Avatar
-					avatarUrl={post.author?.avatarUrl}
-					firstName={post.author?.firstName || ''}
-					lastName={post.author?.lastName || ''}
-					size="sm"
-					isVerified={post.author?.isVerified}
-					isAdmin={post.author?.isAdmin}
-				/>
+				{post.author && 'isAnonymous' in post.author && post.author.isAnonymous ? (
+					<div className="w-8 h-8 rounded-full bg-gradient-to-br from-slate-400 to-slate-600 flex items-center justify-center ring-2 ring-slate-200 dark:ring-slate-700 flex-shrink-0">
+						<span className="text-sm font-bold text-white">A</span>
+					</div>
+				) : (
+					<Avatar
+						avatarUrl={post.author?.avatarUrl}
+						firstName={post.author?.firstName || ''}
+						lastName={post.author?.lastName || ''}
+						size="sm"
+						isVerified={post.author?.isVerified}
+						isAdmin={post.author?.isAdmin}
+					/>
+				)}
 				<div className="flex-1 min-w-0">
 					<div className="flex items-center gap-2 mb-0.5">
 						<p className="text-xs font-semibold text-slate-900 dark:text-slate-100">
 							{post.author?.firstName} {post.author?.lastName}
 						</p>
+						{/* Badges next to name */}
+						{post.author?.isAdmin && (
+							<ShieldCheckIcon className="w-3 h-3 text-amber-500 flex-shrink-0" title="Admin" />
+						)}
+						{post.author?.isVerified && !post.author?.isAdmin && (
+							<CheckBadgeIcon className="w-3 h-3 text-primary-500 flex-shrink-0" title="Verified" />
+						)}
 						<span className="text-slate-400 dark:text-slate-500">•</span>
 						<p className="text-xs text-slate-500 dark:text-slate-400">
 							{formatDistanceToNow(new Date(post.createdAt), {
@@ -70,14 +88,19 @@ export default function PostPreviewCard({
 						</p>
 					</div>
 					<div className="mb-2">
-						<div className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed line-clamp-2">
-							{renderContentWithHashtags(post.content)}
+						<div
+							onClick={() => navigate(`/community/posts/${post.id}`)}
+							className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed cursor-pointer"
+						>
+							{renderContentWithHashtags(visibleContent)}
 						</div>
-						{shouldTruncate && (
+						{needsTruncation && hasMoreContent && (
 							<button
 								onClick={(e) => {
 									e.stopPropagation();
-									navigate(`/community/posts/${post.id}`);
+									// Show 4 more lines each time, or all if less than 4 remain
+									const nextLines = Math.min(visibleLines + 4, totalLines);
+									setVisibleLines(nextLines);
 								}}
 								className="text-primary-600 dark:text-primary-400 text-sm font-medium hover:underline mt-1"
 							>
@@ -158,9 +181,12 @@ export default function PostPreviewCard({
 								e.stopPropagation();
 								onLike(post.id);
 							}}
-							className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400 hover:text-error-500 transition-colors"
+							disabled={isLiking}
+							className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400 hover:text-error-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
 						>
-							{post.isLiked ? (
+							{isLiking ? (
+								<div className="w-4 h-4 border-2 border-error-500 border-t-transparent rounded-full animate-spin" />
+							) : post.isLiked ? (
 								<HeartIconSolid className="w-4 h-4 text-error-500" />
 							) : (
 								<HeartIcon className="w-4 h-4" />

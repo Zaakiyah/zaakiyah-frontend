@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { InformationCircleIcon } from '@heroicons/react/24/outline';
 import Input from '../../ui/Input';
+import Checkbox from '../../ui/Checkbox';
 import { formatCurrency } from '../../../utils/currency';
 import { useCurrencyStore } from '../../../store/currencyStore';
 import { nisaabService } from '../../../services/nisaabService';
@@ -90,10 +91,9 @@ export default function GoldSilverInput({
 		}
 	};
 
-	const handleUseMarketPriceToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const useMarket = e.target.checked;
-		onUseMarketPrice?.(useMarket);
-		if (useMarket && marketPrice) {
+	const handleUseMarketPriceToggle = (checked: boolean) => {
+		onUseMarketPrice?.(checked);
+		if (checked && marketPrice) {
 			onPriceChange(marketPrice);
 		}
 	};
@@ -134,33 +134,27 @@ export default function GoldSilverInput({
 		<div className="space-y-4">
 			{/* Use Market Price Toggle */}
 			{onUseMarketPrice && (
-				<div className="flex items-center gap-3 p-4 bg-gradient-to-r from-primary-50 to-primary-100/50 dark:from-primary-900/20 dark:to-primary-800/20 rounded-xl border border-primary-200 dark:border-primary-800">
-					<input
-						type="checkbox"
-						id={`use-market-price-${type}`}
-						checked={useMarketPrice}
-						onChange={handleUseMarketPriceToggle}
-						disabled={disabled || isLoadingMarketPrice}
-						className="w-5 h-5 text-primary-600 bg-white dark:bg-slate-700 border-2 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-primary-500 focus:ring-offset-0 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 transition-all"
-					/>
-					<label
-						htmlFor={`use-market-price-${type}`}
-						className={`flex-1 text-sm font-medium text-slate-700 dark:text-slate-300 ${
-							disabled || isLoadingMarketPrice
-								? 'cursor-not-allowed opacity-50'
-								: 'cursor-pointer'
-						}`}
-					>
-						Use current market price
-						{marketPrice && (
-							<span className="ml-2 text-xs text-slate-500 dark:text-slate-400">
-								({formatCurrency(marketPrice, preferredCurrency)}/g)
-							</span>
+				<div className="p-4 bg-gradient-to-r from-primary-50 to-primary-100/50 dark:from-primary-900/20 dark:to-primary-800/20 rounded-xl border border-primary-200 dark:border-primary-800">
+					<div className="flex items-center gap-3">
+						<Checkbox
+							checked={useMarketPrice}
+							onChange={handleUseMarketPriceToggle}
+							disabled={disabled || isLoadingMarketPrice}
+							label={
+								<>
+									Use current market price
+									{marketPrice && (
+										<span className="ml-2 text-xs text-slate-500 dark:text-slate-400">
+											({formatCurrency(marketPrice, preferredCurrency)}/g)
+										</span>
+									)}
+								</>
+							}
+						/>
+						{isLoadingMarketPrice && (
+							<div className="w-4 h-4 border-2 border-primary-600 border-t-transparent rounded-full animate-spin" />
 						)}
-					</label>
-					{isLoadingMarketPrice && (
-						<div className="w-4 h-4 border-2 border-primary-600 border-t-transparent rounded-full animate-spin" />
-					)}
+					</div>
 				</div>
 			)}
 

@@ -20,7 +20,7 @@ export default function Avatar({
 	isVerified = false,
 	isAdmin = false,
 	className = '',
-	showBadge = true,
+	showBadge = false,
 }: AvatarProps) {
 	const getInitials = (first: string, last: string) => {
 		return `${first?.[0]?.toUpperCase() || ''}${last?.[0]?.toUpperCase() || ''}`.trim() || 'U';
@@ -68,10 +68,10 @@ export default function Avatar({
 	let BadgeIcon: React.ComponentType<{ className?: string }> | null = null;
 
 	if (isAdmin) {
-		badgeBgColor = 'bg-gradient-to-br from-amber-500 to-amber-600';
+		badgeBgColor = 'bg-gradient-to-br from-amber-500 via-amber-600 to-amber-700';
 		BadgeIcon = ShieldCheckIcon;
 	} else if (isVerified) {
-		badgeBgColor = 'bg-primary-600';
+		badgeBgColor = 'bg-gradient-to-br from-primary-500 via-primary-600 to-primary-700';
 		BadgeIcon = CheckBadgeIcon;
 	}
 
@@ -81,11 +81,11 @@ export default function Avatar({
 				<img
 					src={avatarUrl}
 					alt={`${firstName} ${lastName}`}
-					className={`${avatarSize} rounded-full object-cover`}
+					className={`${avatarSize} rounded-full object-cover ring-2 ring-slate-200 dark:ring-slate-700 shadow-sm`}
 				/>
 			) : (
-				<div className={`${avatarSize} rounded-full bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center`}>
-					<span className="text-white font-semibold text-xs">
+				<div className={`${avatarSize} rounded-full bg-gradient-to-br from-primary-500 via-primary-600 to-primary-700 flex items-center justify-center shadow-md shadow-primary-500/30 dark:shadow-primary-600/30`}>
+					<span className="text-white font-bold text-xs">
 						{getInitials(firstName, lastName)}
 					</span>
 				</div>
@@ -93,7 +93,7 @@ export default function Avatar({
 			{/* Badge */}
 			{showBadge && BadgeIcon && (
 				<div
-					className={`absolute ${badgeSize} ${badgeBgColor} rounded-full flex items-center justify-center ${borderSize} border-white dark:border-slate-800 shadow-sm`}
+					className={`absolute ${badgeSize} ${badgeBgColor} rounded-full flex items-center justify-center ${borderSize} border-white dark:border-slate-800 shadow-lg`}
 				>
 					<BadgeIcon className={`${iconSize} text-white`} />
 				</div>

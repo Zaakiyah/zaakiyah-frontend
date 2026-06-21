@@ -63,5 +63,10 @@ export const notificationService = {
 		const response = await api.get<ApiResponse<UnreadCountResponse>>('/notifications/in-app/unread-count');
 		return response.data;
 	},
+
+	async testPushNotification(): Promise<ApiResponse<{ message: string; deviceCount: number; tokens: string[] }>> {
+		const response = await api.get<ApiResponse<{ message: string; deviceCount: number; tokens: string[] }>>('/notifications/push/test');
+		return response.data;
+	},
 };
 

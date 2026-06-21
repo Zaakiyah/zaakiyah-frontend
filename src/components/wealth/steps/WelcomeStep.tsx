@@ -33,16 +33,19 @@ export default function WelcomeStep({ onNext }: WelcomeStepProps) {
 			className="space-y-6"
 		>
 			{/* Header */}
-			<div className="text-center space-y-3">
+			<div className="text-center space-y-4">
 				<div className="flex justify-center">
-					<div className="w-16 h-16 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center">
-						<SparklesIcon className="w-8 h-8 text-primary-600 dark:text-primary-400" />
+					<div className="relative">
+						<div className="absolute inset-0 bg-gradient-to-br from-primary-500/20 via-secondary-500/20 to-primary-400/10 rounded-full blur-2xl" />
+						<div className="relative w-20 h-20 bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/20 rounded-2xl flex items-center justify-center shadow-lg shadow-primary-500/20 dark:shadow-primary-600/20">
+							<SparklesIcon className="w-10 h-10 text-primary-600 dark:text-primary-400" />
+						</div>
 					</div>
 				</div>
-				<h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+				<h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100">
 					Let's Calculate Your Zakaat
 				</h2>
-				<p className="text-sm text-slate-600 dark:text-slate-400 max-w-md mx-auto">
+				<p className="text-sm text-slate-600 dark:text-slate-400 max-w-md mx-auto leading-relaxed">
 					Determine if your wealth meets the nisaab threshold and calculate your Zakaat
 					obligation. This process takes about 5-10 minutes.
 				</p>
@@ -55,13 +58,13 @@ export default function WelcomeStep({ onNext }: WelcomeStepProps) {
 					return (
 						<motion.div
 							key={feature.title}
-							initial={{ opacity: 0, x: -20 }}
-							animate={{ opacity: 1, x: 0 }}
-							transition={{ duration: 0.3, delay: index * 0.1 }}
-							className="flex items-start gap-4 p-4 bg-slate-50 dark:bg-slate-700/50 rounded-xl"
+							initial={{ opacity: 0, x: -20, scale: 0.95 }}
+							animate={{ opacity: 1, x: 0, scale: 1 }}
+							transition={{ duration: 0.3, delay: index * 0.1, type: 'spring', stiffness: 100 }}
+							className="flex items-start gap-4 p-4 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-700/50 dark:to-slate-800/50 rounded-xl shadow-sm"
 						>
-							<div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center shrink-0">
-								<Icon className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+							<div className="w-12 h-12 bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/20 rounded-xl flex items-center justify-center shrink-0 shadow-sm">
+								<Icon className="w-6 h-6 text-primary-600 dark:text-primary-400" />
 							</div>
 							<div className="flex-1">
 								<h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-1">
@@ -81,9 +84,9 @@ export default function WelcomeStep({ onNext }: WelcomeStepProps) {
 				initial={{ opacity: 0, y: 10 }}
 				animate={{ opacity: 1, y: 0 }}
 				transition={{ delay: 0.4 }}
-				className="relative overflow-hidden bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 dark:from-emerald-900/30 dark:via-green-900/20 dark:to-teal-900/30 rounded-2xl p-5 border border-emerald-200/50 dark:border-emerald-800/50 shadow-sm"
+				className="relative overflow-hidden bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 dark:from-emerald-900/30 dark:via-green-900/20 dark:to-teal-900/30 rounded-2xl p-5 border-2 border-emerald-200/50 dark:border-emerald-800/50 shadow-lg"
 			>
-				<div className="absolute top-0 right-0 w-32 h-32 bg-emerald-200/20 dark:bg-emerald-800/20 rounded-full blur-3xl -mr-16 -mt-16" />
+				<div className="absolute top-0 right-0 w-40 h-40 bg-emerald-200/20 dark:bg-emerald-800/20 rounded-full blur-3xl -mr-20 -mt-20" />
 				<div className="relative">
 					<div className="flex items-start gap-3 mb-3">
 						<div className="flex-shrink-0 w-10 h-10 bg-emerald-500/10 dark:bg-emerald-400/20 rounded-xl flex items-center justify-center">
@@ -115,9 +118,9 @@ export default function WelcomeStep({ onNext }: WelcomeStepProps) {
 				initial={{ opacity: 0, y: 10 }}
 				animate={{ opacity: 1, y: 0 }}
 				transition={{ delay: 0.5 }}
-				className="relative overflow-hidden bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-2xl p-5 border border-blue-200/50 dark:border-blue-800/50 shadow-sm"
+				className="relative overflow-hidden bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-2xl p-5 border-2 border-blue-200/50 dark:border-blue-800/50 shadow-lg"
 			>
-				<div className="absolute top-0 right-0 w-24 h-24 bg-blue-200/20 dark:bg-blue-800/20 rounded-full blur-2xl -mr-12 -mt-12" />
+				<div className="absolute top-0 right-0 w-32 h-32 bg-blue-200/20 dark:bg-blue-800/20 rounded-full blur-2xl -mr-16 -mt-16" />
 				<div className="relative flex items-start gap-3">
 					<div className="flex-shrink-0 w-10 h-10 bg-blue-500/10 dark:bg-blue-400/20 rounded-xl flex items-center justify-center text-xl">
 						💡

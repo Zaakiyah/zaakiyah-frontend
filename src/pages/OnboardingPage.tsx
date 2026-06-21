@@ -90,7 +90,7 @@ export default function OnboardingPage() {
 	const isFirstSlide = currentSlide === 0;
 
 	return (
-		<div className="h-screen-vh bg-gradient-to-br from-slate-50 via-white to-slate-100 relative overflow-hidden">
+		<div className="h-screen-vh bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 relative overflow-hidden">
 			{/* Skip Button - Only show after first slide */}
 			{!isExiting && !isFirstSlide && (
 				<motion.button
@@ -98,7 +98,7 @@ export default function OnboardingPage() {
 					animate={{ opacity: 1 }}
 					transition={{ delay: 0.5 }}
 					onClick={handleSkip}
-					className="absolute top-4 right-4 z-50 p-2 text-slate-500 hover:text-slate-700 transition-colors"
+					className="absolute top-4 right-4 z-50 p-2.5 rounded-xl text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
 					aria-label="Skip onboarding"
 				>
 					<XMarkIcon className="w-6 h-6" />
@@ -211,28 +211,28 @@ export default function OnboardingPage() {
 					)}
 				</AnimatePresence>
 
-				{/* Progress Dots */}
-				{!isFirstSlide && (
-					<motion.div
-						initial={{ opacity: 0 }}
-						animate={{ opacity: 1 }}
-						transition={{ delay: 0.6 }}
-						className="flex gap-2 mt-8 mb-4"
-					>
-						{slides.map((_, index) => (
-							<button
-								key={index}
-								onClick={() => setCurrentSlide(index)}
-								className={`transition-all duration-300 rounded-full ${
-									index === currentSlide
-										? 'w-8 h-2 bg-primary-600'
-										: 'w-2 h-2 bg-slate-300 hover:bg-slate-400'
-								}`}
-								aria-label={`Go to slide ${index + 1}`}
-							/>
-						))}
-					</motion.div>
-				)}
+					{/* Progress Dots */}
+					{!isFirstSlide && (
+						<motion.div
+							initial={{ opacity: 0 }}
+							animate={{ opacity: 1 }}
+							transition={{ delay: 0.6 }}
+							className="flex gap-2 mt-8 mb-4"
+						>
+							{slides.map((_, index) => (
+								<button
+									key={index}
+									onClick={() => setCurrentSlide(index)}
+									className={`transition-all duration-300 rounded-full ${
+										index === currentSlide
+											? 'w-8 h-2 bg-gradient-to-r from-primary-500 via-primary-600 to-primary-700 shadow-sm'
+											: 'w-2 h-2 bg-slate-300 dark:bg-slate-600 hover:bg-slate-400 dark:hover:bg-slate-500'
+									}`}
+									aria-label={`Go to slide ${index + 1}`}
+								/>
+							))}
+						</motion.div>
+					)}
 
 				{/* Action Buttons */}
 				<motion.div
@@ -272,7 +272,7 @@ export default function OnboardingPage() {
 							{!isFirstSlide && (
 								<button
 									onClick={handleSkip}
-									className="w-full text-sm text-slate-500 hover:text-slate-700 transition-colors py-2"
+									className="w-full text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors py-2"
 								>
 									Skip
 								</button>

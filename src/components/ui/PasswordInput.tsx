@@ -80,7 +80,7 @@ const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
 		return (
 			<div className="w-full">
 				{label && (
-					<label className="block text-sm font-medium text-slate-900 dark:text-slate-100 mb-2">
+					<label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
 						{label}
 					</label>
 				)}
@@ -90,18 +90,20 @@ const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
 						type={showPassword ? 'text' : 'password'}
 						onChange={handleChange}
 						className={`
-							w-full px-5 py-3 
+							w-full px-4 py-3 
 							rounded-xl border-2 transition-all duration-200
-							text-sm
-							focus:outline-none focus:ring-2 focus:ring-offset-0
+							text-sm font-medium
+							focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:focus:ring-primary-400/20 focus:border-primary-500 dark:focus:border-primary-400
+							focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/20 dark:focus-visible:ring-primary-400/20 focus-visible:border-primary-500 dark:focus-visible:border-primary-400
 							placeholder:text-slate-400 dark:placeholder:text-slate-500
 							bg-white dark:bg-slate-800
 							text-slate-900 dark:text-slate-100
 							pr-12
+							shadow-sm hover:shadow-md focus:shadow-lg
 							${
 								error
-									? 'border-error-300 dark:border-error-600 focus:border-error-500 dark:focus:border-error-500 focus:ring-error-500/20'
-									: 'border-slate-200 dark:border-slate-700 focus:border-primary-500 dark:focus:border-primary-400 focus:ring-primary-500/20 dark:focus:ring-primary-400/20'
+									? 'border-red-500 dark:border-red-500 focus:border-red-500 dark:focus:border-red-500 focus:ring-red-500/20 focus-visible:border-red-500 dark:focus-visible:border-red-500 focus-visible:ring-red-500/20'
+									: 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
 							}
 							${className}
 						`}
@@ -110,7 +112,7 @@ const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
 					<button
 						type="button"
 						onClick={() => setShowPassword(!showPassword)}
-						className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 focus:outline-none"
+						className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 focus:outline-none p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
 						tabIndex={-1}
 					>
 						{showPassword ? (

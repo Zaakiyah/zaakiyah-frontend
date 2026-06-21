@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { twoFactorService, TwoFactorMethod } from '../services/twoFactorService';
-import BottomNavigation from '../components/layout/BottomNavigation';
 import PageHeader from '../components/layout/PageHeader';
 import { useTheme } from '../hooks/useTheme';
 import { alert } from '../store/alertStore';
@@ -19,10 +18,13 @@ import {
 	LockClosedIcon,
 	KeyIcon,
 	TrashIcon,
+	DocumentTextIcon,
 } from '@heroicons/react/24/outline';
+import { useNavigate } from 'react-router-dom';
 
 export default function SecurityPage() {
 	useTheme();
+	const navigate = useNavigate();
 	const [isEmailSetupOpen, setIsEmailSetupOpen] = useState(false);
 	const [isTOTPSetupOpen, setIsTOTPSetupOpen] = useState(false);
 	const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
@@ -99,22 +101,28 @@ export default function SecurityPage() {
 	};
 
 	return (
-		<div className="min-h-screen bg-slate-50 dark:bg-slate-900 pb-20">
+		<div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 pb-20">
 			<PageHeader title="Security & Privacy" showBack />
 
 			<main className="px-4 py-4 space-y-4">
 				{/* Change Password Section */}
 				<motion.div
-					initial={{ opacity: 0, y: 20 }}
-					animate={{ opacity: 1, y: 0 }}
-					className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-slate-200/60 dark:border-slate-700/60"
+					initial={{ opacity: 0, y: 20, scale: 0.95 }}
+					animate={{ opacity: 1, y: 0, scale: 1 }}
+					transition={{ type: 'spring', stiffness: 100 }}
+					className="relative bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl p-5 shadow-lg border-2 border-slate-200/60 dark:border-slate-700/60 overflow-hidden"
 				>
-					<div className="flex items-start gap-3 mb-4">
-						<div className="w-10 h-10 bg-slate-100 dark:bg-slate-700 rounded-lg flex items-center justify-center shrink-0">
-							<KeyIcon className="w-5 h-5 text-slate-600 dark:text-slate-300" />
+					{/* Decorative gradient overlay */}
+					<div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-slate-500/5 via-slate-400/5 to-slate-300/5 rounded-full blur-2xl -z-0" />
+
+					<div className="flex items-start gap-3 mb-4 relative z-10">
+						<div className="w-12 h-12 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 rounded-xl flex items-center justify-center shrink-0 shadow-sm">
+							<KeyIcon className="w-6 h-6 text-slate-600 dark:text-slate-300" />
 						</div>
 						<div className="flex-1">
-							<h2 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-1">Change Password</h2>
+							<h2 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-1">
+								Change Password
+							</h2>
 							<p className="text-xs text-slate-600 dark:text-slate-400">
 								Update your account password to keep it secure
 							</p>
@@ -132,14 +140,17 @@ export default function SecurityPage() {
 
 				{/* Two-Factor Authentication Section */}
 				<motion.div
-					initial={{ opacity: 0, y: 20 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ delay: 0.1 }}
-					className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-slate-200/60 dark:border-slate-700/60"
+					initial={{ opacity: 0, y: 20, scale: 0.95 }}
+					animate={{ opacity: 1, y: 0, scale: 1 }}
+					transition={{ delay: 0.1, type: 'spring', stiffness: 100 }}
+					className="relative bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl p-5 shadow-lg border-2 border-slate-200/60 dark:border-slate-700/60 overflow-hidden"
 				>
-					<div className="flex items-start gap-3 mb-4">
-						<div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center shrink-0">
-							<ShieldCheckIcon className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+					{/* Decorative gradient overlay */}
+					<div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary-500/5 via-secondary-500/5 to-primary-400/5 rounded-full blur-2xl -z-0" />
+
+					<div className="flex items-start gap-3 mb-4 relative z-10">
+						<div className="w-12 h-12 bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/20 rounded-xl flex items-center justify-center shrink-0 shadow-sm">
+							<ShieldCheckIcon className="w-6 h-6 text-primary-600 dark:text-primary-400" />
 						</div>
 						<div className="flex-1">
 							<h2 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-1">
@@ -159,14 +170,16 @@ export default function SecurityPage() {
 						<>
 							{/* 2FA Status */}
 							{twoFactorStatus?.enabled ? (
-								<div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800/30 mb-4">
-									<div className="flex items-center gap-2">
-										<CheckCircleIcon className="w-5 h-5 text-green-600 dark:text-green-400" />
+								<div className="flex items-center justify-between p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/20 rounded-xl border-2 border-green-200 dark:border-green-800/30 mb-4 shadow-sm relative z-10">
+									<div className="flex items-center gap-3">
+										<div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-200 dark:from-green-900/40 dark:to-emerald-800/30 rounded-xl flex items-center justify-center shadow-sm">
+											<CheckCircleIcon className="w-6 h-6 text-green-600 dark:text-green-400" />
+										</div>
 										<div>
-											<p className="text-sm font-semibold text-green-900 dark:text-green-100">
+											<p className="text-sm font-bold text-green-900 dark:text-green-100">
 												Two-Factor Authentication Enabled
 											</p>
-											<p className="text-xs text-green-700 dark:text-green-400">
+											<p className="text-xs font-medium text-green-700 dark:text-green-400">
 												Method:{' '}
 												{twoFactorStatus.method === TwoFactorMethod.TOTP
 													? 'Authenticator App'
@@ -176,14 +189,16 @@ export default function SecurityPage() {
 									</div>
 								</div>
 							) : (
-								<div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-slate-600 mb-4">
-									<div className="flex items-center gap-2">
-										<XCircleIcon className="w-5 h-5 text-slate-400 dark:text-slate-500" />
+								<div className="flex items-center justify-between p-4 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-700/50 dark:to-slate-800/50 rounded-xl border-2 border-slate-200 dark:border-slate-600 mb-4 shadow-sm relative z-10">
+									<div className="flex items-center gap-3">
+										<div className="w-10 h-10 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 rounded-xl flex items-center justify-center shadow-sm">
+											<XCircleIcon className="w-6 h-6 text-slate-400 dark:text-slate-500" />
+										</div>
 										<div>
-											<p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+											<p className="text-sm font-bold text-slate-900 dark:text-slate-100">
 												Two-Factor Authentication Disabled
 											</p>
-											<p className="text-xs text-slate-600 dark:text-slate-400">
+											<p className="text-xs font-medium text-slate-600 dark:text-slate-400">
 												Your account is less secure
 											</p>
 										</div>
@@ -227,19 +242,57 @@ export default function SecurityPage() {
 				{/* Login Sessions Section */}
 				<LoginSessionsSection />
 
-				{/* Delete Account Section */}
+				{/* Activity Log Section */}
 				<motion.div
-					initial={{ opacity: 0, y: 20 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ delay: 0.2 }}
-					className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-error-200/60 dark:border-error-700/50"
+					initial={{ opacity: 0, y: 20, scale: 0.95 }}
+					animate={{ opacity: 1, y: 0, scale: 1 }}
+					transition={{ delay: 0.15, type: 'spring', stiffness: 100 }}
+					className="relative bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl p-5 shadow-lg border-2 border-slate-200/60 dark:border-slate-700/60 overflow-hidden"
 				>
-					<div className="flex items-start gap-3 mb-4">
-						<div className="w-10 h-10 bg-error-100 dark:bg-error-900/30 rounded-lg flex items-center justify-center shrink-0">
-							<TrashIcon className="w-5 h-5 text-error-600 dark:text-error-400" />
+					{/* Decorative gradient overlay */}
+					<div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/5 via-indigo-500/5 to-blue-400/5 rounded-full blur-2xl -z-0" />
+
+					<div className="flex items-start gap-3 mb-4 relative z-10">
+						<div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-indigo-200 dark:from-blue-900/30 dark:to-indigo-800/20 rounded-xl flex items-center justify-center shrink-0 shadow-sm">
+							<DocumentTextIcon className="w-6 h-6 text-blue-600 dark:text-blue-400" />
 						</div>
 						<div className="flex-1">
-							<h2 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-1">Delete Account</h2>
+							<h2 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-1">
+								Activity Log
+							</h2>
+							<p className="text-xs text-slate-600 dark:text-slate-400">
+								View your recent important activities and security events
+							</p>
+						</div>
+					</div>
+					<Button
+						variant="outline"
+						onClick={() => navigate('/audit-logs')}
+						className="w-full"
+					>
+						<DocumentTextIcon className="w-4 h-4 mr-2" />
+						View Activity Log
+					</Button>
+				</motion.div>
+
+				{/* Delete Account Section */}
+				<motion.div
+					initial={{ opacity: 0, y: 20, scale: 0.95 }}
+					animate={{ opacity: 1, y: 0, scale: 1 }}
+					transition={{ delay: 0.2, type: 'spring', stiffness: 100 }}
+					className="relative bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl p-5 shadow-lg border-2 border-red-200/60 dark:border-red-700/50 overflow-hidden"
+				>
+					{/* Decorative gradient overlay */}
+					<div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-red-500/5 via-rose-500/5 to-red-400/5 rounded-full blur-2xl -z-0" />
+
+					<div className="flex items-start gap-3 mb-4 relative z-10">
+						<div className="w-12 h-12 bg-gradient-to-br from-red-100 to-rose-200 dark:from-red-900/30 dark:to-rose-800/20 rounded-xl flex items-center justify-center shrink-0 shadow-sm">
+							<TrashIcon className="w-6 h-6 text-red-600 dark:text-red-400" />
+						</div>
+						<div className="flex-1">
+							<h2 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-1">
+								Delete Account
+							</h2>
 							<p className="text-xs text-slate-600 dark:text-slate-400">
 								Permanently delete your account and all associated data
 							</p>
@@ -255,8 +308,6 @@ export default function SecurityPage() {
 					</Button>
 				</motion.div>
 			</main>
-
-			<BottomNavigation />
 
 			{/* Change Password Sheet */}
 			<ChangePasswordSheet

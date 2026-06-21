@@ -68,25 +68,28 @@ export default function ResetPasswordPage() {
 
 	if (success) {
 		return (
-			<div className="h-screen-vh bg-slate-50 dark:bg-slate-900 flex items-center justify-center px-4 py-2 overflow-y-auto">
+			<div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 flex items-center justify-center px-4 py-8 overflow-y-auto">
 				<motion.div
-					initial={{ opacity: 0, y: 20 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ duration: 0.3 }}
-					className="w-full max-w-md bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200/60 dark:border-slate-700/60 p-4 sm:p-6 text-center my-auto"
+					initial={{ opacity: 0, y: 20, scale: 0.95 }}
+					animate={{ opacity: 1, y: 0, scale: 1 }}
+					transition={{ type: 'spring', stiffness: 100 }}
+					className="relative w-full max-w-md bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl shadow-xl border-2 border-slate-200/60 dark:border-slate-700/60 p-6 sm:p-8 text-center my-auto overflow-hidden"
 				>
+					{/* Decorative gradient overlay */}
+					<div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-green-500/10 via-emerald-500/10 to-green-400/5 rounded-full blur-3xl -z-0" />
+					
 					<motion.div
 						initial={{ scale: 0 }}
 						animate={{ scale: 1 }}
 						transition={{ type: 'spring', stiffness: 200, delay: 0.2 }}
-						className="mx-auto w-14 h-14 bg-primary-50 dark:bg-primary-900/20 rounded-full flex items-center justify-center mb-4"
+						className="mx-auto w-20 h-20 bg-gradient-to-br from-green-100 to-emerald-200 dark:from-green-900/30 dark:to-emerald-800/20 rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-green-500/20 dark:shadow-green-600/20 relative z-10"
 					>
-						<CheckCircleIcon className="w-8 h-8 text-primary-600 dark:text-primary-400" />
+						<CheckCircleIcon className="w-10 h-10 text-green-600 dark:text-green-400" />
 					</motion.div>
-					<h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">
+					<h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2 relative z-10">
 						Password Reset Successful!
 					</h2>
-					<p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+					<p className="text-sm text-slate-600 dark:text-slate-400 mb-4 leading-relaxed relative z-10">
 						Your password has been reset successfully. Redirecting to login...
 					</p>
 				</motion.div>
@@ -95,22 +98,26 @@ export default function ResetPasswordPage() {
 	}
 
 	return (
-		<div className="h-screen-vh bg-slate-50 dark:bg-slate-900 flex items-center justify-center px-4 py-2 overflow-y-auto">
+		<div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 flex items-center justify-center px-4 py-8 overflow-y-auto">
 			<motion.div
-				initial={{ opacity: 0, y: 20 }}
-				animate={{ opacity: 1, y: 0 }}
-				transition={{ duration: 0.3 }}
-				className="w-full max-w-md bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200/60 dark:border-slate-700/60 p-4 sm:p-6 my-auto"
+				initial={{ opacity: 0, y: 20, scale: 0.95 }}
+				animate={{ opacity: 1, y: 0, scale: 1 }}
+				transition={{ type: 'spring', stiffness: 100 }}
+				className="relative w-full max-w-md bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl shadow-xl border-2 border-slate-200/60 dark:border-slate-700/60 p-6 sm:p-8 my-auto overflow-hidden"
 			>
-				<div className="text-center mb-6">
-					<h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-1.5">
+				{/* Decorative gradient overlay */}
+				<div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-primary-500/10 via-secondary-500/10 to-primary-400/5 rounded-full blur-3xl -z-0" />
+				<div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-secondary-500/10 to-transparent rounded-full blur-2xl -z-0" />
+				
+				<div className="text-center mb-6 relative z-10">
+					<h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">
 						Reset Your Password
 					</h1>
-					<p className="text-sm text-slate-600 dark:text-slate-400">
+					<p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
 						Enter the verification code sent to your email and create a new password.
 					</p>
 					{emailParam && (
-						<p className="text-xs text-primary-600 dark:text-primary-400 mt-2">
+						<p className="text-xs font-medium text-primary-600 dark:text-primary-400 mt-2">
 							Code sent to: <strong>{emailParam}</strong>
 						</p>
 					)}
@@ -120,13 +127,13 @@ export default function ResetPasswordPage() {
 					<motion.div
 						initial={{ opacity: 0, y: -10 }}
 						animate={{ opacity: 1, y: 0 }}
-						className="mb-4 p-3 bg-error-50 dark:bg-error-900/20 border border-error-200 dark:border-error-800/30 rounded-lg"
+						className="mb-4 p-4 bg-gradient-to-r from-red-50 to-red-100 dark:from-red-900/30 dark:to-red-800/20 border-2 border-red-200 dark:border-red-800/30 rounded-xl relative z-10"
 					>
-						<p className="text-sm text-error-600 dark:text-error-400">{error}</p>
+						<p className="text-sm font-medium text-red-600 dark:text-red-400">{error}</p>
 					</motion.div>
 				)}
 
-				<form onSubmit={handleSubmit(handleResetPassword)} className="space-y-4">
+				<form onSubmit={handleSubmit(handleResetPassword)} className="space-y-5 relative z-10">
 					<div>
 						<label className="block text-sm font-medium text-slate-900 dark:text-slate-100 mb-2">
 							Verification Code
@@ -193,11 +200,11 @@ export default function ResetPasswordPage() {
 					</Button>
 				</form>
 
-				<p className="mt-6 text-center text-sm text-slate-600 dark:text-slate-400">
+				<p className="mt-6 text-center text-sm text-slate-600 dark:text-slate-400 relative z-10">
 					Remember your password?{' '}
 					<Link
 						to="/login"
-						className="font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-500 transition-colors"
+						className="font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-500 transition-colors"
 					>
 						Sign in
 					</Link>

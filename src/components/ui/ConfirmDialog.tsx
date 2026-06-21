@@ -50,18 +50,22 @@ export default function ConfirmDialog({
 						initial={{ opacity: 0, scale: 0.95, y: 20 }}
 						animate={{ opacity: 1, scale: 1, y: 0 }}
 						exit={{ opacity: 0, scale: 0.95, y: 20 }}
+						transition={{ type: 'spring', stiffness: 300, damping: 25 }}
 						className="fixed inset-0 z-50 flex items-center justify-center p-4"
 					>
-						<div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full p-6 border border-slate-200 dark:border-slate-700">
+						<div className="relative bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl shadow-2xl max-w-md w-full p-6 border-2 border-slate-200/60 dark:border-slate-700/60 overflow-hidden">
+							{/* Decorative gradient overlay */}
+							<div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary-500/5 to-secondary-500/5 rounded-full blur-2xl -z-0" />
+							
 							{/* Header */}
-							<div className="flex items-start gap-4 mb-4">
+							<div className="flex items-start gap-4 mb-4 relative z-10">
 								<div
-									className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center ${
+									className={`shrink-0 w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg ${
 										variant === 'danger'
-											? 'bg-error-100 dark:bg-error-900/30'
+											? 'bg-gradient-to-br from-red-100 to-red-200 dark:from-red-900/30 dark:to-red-800/20'
 											: variant === 'warning'
-											? 'bg-warning-100 dark:bg-warning-900/30'
-											: 'bg-info-100 dark:bg-info-900/30'
+											? 'bg-gradient-to-br from-yellow-100 to-yellow-200 dark:from-yellow-900/30 dark:to-yellow-800/20'
+											: 'bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/20'
 									}`}
 								>
 									<ExclamationTriangleIcon
@@ -78,18 +82,18 @@ export default function ConfirmDialog({
 									<h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-1">
 										{title}
 									</h3>
-									<p className="text-sm text-slate-600 dark:text-slate-400">{message}</p>
+									<p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{message}</p>
 								</div>
 								<button
 									onClick={onClose}
-									className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors flex-shrink-0"
+									className="p-2 rounded-xl hover:bg-gradient-to-r hover:from-slate-100 hover:to-slate-50 dark:hover:from-slate-700 dark:hover:to-slate-800 transition-all shrink-0"
 								>
 									<XMarkIcon className="w-5 h-5 text-slate-500 dark:text-slate-400" />
 								</button>
 							</div>
 
 							{/* Actions */}
-							<div className="flex gap-3">
+							<div className="flex gap-3 relative z-10">
 								<Button
 									variant="outline"
 									onClick={onClose}

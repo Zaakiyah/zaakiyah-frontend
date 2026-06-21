@@ -4,7 +4,6 @@ import { useTheme } from '../hooks/useTheme';
 import { useAuthStore } from '../store/authStore';
 import { communityService } from '../services/communityService';
 import { logger } from '../utils/logger';
-import BottomNavigation from '../components/layout/BottomNavigation';
 import FollowButton from '../components/community/FollowButton';
 import LoadingSkeleton from '../components/wealth/LoadingSkeleton';
 import EmptyState from '../components/wealth/EmptyState';
@@ -36,19 +35,19 @@ export default function FollowersPage() {
 				const response = await communityService.getFollowers(id, pageNum, 20);
 				if (response.data) {
 					if (append) {
-						setFollowers((prev) => [...prev, ...response.data.data]);
+						setFollowers((prev) => [...prev, ...response.data.items]);
 					} else {
-						setFollowers(response.data.data);
+						setFollowers(response.data.items);
 					}
-					setHasMore(response.data.meta.page < response.data.meta.totalPages);
+					setHasMore(response.data.pagination.currentPage < response.data.pagination.totalPages);
 					
 					// Get member name from first follower's context or fetch separately
-					if (pageNum === 1 && response.data.data.length > 0) {
+					if (pageNum === 1 && response.data.items.length > 0) {
 						// Try to get member name from profile
 						try {
 							const postsResponse = await communityService.getPosts({ userId: id, limit: 1 });
-							if (postsResponse.data && postsResponse.data.data.length > 0) {
-								const member = postsResponse.data.data[0].author;
+							if (postsResponse.data && postsResponse.data.items.length > 0) {
+								const member = postsResponse.data.items[0].author;
 								setMemberName(`${member.firstName} ${member.lastName}`);
 							}
 						} catch (error) {
@@ -94,9 +93,9 @@ export default function FollowersPage() {
 	};
 
 	return (
-		<div className="min-h-screen bg-slate-50 dark:bg-slate-900 pb-20">
+		<div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 pb-20">
 			{/* Header */}
-			<header className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-40">
+			<header className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl border-b-2 border-slate-200/60 dark:border-slate-700/60 sticky top-0 z-40 shadow-lg">
 				<div className="px-4 py-3">
 					<div className="flex items-center gap-3">
 						<button
@@ -132,7 +131,7 @@ export default function FollowersPage() {
 						{followers.map((follower) => (
 							<div
 								key={follower.id}
-								className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4 flex items-center gap-3"
+								className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl border-2 border-slate-200/60 dark:border-slate-700/60 p-4 flex items-center gap-3 shadow-lg"
 							>
 								<button
 									onClick={() => navigate(`/community/members/${follower.id}`)}
@@ -186,9 +185,6 @@ export default function FollowersPage() {
 					</div>
 				)}
 			</main>
-
-			{/* Bottom Navigation */}
-			<BottomNavigation />
 		</div>
 	);
 }

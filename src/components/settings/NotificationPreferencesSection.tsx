@@ -11,6 +11,7 @@ import { useAuthStore } from '../../store/authStore';
 import { alert } from '../../store/alertStore';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
+import Checkbox from '../ui/Checkbox';
 import TimezoneSelector from '../ui/TimezoneSelector';
 import type { NotificationFrequency } from '../../types/wealth.types';
 
@@ -105,7 +106,8 @@ export default function NotificationPreferencesSection() {
 		} catch (error: any) {
 			console.error('Failed to save notification preferences:', error);
 			alert.error(
-				error.response?.data?.message || 'Failed to save notification preferences. Please try again.'
+				error.response?.data?.message ||
+					'Failed to save notification preferences. Please try again.'
 			);
 		} finally {
 			setIsSaving(false);
@@ -216,7 +218,9 @@ export default function NotificationPreferencesSection() {
 						className="p-3 bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-800 rounded-lg"
 					>
 						<p className="text-xs text-primary-800 dark:text-primary-200 mb-2">
-							💡 <strong>Tip:</strong> In-app notifications work best with push notifications enabled. This ensures you receive real-time alerts even when the app is closed.
+							💡 <strong>Tip:</strong> In-app notifications work best with push
+							notifications enabled. This ensures you receive real-time alerts even
+							when the app is closed.
 						</p>
 						<button
 							type="button"
@@ -293,77 +297,36 @@ export default function NotificationPreferencesSection() {
 					What to Notify About
 				</h3>
 				<div className="space-y-2">
-					<label className="flex items-start gap-3 cursor-pointer">
-						<input
-							type="checkbox"
-							checked={notifyRecalculate}
-							onChange={(e) => setNotifyRecalculate(e.target.checked)}
-							className="w-5 h-5 mt-0.5 text-primary-600 bg-white dark:bg-slate-700 border-2 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-primary-500 focus:ring-offset-0 cursor-pointer transition-all flex-shrink-0"
-						/>
-						<span className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-							Remind me to recalculate my wealth
-						</span>
-					</label>
-
-					<label className="flex items-start gap-3 cursor-pointer">
-						<input
-							type="checkbox"
-							checked={notifyZakatDue}
-							onChange={(e) => setNotifyZakatDue(e.target.checked)}
-							className="w-5 h-5 mt-0.5 text-primary-600 bg-white dark:bg-slate-700 border-2 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-primary-500 focus:ring-offset-0 cursor-pointer transition-all flex-shrink-0"
-						/>
-						<span className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-							Notify when Zakaat is due
-						</span>
-					</label>
-
-					<label className="flex items-start gap-3 cursor-pointer">
-						<input
-							type="checkbox"
-							checked={notifyNisaabChange}
-							onChange={(e) => setNotifyNisaabChange(e.target.checked)}
-							className="w-5 h-5 mt-0.5 text-primary-600 bg-white dark:bg-slate-700 border-2 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-primary-500 focus:ring-offset-0 cursor-pointer transition-all flex-shrink-0"
-						/>
-						<span className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-							Notify when Nisaab values change significantly
-						</span>
-					</label>
-
-					<label className="flex items-start gap-3 cursor-pointer">
-						<input
-							type="checkbox"
-							checked={notifySummary}
-							onChange={(e) => setNotifySummary(e.target.checked)}
-							className="w-5 h-5 mt-0.5 text-primary-600 bg-white dark:bg-slate-700 border-2 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-primary-500 focus:ring-offset-0 cursor-pointer transition-all flex-shrink-0"
-						/>
-						<span className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-							Send monthly summary
-						</span>
-					</label>
-
-					<label className="flex items-start gap-3 cursor-pointer">
-						<input
-							type="checkbox"
-							checked={nisaabUpdatesEnabled}
-							onChange={(e) => setNisaabUpdatesEnabled(e.target.checked)}
-							className="w-5 h-5 mt-0.5 text-primary-600 bg-white dark:bg-slate-700 border-2 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-primary-500 focus:ring-offset-0 cursor-pointer transition-all flex-shrink-0"
-						/>
-						<span className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-							Enable daily Nisaab update notifications
-						</span>
-					</label>
-
-					<label className="flex items-start gap-3 cursor-pointer">
-						<input
-							type="checkbox"
-							checked={communityNotifications}
-							onChange={(e) => setCommunityNotifications(e.target.checked)}
-							className="w-5 h-5 mt-0.5 text-primary-600 bg-white dark:bg-slate-700 border-2 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-primary-500 focus:ring-offset-0 cursor-pointer transition-all flex-shrink-0"
-						/>
-						<span className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-							Community notifications (likes, comments, follows)
-						</span>
-					</label>
+					<Checkbox
+						checked={notifyRecalculate}
+						onChange={setNotifyRecalculate}
+						label="Remind me to recalculate my wealth"
+					/>
+					<Checkbox
+						checked={notifyZakatDue}
+						onChange={setNotifyZakatDue}
+						label="Notify when Zakaat is due"
+					/>
+					<Checkbox
+						checked={notifyNisaabChange}
+						onChange={setNotifyNisaabChange}
+						label="Notify when Nisaab values change significantly"
+					/>
+					<Checkbox
+						checked={notifySummary}
+						onChange={setNotifySummary}
+						label="Send monthly summary"
+					/>
+					<Checkbox
+						checked={nisaabUpdatesEnabled}
+						onChange={setNisaabUpdatesEnabled}
+						label="Enable daily Nisaab update notifications"
+					/>
+					<Checkbox
+						checked={communityNotifications}
+						onChange={setCommunityNotifications}
+						label="Community notifications (likes, comments, follows)"
+					/>
 				</div>
 			</div>
 
@@ -420,4 +383,3 @@ export default function NotificationPreferencesSection() {
 		</motion.div>
 	);
 }
-

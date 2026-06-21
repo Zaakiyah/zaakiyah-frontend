@@ -3,13 +3,10 @@ import { communityService } from '../../services/communityService';
 import { logger } from '../../utils/logger';
 import type { Post, PostQueryParams } from '../../types/community.types';
 import PostCard from './PostCard';
+import CommentBottomSheet from './CommentBottomSheet';
 import LoadingSkeleton from '../wealth/LoadingSkeleton';
 import EmptyState from '../wealth/EmptyState';
-import { 
-	RectangleStackIcon, 
-	FireIcon, 
-	VideoCameraIcon 
-} from '@heroicons/react/24/outline';
+import { RectangleStackIcon, FireIcon, VideoCameraIcon } from '@heroicons/react/24/outline';
 
 interface CommunityFeedProps {
 	searchQuery?: string;
@@ -22,6 +19,9 @@ export default function CommunityFeed({ searchQuery = '' }: CommunityFeedProps) 
 	const [page, setPage] = useState(1);
 	const [hasMore, setHasMore] = useState(true);
 	const [filter, setFilter] = useState<'all' | 'trending' | 'videos'>('all');
+	const [showCommentSheet, setShowCommentSheet] = useState(false);
+	const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
+	const [likingPostId, setLikingPostId] = useState<string | null>(null);
 
 	const fetchPosts = useCallback(
 		async (pageNum: number = 1, append: boolean = false) => {
@@ -42,13 +42,15 @@ export default function CommunityFeed({ searchQuery = '' }: CommunityFeedProps) 
 				};
 				const response = await communityService.getPosts(params);
 
-				if (response.data) {
+				if (response.data && response.data.items) {
 					if (append) {
-						setPosts((prev) => [...prev, ...response.data.data]);
+						setPosts((prev) => [...prev, ...(response.data.items || [])]);
 					} else {
-						setPosts(response.data.data);
+						setPosts(response.data.items || []);
 					}
-					setHasMore(response.data.meta.page < response.data.meta.totalPages);
+					setHasMore(
+						response.data.pagination?.currentPage < response.data.pagination?.totalPages
+					);
 				}
 			} catch (error: any) {
 				logger.error('Error fetching posts:', error);
@@ -76,7 +78,9 @@ export default function CommunityFeed({ searchQuery = '' }: CommunityFeedProps) 
 	};
 
 	const handlePostLike = async (postId: string) => {
+		if (likingPostId === postId) return; // Prevent multiple clicks
 		try {
+			setLikingPostId(postId);
 			const response = await communityService.togglePostLike(postId);
 			if (response.data) {
 				setPosts((prev) =>
@@ -95,6 +99,8 @@ export default function CommunityFeed({ searchQuery = '' }: CommunityFeedProps) 
 			}
 		} catch (error: any) {
 			logger.error('Error toggling post like:', error);
+		} finally {
+			setLikingPostId(null);
 		}
 	};
 
@@ -103,9 +109,24 @@ export default function CommunityFeed({ searchQuery = '' }: CommunityFeedProps) 
 	};
 
 	const handlePostUpdated = (updatedPost: Post) => {
-		setPosts((prev) =>
-			prev.map((post) => (post.id === updatedPost.id ? updatedPost : post))
-		);
+		setPosts((prev) => prev.map((post) => (post.id === updatedPost.id ? updatedPost : post)));
+	};
+
+	const handleCommentClick = (postId: string) => {
+		setSelectedPostId(postId);
+		setShowCommentSheet(true);
+	};
+
+	const handleCommentAdded = () => {
+		if (selectedPostId) {
+			setPosts((prev) =>
+				prev.map((post) =>
+					post.id === selectedPostId
+						? { ...post, commentsCount: post.commentsCount + 1 }
+						: post
+				)
+			);
+		}
 	};
 
 	if (loading) {
@@ -127,7 +148,7 @@ export default function CommunityFeed({ searchQuery = '' }: CommunityFeedProps) 
 		);
 	}
 
-	if (posts.length === 0) {
+	if (!posts || posts.length === 0) {
 		return (
 			<div className="space-y-4">
 				{/* Filter buttons */}
@@ -136,8 +157,8 @@ export default function CommunityFeed({ searchQuery = '' }: CommunityFeedProps) 
 						onClick={() => setFilter('all')}
 						className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold whitespace-nowrap rounded-xl transition-all ${
 							filter === 'all'
-								? 'text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/20 shadow-sm'
-								: 'text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/50 border border-slate-200 dark:border-slate-700'
+								? 'text-primary-600 dark:text-primary-400 bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-900/30 shadow-sm'
+								: 'text-slate-600 dark:text-slate-400 bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 hover:from-slate-50 hover:to-slate-100 dark:hover:from-slate-700 dark:hover:to-slate-800 border-2 border-slate-200/60 dark:border-slate-700/60 shadow-sm'
 						}`}
 					>
 						<RectangleStackIcon className="w-4 h-4" />
@@ -147,8 +168,8 @@ export default function CommunityFeed({ searchQuery = '' }: CommunityFeedProps) 
 						onClick={() => setFilter('trending')}
 						className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold whitespace-nowrap rounded-xl transition-all ${
 							filter === 'trending'
-								? 'text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/20 shadow-sm'
-								: 'text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/50 border border-slate-200 dark:border-slate-700'
+								? 'text-primary-600 dark:text-primary-400 bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-900/30 shadow-sm'
+								: 'text-slate-600 dark:text-slate-400 bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 hover:from-slate-50 hover:to-slate-100 dark:hover:from-slate-700 dark:hover:to-slate-800 border-2 border-slate-200/60 dark:border-slate-700/60 shadow-sm'
 						}`}
 					>
 						<FireIcon className="w-4 h-4" />
@@ -158,8 +179,8 @@ export default function CommunityFeed({ searchQuery = '' }: CommunityFeedProps) 
 						onClick={() => setFilter('videos')}
 						className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold whitespace-nowrap rounded-xl transition-all ${
 							filter === 'videos'
-								? 'text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/20 shadow-sm'
-								: 'text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/50 border border-slate-200 dark:border-slate-700'
+								? 'text-primary-600 dark:text-primary-400 bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-900/30 shadow-sm'
+								: 'text-slate-600 dark:text-slate-400 bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 hover:from-slate-50 hover:to-slate-100 dark:hover:from-slate-700 dark:hover:to-slate-800 border-2 border-slate-200/60 dark:border-slate-700/60 shadow-sm'
 						}`}
 					>
 						<VideoCameraIcon className="w-4 h-4" />
@@ -226,9 +247,24 @@ export default function CommunityFeed({ searchQuery = '' }: CommunityFeedProps) 
 						onLike={() => handlePostLike(post.id)}
 						onDeleted={() => handlePostDeleted(post.id)}
 						onUpdated={handlePostUpdated}
+						onCommentClick={() => handleCommentClick(post.id)}
+						isLiking={likingPostId === post.id}
 					/>
 				))}
 			</div>
+
+			{/* Comment Bottom Sheet */}
+			{selectedPostId && (
+				<CommentBottomSheet
+					isOpen={showCommentSheet}
+					onClose={() => {
+						setShowCommentSheet(false);
+						setSelectedPostId(null);
+					}}
+					postId={selectedPostId}
+					onCommentAdded={handleCommentAdded}
+				/>
+			)}
 
 			{/* Load More */}
 			{hasMore && (

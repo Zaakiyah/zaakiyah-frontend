@@ -9,6 +9,7 @@ import ConfirmDialog from '../ui/ConfirmDialog';
 import MediaViewer from './MediaViewer';
 import BottomSheet from '../ui/BottomSheet';
 import Avatar from '../ui/Avatar';
+import PostLikesModal from './PostLikesModal';
 import {
 	HeartIcon,
 	ChatBubbleOvalLeftIcon,
@@ -19,8 +20,9 @@ import {
 	UserPlusIcon,
 	UserMinusIcon,
 	PlayIcon,
+	ShieldCheckIcon,
 } from '@heroicons/react/24/outline';
-import { HeartIcon as HeartIconSolid } from '@heroicons/react/24/solid';
+import { HeartIcon as HeartIconSolid, CheckBadgeIcon } from '@heroicons/react/24/solid';
 import type { Post } from '../../types/community.types';
 
 interface PostCardProps {
@@ -29,6 +31,7 @@ interface PostCardProps {
 	onDeleted: () => void;
 	onUpdated?: (updatedPost: Post) => void;
 	onCommentClick?: () => void;
+	isLiking?: boolean;
 }
 
 export default function PostCard({
@@ -37,6 +40,7 @@ export default function PostCard({
 	onDeleted,
 	onUpdated,
 	onCommentClick,
+	isLiking = false,
 }: PostCardProps) {
 	const navigate = useNavigate();
 	const { user } = useAuthStore();
@@ -45,15 +49,16 @@ export default function PostCard({
 	const [showMenu, setShowMenu] = useState(false);
 	const [showMediaViewer, setShowMediaViewer] = useState(false);
 	const [selectedMediaIndex, setSelectedMediaIndex] = useState(0);
+	const [showLikesModal, setShowLikesModal] = useState(false);
 	const [isTogglingFollow, setIsTogglingFollow] = useState(false);
+	const [visibleLines, setVisibleLines] = useState(2); // Start with 2 lines
 
 	// Check ownership: use isOwner from backend (works for anonymous posts) or fallback to ID comparison
-	const isOwner = post.isOwner ?? (user?.id === post.author.id);
+	const isOwner = post.isOwner ?? user?.id === post.author.id;
 	const MAX_VISIBLE_MEDIA = 4; // Show up to 4 media items in grid
-	
+
 	// Use backend's isFollowing as source of truth (controlled from BE)
 	const userIsFollowing = post.author.isFollowing ?? false;
-
 
 	const handleDelete = async () => {
 		try {
@@ -105,18 +110,18 @@ export default function PostCard({
 		try {
 			const date = new Date(dateString);
 			const months = [
-				'January',
-				'February',
-				'March',
-				'April',
+				'Jan',
+				'Feb',
+				'Mar',
+				'Apr',
 				'May',
-				'June',
-				'July',
-				'August',
-				'September',
-				'October',
-				'November',
-				'December',
+				'Jun',
+				'Jul',
+				'Aug',
+				'Sep',
+				'Oct',
+				'Nov',
+				'Dec',
 			];
 			const month = months[date.getMonth()];
 			const day = date.getDate();
@@ -136,7 +141,6 @@ export default function PostCard({
 		// Allow 5 seconds difference to account for database precision
 		return updatedAt - createdAt > 5000;
 	};
-
 
 	// Render content with clickable hashtags and links
 	const renderContentWithHashtags = (text: string): React.ReactNode => {
@@ -167,26 +171,43 @@ export default function PostCard({
 
 	return (
 		<>
-			<div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4 mb-4 shadow-sm">
+			<div className="relative bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl border-2 border-slate-200/60 dark:border-slate-700/60 p-5 mb-4 shadow-lg overflow-hidden">
+				{/* Decorative gradient overlay */}
+				<div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary-500/5 via-secondary-500/5 to-primary-400/5 rounded-full blur-2xl -z-0" />
 				{/* Header */}
-				<div className="flex items-start gap-3 mb-4">
-					<Avatar
-						avatarUrl={post.author.avatarUrl}
-						firstName={post.author.firstName}
-						lastName={post.author.lastName}
-						size="md"
-						isVerified={post.author.isVerified}
-						isAdmin={post.author.isAdmin}
-					/>
+				<div className="flex items-start gap-3 mb-4 relative z-10">
+					{post.author.isAnonymous ? (
+						<div className="w-9 h-9 rounded-full bg-gradient-to-br from-slate-400 to-slate-600 flex items-center justify-center ring-2 ring-slate-200 dark:ring-slate-700 flex-shrink-0">
+							<span className="text-base font-bold text-white">A</span>
+						</div>
+					) : (
+						<Avatar
+							avatarUrl={post.author.avatarUrl}
+							firstName={post.author.firstName}
+							lastName={post.author.lastName}
+							size="md"
+							isVerified={post.author.isVerified}
+							isAdmin={post.author.isAdmin}
+						/>
+					)}
 					<div className="flex-1 min-w-0">
 						<div className="flex items-start justify-between gap-2">
 							<button
 								onClick={() => navigate(`/community/members/${post.author.id}`)}
 								className="text-left flex-1 min-w-0"
 							>
-								<p className="text-[15px] font-bold text-slate-900 dark:text-slate-50 hover:underline">
-									{post.author.firstName} {post.author.lastName}
-								</p>
+								<div className="flex items-center gap-1.5">
+									<p className="text-[15px] font-bold text-slate-900 dark:text-slate-50 hover:underline">
+										{post.author.firstName} {post.author.lastName}
+									</p>
+									{/* Badges next to name */}
+									{post.author.isAdmin && (
+										<ShieldCheckIcon className="w-4 h-4 text-amber-500 flex-shrink-0" title="Admin" />
+									)}
+									{post.author.isVerified && !post.author.isAdmin && (
+										<CheckBadgeIcon className="w-4 h-4 text-primary-500 flex-shrink-0" title="Verified" />
+									)}
+								</div>
 								<div className="flex items-center gap-1.5 mt-0.5">
 									<p className="text-xs text-slate-500 dark:text-slate-400">
 										{formatTime(post.createdAt)}
@@ -200,45 +221,66 @@ export default function PostCard({
 							</button>
 							{/* Follow button - show when not owner, not following, and not anonymous */}
 							{/* Condition controlled from BE: isFollowing field in post.author */}
-							{user && !isOwner && userIsFollowing === false && !post.author.isAnonymous && (
-								<button
-									onClick={handleToggleFollow}
-									disabled={isTogglingFollow}
-									className="px-3 py-1.5 text-xs font-semibold bg-primary-500 text-white rounded-lg hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors active:scale-95 flex items-center gap-1.5 flex-shrink-0"
-								>
-									<UserPlusIcon className="w-3.5 h-3.5" />
-									Follow
-								</button>
-							)}
+							{user &&
+								!isOwner &&
+								userIsFollowing === false &&
+								!post.author.isAnonymous && (
+									<button
+										onClick={handleToggleFollow}
+										disabled={isTogglingFollow}
+										className="px-3 py-1.5 text-xs font-semibold bg-gradient-to-br from-primary-500 to-primary-600 text-white rounded-xl hover:from-primary-600 hover:to-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95 flex items-center gap-1.5 flex-shrink-0 shadow-sm shadow-primary-500/20"
+									>
+										<UserPlusIcon className="w-3.5 h-3.5" />
+										Follow
+									</button>
+								)}
 						</div>
 					</div>
 					{user && (
 						<button
 							onClick={() => setShowMenu(true)}
-							className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex-shrink-0"
+							className="p-1.5 rounded-xl hover:bg-gradient-to-r hover:from-slate-100 hover:to-slate-50 dark:hover:from-slate-700 dark:hover:to-slate-800 transition-all flex-shrink-0"
 							aria-label="Post options"
 						>
-							<EllipsisHorizontalIcon className="w-5 h-5 text-slate-400 dark:text-slate-500" />
+							<EllipsisHorizontalIcon className="w-6 h-6 text-slate-400 dark:text-slate-500 stroke-[2.5]" />
 						</button>
 					)}
 				</div>
 
 				{/* Content */}
-				{post.content && (
-					<div className="mb-3">
-						<div className="text-[15px] leading-relaxed text-slate-900 dark:text-slate-100 line-clamp-2">
-							{renderContentWithHashtags(post.content)}
-						</div>
-						{(post.content.split('\n').length > 2 || post.content.length > 120) && (
-							<button
+				{post.content && (() => {
+					const contentLines = post.content.split('\n');
+					const totalLines = contentLines.length;
+					const needsTruncation = totalLines > 2 || post.content.length > 120;
+					const hasMoreContent = visibleLines < totalLines;
+					const visibleContent = hasMoreContent 
+						? contentLines.slice(0, visibleLines).join('\n')
+						: post.content;
+					
+					return (
+						<div className="mb-3 relative z-10">
+							<div
 								onClick={() => navigate(`/community/posts/${post.id}`)}
-								className="text-primary-600 dark:text-primary-400 text-sm font-medium hover:underline mt-1"
+								className="text-[15px] leading-relaxed text-slate-900 dark:text-slate-100 cursor-pointer"
 							>
-								... more
-							</button>
-						)}
-					</div>
-				)}
+								{renderContentWithHashtags(visibleContent)}
+							</div>
+							{needsTruncation && hasMoreContent && (
+								<button
+									onClick={(e) => {
+										e.stopPropagation();
+										// Show 4 more lines each time, or all if less than 4 remain
+										const nextLines = Math.min(visibleLines + 4, totalLines);
+										setVisibleLines(nextLines);
+									}}
+									className="text-primary-600 dark:text-primary-400 text-sm font-medium hover:underline mt-1 inline-block"
+								>
+									... more
+								</button>
+							)}
+						</div>
+					);
+				})()}
 
 				{/* Media Grid */}
 				{post.mediaUrls && post.mediaUrls.length > 0 && (
@@ -253,19 +295,31 @@ export default function PostCard({
 								const remainingCount = post.mediaUrls!.length - MAX_VISIBLE_MEDIA;
 								const showMoreIndicator =
 									index === MAX_VISIBLE_MEDIA - 1 && remainingCount > 0;
-								const mediaCount = Math.min(post.mediaUrls?.length || 0, MAX_VISIBLE_MEDIA);
+								const mediaCount = Math.min(
+									post.mediaUrls?.length || 0,
+									MAX_VISIBLE_MEDIA
+								);
 
 								return (
-									<div
-										key={index}
-										className={`relative ${getMediaItemClass(mediaCount, index)} cursor-pointer group overflow-hidden bg-slate-100 dark:bg-slate-700`}
-										onClick={() => handleMediaClick(index)}
-									>
+								<div
+									key={index}
+									className={`relative ${getMediaItemClass(
+										mediaCount,
+										index
+									)} cursor-pointer group overflow-hidden bg-slate-100 dark:bg-slate-700`}
+									onClick={(e) => {
+										e.preventDefault();
+										e.stopPropagation();
+										handleMediaClick(index);
+									}}
+								>
 										{isVideo ? (
 											<>
 												<video
 													src={url}
-													className={`w-full ${mediaCount === 1 ? 'h-auto' : 'h-full'} object-cover group-hover:scale-105 transition-transform duration-200`}
+													className={`w-full ${
+														mediaCount === 1 ? 'h-auto' : 'h-full'
+													} object-cover group-hover:scale-105 transition-transform duration-200`}
 													preload="metadata"
 													muted
 												/>
@@ -279,7 +333,9 @@ export default function PostCard({
 											<img
 												src={url}
 												alt={`Post media ${index + 1}`}
-												className={`w-full ${mediaCount === 1 ? 'h-auto' : 'h-full'} object-cover group-hover:scale-105 transition-transform duration-200`}
+												className={`w-full ${
+													mediaCount === 1 ? 'h-auto' : 'h-full'
+												} object-cover group-hover:scale-105 transition-transform duration-200`}
 												loading="lazy"
 											/>
 										)}
@@ -298,21 +354,43 @@ export default function PostCard({
 				)}
 
 				{/* Actions */}
-				<div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800">
+				<div className="flex items-center justify-between pt-3 border-t-2 border-slate-200/60 dark:border-slate-700/60 relative z-10">
 					<div className="flex items-center gap-6">
-						<button
-							onClick={onLike}
-							className="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-all active:scale-95"
-						>
-							{post.isLiked ? (
-								<HeartIconSolid className="w-5 h-5 text-red-500" />
+						<div className="flex items-center gap-2">
+							<button
+								onClick={onLike}
+								disabled={isLiking}
+								className="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+							>
+								{isLiking ? (
+									<div className="w-5 h-5 border-2 border-red-500 border-t-transparent rounded-full animate-spin" />
+								) : post.isLiked ? (
+									<HeartIconSolid className="w-5 h-5 text-red-500" />
+								) : (
+									<HeartIcon className="w-5 h-5" />
+								)}
+							</button>
+							{post.likesCount > 0 ? (
+								<button
+									onClick={(e) => {
+										e.preventDefault();
+										e.stopPropagation();
+										setShowLikesModal(true);
+									}}
+									className="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+								>
+									{post.likesCount}
+								</button>
 							) : (
-								<HeartIcon className="w-5 h-5" />
+								<span className="text-sm font-medium text-slate-600 dark:text-slate-400">
+									{post.likesCount}
+								</span>
 							)}
-							<span className="text-sm font-medium">{post.likesCount}</span>
-						</button>
+						</div>
 						<button
-							onClick={() => {
+							onClick={(e) => {
+								e.preventDefault();
+								e.stopPropagation();
 								if (onCommentClick) {
 									onCommentClick();
 								} else {
@@ -374,12 +452,8 @@ export default function PostCard({
 			)}
 
 			{/* Post Actions Bottom Sheet */}
-			<BottomSheet
-				isOpen={showMenu}
-				onClose={() => setShowMenu(false)}
-				title="Post Options"
-			>
-				<div className="space-y-1">
+			<BottomSheet isOpen={showMenu} onClose={() => setShowMenu(false)} title="Post Options">
+				<div className="space-y-2">
 					{isOwner ? (
 						<>
 							<button
@@ -387,20 +461,24 @@ export default function PostCard({
 									setShowMenu(false);
 									navigate(`/community/posts/${post.id}/edit`);
 								}}
-								className="w-full px-4 py-3 text-left text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded-lg flex items-center gap-3 transition-colors active:scale-95"
+								className="w-full px-4 py-3.5 text-left text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-gradient-to-br hover:from-primary-50 hover:to-primary-100 dark:hover:from-primary-900/30 dark:hover:to-primary-800/20 rounded-xl flex items-center gap-3 transition-all active:scale-95 group"
 							>
-								<PencilIcon className="w-5 h-5" />
-								Edit Post
+								<div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/40 dark:to-primary-800/30 group-hover:scale-110 transition-transform">
+									<PencilIcon className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+								</div>
+								<span>Edit Post</span>
 							</button>
 							<button
 								onClick={() => {
 									setShowMenu(false);
 									setShowDeleteDialog(true);
 								}}
-								className="w-full px-4 py-3 text-left text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg flex items-center gap-3 transition-colors active:scale-95"
+								className="w-full px-4 py-3.5 text-left text-sm font-semibold text-red-600 dark:text-red-400 hover:bg-gradient-to-br hover:from-red-50 hover:to-red-100 dark:hover:from-red-900/30 dark:hover:to-red-800/20 rounded-xl flex items-center gap-3 transition-all active:scale-95 group"
 							>
-								<TrashIcon className="w-5 h-5" />
-								Delete Post
+								<div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-red-100 to-red-200 dark:from-red-900/40 dark:to-red-800/30 group-hover:scale-110 transition-transform">
+									<TrashIcon className="w-5 h-5 text-red-600 dark:text-red-400" />
+								</div>
+								<span>Delete Post</span>
 							</button>
 						</>
 					) : (
@@ -409,10 +487,12 @@ export default function PostCard({
 							<button
 								onClick={handleToggleFollow}
 								disabled={isTogglingFollow}
-								className="w-full px-4 py-3 text-left text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded-lg flex items-center gap-3 transition-colors disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
+								className="w-full px-4 py-3.5 text-left text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-gradient-to-br hover:from-slate-50 hover:to-slate-100 dark:hover:from-slate-700 dark:hover:to-slate-800 rounded-xl flex items-center gap-3 transition-all disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 group"
 							>
-								<UserMinusIcon className="w-5 h-5" />
-								Unfollow {post.author.firstName}
+								<div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 group-hover:scale-110 transition-transform">
+									<UserMinusIcon className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+								</div>
+								<span>Unfollow {post.author.firstName}</span>
 							</button>
 						)
 					)}
@@ -424,7 +504,11 @@ export default function PostCard({
 							if (navigator.share) {
 								navigator
 									.share({
-										title: `Post by ${post.author.isAnonymous ? 'Anonymous' : `${post.author.firstName} ${post.author.lastName}`}`,
+										title: `Post by ${
+											post.author.isAnonymous
+												? 'Anonymous'
+												: `${post.author.firstName} ${post.author.lastName}`
+										}`,
 										text: post.content?.substring(0, 100) || '',
 										url: postUrl,
 									})
@@ -437,13 +521,23 @@ export default function PostCard({
 								alert.success('Link copied to clipboard');
 							}
 						}}
-						className="w-full px-4 py-3 text-left text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded-lg flex items-center gap-3 transition-colors active:scale-95"
+						className="w-full px-4 py-3.5 text-left text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-gradient-to-br hover:from-primary-50 hover:to-primary-100 dark:hover:from-primary-900/30 dark:hover:to-primary-800/20 rounded-xl flex items-center gap-3 transition-all active:scale-95 group"
 					>
-						<ArrowUpTrayIcon className="w-5 h-5" />
-						Share via
+						<div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/40 dark:to-primary-800/30 group-hover:scale-110 transition-transform">
+							<ArrowUpTrayIcon className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+						</div>
+						<span>Share via</span>
 					</button>
 				</div>
 			</BottomSheet>
+
+			{/* Likes Modal */}
+			<PostLikesModal
+				isOpen={showLikesModal}
+				onClose={() => setShowLikesModal(false)}
+				postId={post.id}
+				likesCount={post.likesCount}
+			/>
 		</>
 	);
 }

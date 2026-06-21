@@ -227,7 +227,7 @@ export default function AssetInputStep({ onNext, onBack }: AssetInputStepProps) 
 						<button
 							key={assetType.id}
 							onClick={() => handleAddAsset(assetType.id)}
-							className="flex flex-col items-center gap-2 p-4 bg-slate-50 dark:bg-slate-700/50 rounded-xl border-2 border-slate-200 dark:border-slate-600 hover:border-primary-300 dark:hover:border-primary-700 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-all active:scale-95 touch-manipulation"
+							className="flex flex-col items-center gap-2 p-4 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-700/50 dark:to-slate-800/50 rounded-xl border-2 border-slate-200/60 dark:border-slate-600/60 hover:border-primary-300 dark:hover:border-primary-700 hover:from-primary-50 hover:to-primary-100 dark:hover:from-primary-900/20 dark:hover:to-primary-800/10 transition-all active:scale-95 touch-manipulation shadow-sm hover:shadow-md"
 							aria-label={`Add ${assetType.label} asset`}
 							type="button"
 						>
@@ -256,7 +256,7 @@ export default function AssetInputStep({ onNext, onBack }: AssetInputStepProps) 
 						setEditingCustomAsset(null);
 						setCustomAssetOpen(true);
 					}}
-					className="flex flex-col items-center gap-2 p-4 bg-slate-50 dark:bg-slate-700/50 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-600 hover:border-primary-300 dark:hover:border-primary-700 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-all active:scale-95 touch-manipulation"
+					className="flex flex-col items-center gap-2 p-4 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-700/50 dark:to-slate-800/50 rounded-xl border-2 border-dashed border-slate-300/60 dark:border-slate-600/60 hover:border-primary-300 dark:hover:border-primary-700 hover:from-primary-50 hover:to-primary-100 dark:hover:from-primary-900/20 dark:hover:to-primary-800/10 transition-all active:scale-95 touch-manipulation shadow-sm hover:shadow-md"
 					aria-label="Add custom asset"
 					type="button"
 				>
@@ -271,7 +271,7 @@ export default function AssetInputStep({ onNext, onBack }: AssetInputStepProps) 
 			</div>
 
 			{/* Total Assets Display */}
-			<div className="p-4 bg-primary-50 dark:bg-primary-900/20 rounded-xl border border-primary-200 dark:border-primary-800">
+			<div className="p-4 bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/30 dark:to-primary-800/20 rounded-xl border-2 border-primary-200 dark:border-primary-800 shadow-sm">
 				<div className="flex items-center justify-between">
 					<span className="text-sm font-medium text-slate-700 dark:text-slate-300">
 						Total Assets:
@@ -290,7 +290,7 @@ export default function AssetInputStep({ onNext, onBack }: AssetInputStepProps) 
 							initial={{ opacity: 0, y: -10 }}
 							animate={{ opacity: 1, y: 0 }}
 							exit={{ opacity: 0 }}
-							className="p-3 bg-error-50 dark:bg-error-900/20 rounded-xl border border-error-200 dark:border-error-800"
+							className="p-4 bg-gradient-to-r from-red-50 to-red-100 dark:from-red-900/30 dark:to-red-800/20 rounded-xl border-2 border-red-200 dark:border-red-800 shadow-sm"
 						>
 							<div className="flex items-start gap-2">
 								<ExclamationTriangleIcon className="w-5 h-5 text-error-600 dark:text-error-400 shrink-0 mt-0.5" />

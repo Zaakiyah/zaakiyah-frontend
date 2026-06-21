@@ -93,21 +93,21 @@ export default function SignupProgressSteps({ currentStep }: SignupProgressSteps
 			{/* Mobile: Simple progress bar with step indicator */}
 			<div className="block sm:hidden">
 				<div className="flex items-center justify-between mb-3">
-					<span className="text-xs font-medium text-slate-600">
+					<span className="text-xs font-semibold text-slate-600 dark:text-slate-400">
 						Step {currentStepIndex + 1} of {steps.length}
 					</span>
-					<span className="text-xs font-medium text-primary-600">
+					<span className="text-xs font-bold text-primary-600 dark:text-primary-400">
 						{steps[currentStepIndex].label}
 					</span>
 				</div>
-				<div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+				<div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2.5 overflow-hidden shadow-inner">
 					<motion.div
 						initial={{ width: 0 }}
 						animate={{
 							width: `${((currentStepIndex + 1) / steps.length) * 100}%`,
 						}}
-						transition={{ duration: 0.3, ease: 'easeOut' }}
-						className="h-full bg-primary-500 rounded-full"
+						transition={{ type: 'spring', stiffness: 100, damping: 20 }}
+						className="h-full bg-gradient-to-r from-primary-500 via-primary-600 to-primary-700 rounded-full shadow-sm"
 					/>
 				</div>
 			</div>
@@ -135,17 +135,17 @@ export default function SignupProgressSteps({ currentStep }: SignupProgressSteps
 								<div className="flex flex-col items-center">
 									<motion.div
 										initial={{ scale: 1 }}
-										animate={{ scale: isCurrent ? 1.05 : 1 }}
-										transition={{ duration: 0.2 }}
+										animate={{ scale: isCurrent ? 1.1 : 1 }}
+										transition={{ type: 'spring', stiffness: 200 }}
 										className={`
 											w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 rounded-full flex items-center justify-center
 											transition-all duration-300
 											${
 												isCompleted
-													? 'bg-primary-500 text-white shadow-lg shadow-primary-500/30'
+													? 'bg-gradient-to-br from-primary-500 via-primary-600 to-primary-700 text-white shadow-lg shadow-primary-500/30 dark:shadow-primary-600/30'
 													: isCurrent
-													? 'bg-primary-500 text-white shadow-lg shadow-primary-500/30 ring-4 ring-primary-200'
-													: 'bg-slate-200 text-slate-500'
+													? 'bg-gradient-to-br from-primary-500 via-primary-600 to-primary-700 text-white shadow-lg shadow-primary-500/30 dark:shadow-primary-600/30 ring-4 ring-primary-200 dark:ring-primary-800/30'
+													: 'bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-800 text-slate-500 dark:text-slate-400'
 											}
 										`}
 									>
@@ -161,9 +161,9 @@ export default function SignupProgressSteps({ currentStep }: SignupProgressSteps
 									</motion.div>
 									<span
 										className={`
-											mt-2 text-[10px] md:text-xs lg:text-sm font-medium whitespace-nowrap
+											mt-2 text-[10px] md:text-xs lg:text-sm font-semibold whitespace-nowrap
 											transition-colors duration-300
-											${isCompleted || isCurrent ? 'text-primary-600' : 'text-slate-500'}
+											${isCompleted || isCurrent ? 'text-primary-600 dark:text-primary-400' : 'text-slate-500 dark:text-slate-400'}
 										`}
 									>
 										{step.shortLabel}
@@ -172,8 +172,13 @@ export default function SignupProgressSteps({ currentStep }: SignupProgressSteps
 								{index < steps.length - 1 && (
 									<div
 										className={`
-											w-6 md:w-12 lg:w-16 h-1 mx-1 md:mx-2 rounded-full transition-all duration-500
-											${isCompleted ? 'bg-primary-500' : isCurrent ? 'bg-primary-300' : 'bg-slate-200'}
+											w-6 md:w-12 lg:w-16 h-1.5 mx-1 md:mx-2 rounded-full transition-all duration-500
+											${isCompleted 
+												? 'bg-gradient-to-r from-primary-500 to-primary-600' 
+												: isCurrent 
+												? 'bg-gradient-to-r from-primary-300 to-primary-400' 
+												: 'bg-slate-200 dark:bg-slate-700'
+											}
 										`}
 									/>
 								)}

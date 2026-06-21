@@ -92,6 +92,70 @@ export const wealthCalculationService = {
 	},
 
 	/**
+	 * Calculate wealth publicly (no saving, for guest users)
+	 */
+	async calculatePublic(
+		calculation: Omit<WealthCalculation, 'id' | 'createdAt' | 'updatedAt'>
+	): Promise<ApiResponse<WealthCalculation>> {
+		try {
+			// Helper function to sanitize numeric values
+			const sanitizeNumber = (value: any): number => {
+				const num = typeof value === 'number' ? value : Number(value);
+				return isNaN(num) || num < 0 ? 0 : num;
+			};
+
+			// Sanitize assets: ensure amounts are valid numbers >= 0
+			const sanitizedAssets = calculation.assets.map((asset: any) => ({
+				...asset,
+				amount: sanitizeNumber(asset.amount),
+				convertedAmount:
+					asset.convertedAmount !== undefined
+						? sanitizeNumber(asset.convertedAmount)
+						: undefined,
+				weight: asset.weight !== undefined ? sanitizeNumber(asset.weight) : undefined,
+				pricePerGram:
+					asset.pricePerGram !== undefined
+						? sanitizeNumber(asset.pricePerGram)
+						: undefined,
+				count:
+					asset.count !== undefined
+						? Math.max(0, Math.floor(sanitizeNumber(asset.count)))
+						: undefined,
+			}));
+
+			// Sanitize liabilities: ensure amounts are valid numbers >= 0
+			const sanitizedLiabilities = calculation.liabilities.map((liability: any) => ({
+				...liability,
+				amount: sanitizeNumber(liability.amount),
+				convertedAmount:
+					liability.convertedAmount !== undefined
+						? sanitizeNumber(liability.convertedAmount)
+						: undefined,
+			}));
+
+			const response = await api.post<ApiResponse<WealthCalculation>>(
+				'/wealth/calculate/public',
+				{
+					assets: sanitizedAssets,
+					liabilities: sanitizedLiabilities,
+					nisaabBase: calculation.nisaabBase,
+					name: calculation.name,
+				},
+				{
+					params: {
+						currency: calculation.currency,
+					},
+				}
+			);
+
+			return response.data;
+		} catch (error: any) {
+			logger.error('Error calculating (public):', error);
+			throw error;
+		}
+	},
+
+	/**
 	 * Save calculation with preferences
 	 */
 	async saveCalculation(
@@ -206,27 +270,15 @@ export const wealthCalculationService = {
 		status?: string
 	): Promise<ApiResponse<PaginatedCalculations>> {
 		try {
-			const response = await api.get<ApiResponse<{ data: WealthCalculation[]; meta: any }>>(
+			const response = await api.get<ApiResponse<PaginatedCalculations>>(
 				'/wealth',
 				{
 					params: { page, limit, status },
 				}
 			);
 
-			// Transform response to match PaginatedCalculations format
-			return {
-				message: response.data.message,
-				statusCode: response.data.statusCode,
-				data: {
-					items: response.data.data.data || [],
-					pagination: {
-						totalItems: response.data.data.meta?.total || 0,
-						currentPage: response.data.data.meta?.page || page,
-						itemsPerPage: response.data.data.meta?.limit || limit,
-						totalPages: response.data.data.meta?.totalPages || 0,
-					},
-				},
-			};
+			// Response already uses PaginatedResultDto format (items + pagination)
+			return response.data;
 		} catch (error: any) {
 			logger.error('Error fetching calculations:', error);
 			return {
@@ -240,7 +292,7 @@ export const wealthCalculationService = {
 						itemsPerPage: limit,
 						totalPages: 0,
 					},
-				},
+				} as PaginatedCalculations,
 			};
 		}
 	},

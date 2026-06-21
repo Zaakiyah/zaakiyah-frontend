@@ -14,7 +14,7 @@ export const signupSchema = z
 			.string()
 			.min(8, 'Password must be at least 8 characters')
 			.regex(
-				/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
+				/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])/,
 				'Password must contain uppercase, lowercase, number, and symbol'
 			),
 		confirmPassword: z.string(),
@@ -44,7 +44,7 @@ export const resetPasswordSchema = z
 			.string()
 			.min(6, 'Password must be at least 6 characters')
 			.regex(
-				/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
+				/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])/,
 				'Password must contain uppercase, lowercase, number, and symbol'
 			),
 		confirmPassword: z.string(),
@@ -53,4 +53,3 @@ export const resetPasswordSchema = z
 		message: "Passwords don't match",
 		path: ['confirmPassword'],
 	});
-

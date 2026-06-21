@@ -101,22 +101,25 @@ export default function OAuthCallbackPage() {
 	// Show 2FA verification UI if required
 	if (requires2FA && tempToken) {
 		return (
-			<div className="h-screen-vh bg-slate-50 dark:bg-slate-900 flex items-center justify-center px-4 py-2 overflow-y-auto">
+			<div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 flex items-center justify-center px-4 py-8 overflow-y-auto">
 				<motion.div
-					initial={{ opacity: 0, y: 20 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ duration: 0.3 }}
-					className="w-full max-w-md bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200/60 dark:border-slate-700/60 p-4 sm:p-6 my-auto"
+					initial={{ opacity: 0, y: 20, scale: 0.95 }}
+					animate={{ opacity: 1, y: 0, scale: 1 }}
+					transition={{ type: 'spring', stiffness: 100 }}
+					className="relative w-full max-w-md bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl shadow-xl border-2 border-slate-200/60 dark:border-slate-700/60 p-6 sm:p-8 my-auto overflow-hidden"
 				>
+					{/* Decorative gradient overlay */}
+					<div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-primary-500/10 via-secondary-500/10 to-primary-400/5 rounded-full blur-3xl -z-0" />
+					
 					{/* Header */}
-					<div className="text-center mb-6">
-						<div className="mx-auto w-16 h-16 bg-primary-100 dark:bg-primary-900/20 rounded-full flex items-center justify-center mb-4">
-							<LockClosedIcon className="w-8 h-8 text-primary-600 dark:text-primary-400" />
+					<div className="text-center mb-6 relative z-10">
+						<div className="mx-auto w-20 h-20 bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/20 rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-primary-500/20 dark:shadow-primary-600/20">
+							<LockClosedIcon className="w-10 h-10 text-primary-600 dark:text-primary-400" />
 						</div>
-						<h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-1.5">
+						<h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">
 							Two-Factor Authentication
 						</h1>
-						<p className="text-sm text-slate-600 dark:text-slate-400">
+						<p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
 							{method === TwoFactorMethod.EMAIL
 								? 'We sent a 6-digit code to your email. Please enter it below.'
 								: 'Enter the 6-digit code from your authenticator app.'}
@@ -128,14 +131,14 @@ export default function OAuthCallbackPage() {
 						<motion.div
 							initial={{ opacity: 0, y: -10 }}
 							animate={{ opacity: 1, y: 0 }}
-							className="mb-4 p-3 bg-error-50 dark:bg-error-900/20 border border-error-200 dark:border-error-800/30 rounded-lg"
+							className="mb-4 p-4 bg-gradient-to-r from-red-50 to-red-100 dark:from-red-900/30 dark:to-red-800/20 border-2 border-red-200 dark:border-red-800/30 rounded-xl relative z-10"
 						>
-							<p className="text-sm text-error-600 dark:text-error-400">{error}</p>
+							<p className="text-sm font-medium text-red-600 dark:text-red-400">{error}</p>
 						</motion.div>
 					)}
 
 					{/* 2FA Code Input */}
-					<div className="mb-6">
+					<div className="mb-6 relative z-10">
 						<OtpInput
 							length={6}
 							onComplete={handleVerify2FA}
@@ -152,7 +155,7 @@ export default function OAuthCallbackPage() {
 						size="lg"
 						onClick={handleCancel2FA}
 						disabled={isVerifying2FA}
-						className="w-full flex items-center justify-center gap-2"
+						className="w-full flex items-center justify-center gap-2 relative z-10"
 					>
 						<ArrowLeftIcon className="w-5 h-5" />
 						Back to Login
@@ -164,32 +167,35 @@ export default function OAuthCallbackPage() {
 
 	if (errorParam || (!token && !isLoading && !requires2FA)) {
 		return (
-			<div className="h-screen-vh bg-slate-50 dark:bg-slate-900 flex items-center justify-center px-4 py-2 overflow-y-auto">
+			<div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 flex items-center justify-center px-4 py-8 overflow-y-auto">
 				<motion.div
-					initial={{ opacity: 0, y: 20 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ duration: 0.3 }}
-					className="w-full max-w-md bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200/60 dark:border-slate-700/60 p-4 sm:p-6 text-center my-auto"
+					initial={{ opacity: 0, y: 20, scale: 0.95 }}
+					animate={{ opacity: 1, y: 0, scale: 1 }}
+					transition={{ type: 'spring', stiffness: 100 }}
+					className="relative w-full max-w-md bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl shadow-xl border-2 border-slate-200/60 dark:border-slate-700/60 p-6 sm:p-8 text-center my-auto overflow-hidden"
 				>
+					{/* Decorative gradient overlay */}
+					<div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-red-500/10 via-rose-500/10 to-red-400/5 rounded-full blur-3xl -z-0" />
+					
 					<motion.div
 						initial={{ scale: 0 }}
 						animate={{ scale: 1 }}
 						transition={{ type: 'spring', stiffness: 200, delay: 0.2 }}
-						className="mx-auto w-14 h-14 bg-error-50 dark:bg-error-900/20 rounded-full flex items-center justify-center mb-4"
+						className="mx-auto w-20 h-20 bg-gradient-to-br from-red-100 to-rose-200 dark:from-red-900/30 dark:to-rose-800/20 rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-red-500/20 dark:shadow-red-600/20 relative z-10"
 					>
-						<ExclamationCircleIcon className="w-8 h-8 text-error-600 dark:text-error-400" />
+						<ExclamationCircleIcon className="w-10 h-10 text-red-600 dark:text-red-400" />
 					</motion.div>
-					<h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">
+					<h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2 relative z-10">
 						Authentication Failed
 					</h2>
-					<p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+					<p className="text-sm text-slate-600 dark:text-slate-400 mb-4 leading-relaxed relative z-10">
 						{errorParam === 'access_denied'
 							? 'You cancelled the authentication process.'
 							: errorParam && decodeURIComponent(errorParam) !== 'access_denied'
 								? decodeURIComponent(errorParam)
 								: 'An error occurred during authentication. Please try again.'}
 					</p>
-					<p className="text-xs text-slate-500 dark:text-slate-400">
+					<p className="text-xs text-slate-500 dark:text-slate-400 relative z-10">
 						Redirecting to login page...
 					</p>
 				</motion.div>
@@ -198,27 +204,30 @@ export default function OAuthCallbackPage() {
 	}
 
 	return (
-		<div className="h-screen-vh bg-slate-50 dark:bg-slate-900 flex items-center justify-center px-4 py-2 overflow-y-auto">
+		<div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 flex items-center justify-center px-4 py-8 overflow-y-auto">
 			<motion.div
-				initial={{ opacity: 0, y: 20 }}
-				animate={{ opacity: 1, y: 0 }}
-				transition={{ duration: 0.3 }}
-				className="w-full max-w-md bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200/60 dark:border-slate-700/60 p-6 text-center"
+				initial={{ opacity: 0, y: 20, scale: 0.95 }}
+				animate={{ opacity: 1, y: 0, scale: 1 }}
+				transition={{ type: 'spring', stiffness: 100 }}
+				className="relative w-full max-w-md bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl shadow-xl border-2 border-slate-200/60 dark:border-slate-700/60 p-6 sm:p-8 text-center my-auto overflow-hidden"
 			>
+				{/* Decorative gradient overlay */}
+				<div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-green-500/10 via-emerald-500/10 to-green-400/5 rounded-full blur-3xl -z-0" />
+				
 				<motion.div
 					initial={{ scale: 0 }}
 					animate={{ scale: 1 }}
 					transition={{ type: 'spring', stiffness: 200, delay: 0.2 }}
-					className="mx-auto w-14 h-14 bg-primary-50 dark:bg-primary-900/20 rounded-full flex items-center justify-center mb-4"
+					className="mx-auto w-20 h-20 bg-gradient-to-br from-green-100 to-emerald-200 dark:from-green-900/30 dark:to-emerald-800/20 rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-green-500/20 dark:shadow-green-600/20 relative z-10"
 				>
-					<CheckCircleIcon className="w-8 h-8 text-primary-600 dark:text-primary-400" />
+					<CheckCircleIcon className="w-10 h-10 text-green-600 dark:text-green-400" />
 				</motion.div>
-				<h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">
+				<h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2 relative z-10">
 					Authentication Successful
 				</h2>
-				<p className="text-sm text-slate-600 dark:text-slate-400 mb-4">Completing your login...</p>
-				<div className="flex justify-center">
-					<div className="animate-spin rounded-full h-7 w-7 border-2 border-primary-600 dark:border-primary-400 border-t-transparent"></div>
+				<p className="text-sm text-slate-600 dark:text-slate-400 mb-4 leading-relaxed relative z-10">Completing your login...</p>
+				<div className="flex justify-center relative z-10">
+					<div className="animate-spin rounded-full h-8 w-8 border-2 border-primary-600 dark:border-primary-400 border-t-transparent"></div>
 				</div>
 			</motion.div>
 		</div>
